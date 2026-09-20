@@ -1,6 +1,7 @@
 package com.istarvin.classschedule2.widget
 
 import android.content.Context
+import androidx.core.content.edit
 
 /** Per-widget preferences. Keeping keys scoped by widget ID avoids leaking a removed widget's style. */
 internal object WidgetPreferences {
@@ -31,25 +32,34 @@ internal object WidgetPreferences {
 
     fun save(context: Context, appWidgetId: Int, options: WidgetOptions) {
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(key(appWidgetId, STYLE), options.style.storedValue)
-            .putString(key(appWidgetId, APPEARANCE), options.appearance.storedValue)
-            .putString(key(appWidgetId, COLOR_SOURCE), options.colorSource.storedValue)
-            .putString(key(appWidgetId, TIME_FORMAT), options.timeFormat.storedValue)
-            .putBoolean(key(appWidgetId, SHOW_COUNTDOWN), options.showCountdown)
-            .putBoolean(key(appWidgetId, SHOW_ROOM), options.showRoom)
-            .putBoolean(key(appWidgetId, SHOW_NEXT), options.showNext)
-            .putBoolean(key(appWidgetId, SHOW_PROGRESS), options.showProgress)
-            .apply()
+            .edit {
+                putString(key(appWidgetId, STYLE), options.style.storedValue)
+                    .putString(key(appWidgetId, APPEARANCE), options.appearance.storedValue)
+                    .putString(key(appWidgetId, COLOR_SOURCE), options.colorSource.storedValue)
+                    .putString(key(appWidgetId, TIME_FORMAT), options.timeFormat.storedValue)
+                    .putBoolean(key(appWidgetId, SHOW_COUNTDOWN), options.showCountdown)
+                    .putBoolean(key(appWidgetId, SHOW_ROOM), options.showRoom)
+                    .putBoolean(key(appWidgetId, SHOW_NEXT), options.showNext)
+                    .putBoolean(key(appWidgetId, SHOW_PROGRESS), options.showProgress)
+            }
     }
 
     fun remove(context: Context, appWidgetIds: IntArray) {
-        val editor = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit()
-        appWidgetIds.forEach { id ->
-            listOf(STYLE, APPEARANCE, COLOR_SOURCE, TIME_FORMAT, SHOW_COUNTDOWN, SHOW_ROOM, SHOW_NEXT, SHOW_PROGRESS)
-                .forEach { field -> editor.remove(key(id, field)) }
+        context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+            appWidgetIds.forEach { id ->
+                listOf(
+                    STYLE,
+                    APPEARANCE,
+                    COLOR_SOURCE,
+                    TIME_FORMAT,
+                    SHOW_COUNTDOWN,
+                    SHOW_ROOM,
+                    SHOW_NEXT,
+                    SHOW_PROGRESS
+                )
+                    .forEach { field -> remove(key(id, field)) }
+            }
         }
-        editor.apply()
     }
 
     fun migrate(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {

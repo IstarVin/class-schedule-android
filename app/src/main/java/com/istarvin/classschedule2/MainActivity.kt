@@ -3,7 +3,6 @@ package com.istarvin.classschedule2
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Color
@@ -34,6 +33,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
 import com.istarvin.classschedule2.data.OfflineScheduleHtml
 import com.istarvin.classschedule2.data.ScheduleCache
@@ -43,6 +43,7 @@ import com.istarvin.classschedule2.widget.WidgetConfigurationActivity
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
+import androidx.core.net.toUri
 
 /** A deliberately small native shell around the schedule's trusted web experience. */
 class MainActivity : AppCompatActivity() {
@@ -145,7 +146,7 @@ class MainActivity : AppCompatActivity() {
             setAcceptCookie(true)
             setAcceptThirdPartyCookies(webView, false)
         }
-        webView.setBackgroundColor(Color.parseColor(if (isSystemDark()) DARK_SURFACE else LIGHT_SURFACE))
+        webView.setBackgroundColor((if (isSystemDark()) DARK_SURFACE else LIGHT_SURFACE).toColorInt())
         webView.webViewClient = ScheduleWebViewClient()
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView, newProgress: Int) {
@@ -156,7 +157,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun createContentView(): View {
         return FrameLayout(this).apply {
-            setBackgroundColor(Color.parseColor(if (isSystemDark()) DARK_SURFACE else LIGHT_SURFACE))
+            setBackgroundColor((if (isSystemDark()) DARK_SURFACE else LIGHT_SURFACE).toColorInt())
 
             webView = WebView(this@MainActivity).apply {
                 overScrollMode = View.OVER_SCROLL_NEVER
@@ -171,7 +172,7 @@ class MainActivity : AppCompatActivity() {
 
             loadingIndicator = ProgressBar(this@MainActivity).apply {
                 isIndeterminate = true
-                contentDescription = "Loading schedule"
+                contentDescription = getString(R.string.loading_schedule)
             }
             addView(
                 loadingIndicator,
@@ -190,12 +191,12 @@ class MainActivity : AppCompatActivity() {
                 textSize = 14f
             }
             retryButton = TextView(this@MainActivity).apply {
-                setTextColor(Color.parseColor("#A7F3D0"))
+                setTextColor("#A7F3D0".toColorInt())
                 textSize = 14f
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(0, 12.dp, 0, 0)
-                text = "Try again"
-                contentDescription = "Retry loading the schedule"
+                text = getString(R.string.try_again)
+                contentDescription = getString(R.string.retry_loading_schedule)
                 setOnClickListener { loadScheduleSite(forceNetwork = true) }
             }
             offlineCard.addView(
@@ -225,10 +226,10 @@ class MainActivity : AppCompatActivity() {
 
             // This stays deliberately small: the schedule itself remains the app's UI.
             val overflowButton = TextView(this@MainActivity).apply {
-                text = "⋮"
+                text = getString(R.string.more_options_symbol)
                 textSize = 22f
                 gravity = Gravity.CENTER
-                contentDescription = "Schedule options"
+                contentDescription = getString(R.string.schedule_options)
                 setTextColor(if (isSystemDark()) Color.WHITE else Color.BLACK)
                 background = roundedBackground(if (isSystemDark()) "#331C212A" else "#33FFFFFF")
                 setOnClickListener { showOverflowMenu(this) }
@@ -257,13 +258,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun showCachedScheduleFallback() {
         if (cacheFallbackAttempted) {
-            renderLocalScheduleFallback(
-                "The schedule site is unavailable. Showing the schedule available on this device.",
-            )
+            renderLocalScheduleFallback(getString(R.string.schedule_site_unavailable))
             return
         }
         cacheFallbackAttempted = true
-        showOfflineNotice("You’re offline. Loading the latest website version saved on this device.")
+        showOfflineNotice(getString(R.string.offline_loading_saved_schedule))
         webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
         webView.loadUrl(SCHEDULE_URL)
     }
@@ -307,15 +306,19 @@ class MainActivity : AppCompatActivity() {
                     MENU_REFRESH -> {
                         loadScheduleSite(forceNetwork = true)
                         refreshScheduleData()
-                        Toast.makeText(this@MainActivity, "Refreshing schedule", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this@MainActivity,
+                            R.string.refreshing_schedule,
+                            Toast.LENGTH_SHORT,
+                        ).show()
                     }
 
                     MENU_ADD_WIDGET -> requestWidgetPin()
                     MENU_WIDGET_SETTINGS -> openWidgetSettings()
                     MENU_ABOUT -> AlertDialog.Builder(this@MainActivity)
-                        .setTitle("AJ Schedule")
-                        .setMessage("Your schedule website, with offline data and a glanceable home-screen widget.")
-                        .setPositiveButton("OK", null)
+                        .setTitle(R.string.app_name)
+                        .setMessage(R.string.about_message)
+                        .setPositiveButton(android.R.string.ok, null)
                         .show()
                 }
                 true
@@ -330,7 +333,7 @@ class MainActivity : AppCompatActivity() {
         if (!requested) {
             Toast.makeText(
                 this,
-                "Use your home-screen widget picker to add AJ Schedule.",
+                R.string.use_widget_picker,
                 Toast.LENGTH_LONG,
             ).show()
         }
@@ -384,12 +387,12 @@ class MainActivity : AppCompatActivity() {
         try {
             startActivity(intent)
         } catch (_: Exception) {
-            showOfflineNotice("No app is available to open this link.")
+            showOfflineNotice(getString(R.string.no_app_to_open_link))
         }
     }
 
     private fun isNetworkAvailable(): Boolean {
-        val manager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val manager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = manager.activeNetwork ?: return false
         val capabilities = manager.getNetworkCapabilities(network) ?: return false
         return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
@@ -406,9 +409,6 @@ class MainActivity : AppCompatActivity() {
             Configuration.UI_MODE_NIGHT_YES
 
     private fun applySystemBarAppearance(isDark: Boolean) {
-        val surface = Color.parseColor(if (isDark) DARK_SURFACE else LIGHT_SURFACE)
-        window.statusBarColor = surface
-        window.navigationBarColor = surface
         WindowCompat.getInsetsController(window, window.decorView).apply {
             isAppearanceLightStatusBars = !isDark
             isAppearanceLightNavigationBars = !isDark
@@ -417,7 +417,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun roundedBackground(color: String): GradientDrawable =
         GradientDrawable().apply {
-            setColor(Color.parseColor(color))
+            setColor(color.toColorInt())
             cornerRadius = 20.dp.toFloat()
         }
 
@@ -434,7 +434,7 @@ class MainActivity : AppCompatActivity() {
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             showLoading(false)
-            if (!showingLocalScheduleFallback && isTrustedScheduleUrl(Uri.parse(url)) && isNetworkAvailable()) {
+            if (!showingLocalScheduleFallback && isTrustedScheduleUrl(url.toUri()) && isNetworkAvailable()) {
                 hideOfflineNotice()
             }
         }
@@ -461,7 +461,7 @@ class MainActivity : AppCompatActivity() {
             // Never train users to bypass a certificate warning inside a schedule app.
             handler.cancel()
             renderLocalScheduleFallback(
-                "The schedule site’s secure connection could not be verified. Showing saved data instead.",
+                getString(R.string.ssl_error_saved_data),
             )
         }
     }

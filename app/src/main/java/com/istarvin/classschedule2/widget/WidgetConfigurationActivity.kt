@@ -1,11 +1,10 @@
 package com.istarvin.classschedule2.widget
 
-import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -28,7 +27,7 @@ class WidgetConfigurationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setResult(Activity.RESULT_CANCELED)
+        setResult(RESULT_CANCELED)
         appWidgetId = intent?.getIntExtra(
             AppWidgetManager.EXTRA_APPWIDGET_ID,
             AppWidgetManager.INVALID_APPWIDGET_ID,
@@ -166,7 +165,7 @@ class WidgetConfigurationActivity : AppCompatActivity() {
             )
             WidgetUpdateCoordinator.update(this, intArrayOf(appWidgetId))
             setResult(
-                Activity.RESULT_OK,
+                RESULT_OK,
                 Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId),
             )
             finish()
