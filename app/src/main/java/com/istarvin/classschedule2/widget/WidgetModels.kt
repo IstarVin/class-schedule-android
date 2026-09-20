@@ -1,0 +1,99 @@
+package com.istarvin.classschedule2.widget
+
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.ZonedDateTime
+
+/** A widget-specific view of the shared schedule cache. */
+internal data class ScheduleClass(
+    val day: DayOfWeek,
+    val startMinute: Int,
+    val endMinute: Int,
+    val code: String,
+    val name: String,
+    val room: String,
+)
+
+internal data class ScheduledClass(
+    val scheduleClass: ScheduleClass,
+    val date: LocalDate,
+)
+
+internal enum class WidgetState {
+    CURRENT,
+    UP_NEXT,
+    DONE_FOR_TODAY,
+    NO_CLASSES_TODAY,
+    EMPTY,
+}
+
+internal data class WidgetSnapshot(
+    val now: ZonedDateTime,
+    val today: List<ScheduleClass>,
+    val current: ScheduleClass?,
+    val next: ScheduledClass?,
+    val following: ScheduledClass?,
+    val state: WidgetState,
+    val refreshAt: ZonedDateTime,
+)
+
+internal enum class WidgetLayout {
+    COMPACT,
+    MEDIUM,
+    LARGE,
+}
+
+internal enum class WidgetStyle(val storedValue: String) {
+    AUTOMATIC("automatic"),
+    COMPACT("compact"),
+    MEDIUM("medium"),
+    LARGE("large");
+
+    companion object {
+        fun fromStored(value: String?): WidgetStyle =
+            entries.firstOrNull { it.storedValue == value } ?: AUTOMATIC
+    }
+}
+
+internal enum class WidgetAppearance(val storedValue: String) {
+    SYSTEM("system"),
+    LIGHT("light"),
+    DARK("dark");
+
+    companion object {
+        fun fromStored(value: String?): WidgetAppearance =
+            entries.firstOrNull { it.storedValue == value } ?: SYSTEM
+    }
+}
+
+internal enum class WidgetColorSource(val storedValue: String) {
+    AJ_SCHEDULE("aj_schedule"),
+    MATERIAL_YOU("material_you");
+
+    companion object {
+        fun fromStored(value: String?): WidgetColorSource =
+            entries.firstOrNull { it.storedValue == value } ?: AJ_SCHEDULE
+    }
+}
+
+internal enum class WidgetTimeFormat(val storedValue: String) {
+    SYSTEM("system"),
+    HOUR_12("12_hour"),
+    HOUR_24("24_hour");
+
+    companion object {
+        fun fromStored(value: String?): WidgetTimeFormat =
+            entries.firstOrNull { it.storedValue == value } ?: SYSTEM
+    }
+}
+
+internal data class WidgetOptions(
+    val style: WidgetStyle = WidgetStyle.AUTOMATIC,
+    val appearance: WidgetAppearance = WidgetAppearance.SYSTEM,
+    val colorSource: WidgetColorSource = WidgetColorSource.AJ_SCHEDULE,
+    val timeFormat: WidgetTimeFormat = WidgetTimeFormat.SYSTEM,
+    val showCountdown: Boolean = true,
+    val showRoom: Boolean = true,
+    val showNext: Boolean = true,
+    val showProgress: Boolean = true,
+)

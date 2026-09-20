@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">AJ Schedule</string>
+    <string name="schedule_site_url">https://ajschedule.pages.dev/</string>
+    <string name="schedule_data_url">https://ajschedule.pages.dev/schedule.json</string>
+    <string name="content_description_more_options">More options</string>
+    <string name="content_description_refresh">Refresh schedule</string>
+    <string name="widget_configure">Configure AJ Schedule widget</string>
+    <string name="widget_add">Add widget</string>
+    <string name="widget_cancel">Cancel</string>
+    <string name="widget_style">Widget style</string>
+    <string name="widget_appearance">Appearance</string>
+    <string name="widget_time_format">Time format</string>
+    <string name="widget_show_countdown">Show countdown</string>
+    <string name="widget_show_room">Show room</string>
+    <string name="widget_show_next">Show next class</string>
+    <string name="widget_show_progress">Show progress bar</string>
+</resources>

@@ -1,0 +1,30 @@
+{
+  "subjects": {
+    "ITD112": { "name": "Data Visualization Techniques", "cls": "itd112", "sec": "BC25-4D" },
+    "ITE104": { "name": "Social, Legal & Professional Issues in Computing", "cls": "ite104", "sec": "E25-4" },
+    "ITD111": { "name": "Business Intelligence", "cls": "itd111", "sec": "FG25-4D" },
+    "ENT101": { "name": "Startup Essentials: Innovation-driven Entrepreneurship", "cls": "ent101", "sec": "K25-4" },
+    "ITE183": { "name": "Web Systems and Technologies", "cls": "ite183", "sec": "LM25-4" },
+    "ITE105": { "name": "Information Assurance and Security", "cls": "ite105", "sec": "O25-4" }
+  },
+  "events": [
+    { "day": 1, "start": 570, "end": 630, "code": "ITD112", "room": "TBA" },
+    { "day": 1, "start": 630, "end": 720, "code": "ITD112", "room": "TBA" },
+    { "day": 1, "start": 780, "end": 870, "code": "ITE104", "room": "SCI - 525" },
+    { "day": 1, "start": 870, "end": 960, "code": "ITD111", "room": "TBA" },
+    { "day": 1, "start": 960, "end": 1020, "code": "ITD111", "room": "TBA" },
+    { "day": 2, "start": 630, "end": 720, "code": "ENT101", "room": "TBA" },
+    { "day": 2, "start": 750, "end": 810, "code": "ITE183", "room": "TBA" },
+    { "day": 2, "start": 810, "end": 900, "code": "ITE183", "room": "TBA" },
+    { "day": 2, "start": 930, "end": 1020, "code": "ITE105", "room": "TBA" },
+    { "day": 4, "start": 570, "end": 630, "code": "ITD112", "room": "PL - SC" },
+    { "day": 4, "start": 630, "end": 720, "code": "ITD112", "room": "PL - SC" },
+    { "day": 4, "start": 780, "end": 870, "code": "ITE104", "room": "TBA" },
+    { "day": 4, "start": 870, "end": 960, "code": "ITD111", "room": "PL - SC" },
+    { "day": 4, "start": 960, "end": 1020, "code": "ITD111", "room": "CNSM - 526" },
+    { "day": 5, "start": 630, "end": 720, "code": "ENT101", "room": "PL - SC" },
+    { "day": 5, "start": 750, "end": 810, "code": "ITE183", "room": "PL - SC" },
+    { "day": 5, "start": 810, "end": 900, "code": "ITE183", "room": "PL - SC" },
+    { "day": 5, "start": 960, "end": 1050, "code": "ITE105", "room": "PL - PL1" }
+  ]
+}

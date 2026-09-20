@@ -1,0 +1,57 @@
+<resources>
+    <string name="widget_name">AJ Schedule</string>
+    <string name="widget_description">Your current class, what is next, and today’s schedule.</string>
+    <string name="widget_config_title">Customize widget</string>
+    <string name="widget_config_style">Widget style</string>
+    <string name="widget_config_appearance">Appearance</string>
+    <string name="widget_config_colors">Colors</string>
+    <string name="widget_config_time">Time format</string>
+    <string name="widget_config_add">Add widget</string>
+    <string name="widget_config_preview">AJ Schedule · Preview</string>
+
+    <string-array name="widget_style_entries">
+        <item>Automatic (responsive)</item>
+        <item>Compact · Next class</item>
+        <item>Now + next</item>
+        <item>Today</item>
+    </string-array>
+    <string-array name="widget_appearance_entries">
+        <item>Follow system</item>
+        <item>Light</item>
+        <item>Dark</item>
+    </string-array>
+    <string-array name="widget_color_entries">
+        <item>AJ Schedule</item>
+        <item>Material You</item>
+    </string-array>
+    <string-array name="widget_time_entries">
+        <item>Follow system</item>
+        <item>12-hour</item>
+        <item>24-hour</item>
+    </string-array>
+
+    <color name="widget_surface">#F8F9FC</color>
+    <color name="widget_panel">#EEF2F8</color>
+    <color name="widget_current">#DDEAFB</color>
+    <color name="widget_divider">#D8DEE9</color>
+    <color name="widget_text_primary">#1A1B1F</color>
+    <color name="widget_text_secondary">#70727A</color>
+    <color name="widget_text_muted">#9A9CA4</color>
+    <color name="widget_accent">#476A9B</color>
+
+    <color name="widget_light_surface">#F8F9FC</color>
+    <color name="widget_light_panel">#EEF2F8</color>
+    <color name="widget_light_current">#DDEAFB</color>
+    <color name="widget_light_text_primary">#1A1B1F</color>
+    <color name="widget_light_text_secondary">#70727A</color>
+    <color name="widget_light_text_muted">#9A9CA4</color>
+    <color name="widget_light_accent">#476A9B</color>
+
+    <color name="widget_dark_surface">#16171A</color>
+    <color name="widget_dark_panel">#202227</color>
+    <color name="widget_dark_current">#263A53</color>
+    <color name="widget_dark_text_primary">#F3F3F5</color>
+    <color name="widget_dark_text_secondary">#A9ABB3</color>
+    <color name="widget_dark_text_muted">#70727A</color>
+    <color name="widget_dark_accent">#9CC4FF</color>
+</resources>
