@@ -13,13 +13,17 @@ import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.LinearLayout
 import android.widget.Spinner
-import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import com.istarvin.classschedule2.R
 
 /** Small native setup flow launched by the widget host before it binds an instance. */
 class WidgetConfigurationActivity : AppCompatActivity() {
+    companion object {
+        const val EXTRA_RECONFIGURE = "com.istarvin.classschedule2.extra.RECONFIGURE_WIDGET"
+    }
+
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,10 +52,10 @@ class WidgetConfigurationActivity : AppCompatActivity() {
         val appearance = findViewById<Spinner>(R.id.config_appearance)
         val colors = findViewById<Spinner>(R.id.config_colors)
         val timeFormat = findViewById<Spinner>(R.id.config_time_format)
-        val countdown = findViewById<Switch>(R.id.config_countdown)
-        val room = findViewById<Switch>(R.id.config_room)
-        val next = findViewById<Switch>(R.id.config_next)
-        val progress = findViewById<Switch>(R.id.config_progress)
+        val countdown = findViewById<SwitchCompat>(R.id.config_countdown)
+        val room = findViewById<SwitchCompat>(R.id.config_room)
+        val next = findViewById<SwitchCompat>(R.id.config_next)
+        val progress = findViewById<SwitchCompat>(R.id.config_progress)
         val previewCard = findViewById<LinearLayout>(R.id.config_preview_card)
         val previewLabel = findViewById<TextView>(R.id.config_preview_label)
         val previewSubject = findViewById<TextView>(R.id.config_preview_subject)
@@ -141,7 +145,11 @@ class WidgetConfigurationActivity : AppCompatActivity() {
         progress.setOnCheckedChangeListener(switchListener)
         updatePreview()
 
-        findViewById<Button>(R.id.config_add).setOnClickListener {
+        findViewById<Button>(R.id.config_add).apply {
+            if (intent.getBooleanExtra(EXTRA_RECONFIGURE, false)) {
+                setText(R.string.widget_config_save)
+            }
+        }.setOnClickListener {
             WidgetPreferences.save(
                 this,
                 appWidgetId,

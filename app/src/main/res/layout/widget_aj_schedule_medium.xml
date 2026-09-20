@@ -87,12 +87,15 @@
                 android:progressDrawable="@drawable/widget_progress" />
         </LinearLayout>
 
-        <View
+        <!-- RemoteViews only permits its allowlisted widget classes. TextView is used as an
+             empty divider because a plain View causes the launcher to reject the whole widget. -->
+        <TextView
             android:id="@+id/medium_divider"
             android:layout_width="1dp"
             android:layout_height="match_parent"
             android:layout_marginHorizontal="8dp"
-            android:background="@color/widget_divider" />
+            android:background="@color/widget_divider"
+            android:text="" />
 
         <LinearLayout
             android:id="@+id/medium_next_panel"

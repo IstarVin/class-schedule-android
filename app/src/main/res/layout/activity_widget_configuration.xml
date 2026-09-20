@@ -10,11 +10,26 @@
         android:orientation="vertical"
         android:padding="24dp">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_config_title"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="@string/widget_config_subtitle"
+            android:textSize="14sp" />
+
         <LinearLayout
             android:id="@+id/config_preview_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/widget_panel_background"
+            android:layout_marginTop="22dp"
             android:orientation="vertical"
             android:padding="18dp">
 
@@ -73,10 +88,10 @@
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/widget_config_time" android:textStyle="bold" />
         <Spinner android:id="@+id/config_time_format" android:layout_width="match_parent" android:layout_height="wrap_content" android:entries="@array/widget_time_entries" />
 
-        <Switch android:id="@+id/config_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Show countdown" />
-        <Switch android:id="@+id/config_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show room" />
-        <Switch android:id="@+id/config_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show next class" />
-        <Switch android:id="@+id/config_progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show progress bar" />
+        <androidx.appcompat.widget.SwitchCompat android:id="@+id/config_countdown" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="Show countdown" />
+        <androidx.appcompat.widget.SwitchCompat android:id="@+id/config_room" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show room" />
+        <androidx.appcompat.widget.SwitchCompat android:id="@+id/config_next" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show next class" />
+        <androidx.appcompat.widget.SwitchCompat android:id="@+id/config_progress" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Show progress bar" />
 
         <Button android:id="@+id/config_add" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/widget_config_add" />
     </LinearLayout>

@@ -31,12 +31,15 @@ import android.widget.ProgressBar
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import com.istarvin.classschedule2.data.OfflineScheduleHtml
 import com.istarvin.classschedule2.data.ScheduleCache
 import com.istarvin.classschedule2.data.ScheduleSyncWorker
+import com.istarvin.classschedule2.widget.AjScheduleWidgetProvider
+import com.istarvin.classschedule2.widget.WidgetConfigurationActivity
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
@@ -50,7 +53,8 @@ class MainActivity : AppCompatActivity() {
         private const val DARK_SURFACE = "#15181E"
         private const val MENU_REFRESH = 1
         private const val MENU_ADD_WIDGET = 2
-        private const val MENU_ABOUT = 3
+        private const val MENU_WIDGET_SETTINGS = 3
+        private const val MENU_ABOUT = 4
     }
 
     private val ioExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -69,6 +73,20 @@ class MainActivity : AppCompatActivity() {
         applySystemBarAppearance(isSystemDark())
         setContentView(createContentView())
         configureWebView()
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    if (webView.canGoBack()) {
+                        webView.goBack()
+                    } else {
+                        // Let Android complete the final predictive-back animation.
+                        isEnabled = false
+                        onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            },
+        )
 
         // This is also the initial offline source for widgets.
         ScheduleCache.seedIfMissing(applicationContext)
@@ -89,15 +107,6 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         webView.onPause()
         super.onPause()
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-        } else {
-            super.onBackPressed()
-        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -121,7 +130,6 @@ class MainActivity : AppCompatActivity() {
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
-            databaseEnabled = true
             cacheMode = WebSettings.LOAD_DEFAULT
             setSupportZoom(false)
             builtInZoomControls = false
@@ -290,9 +298,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun showOverflowMenu(anchor: View) {
         PopupMenu(this, anchor).apply {
-            menu.add(0, MENU_REFRESH, 0, "Refresh")
-            menu.add(0, MENU_ADD_WIDGET, 1, "Add widget")
-            menu.add(0, MENU_ABOUT, 2, "About")
+            menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh))
+            menu.add(0, MENU_ADD_WIDGET, 1, getString(R.string.menu_add_widget))
+            menu.add(0, MENU_WIDGET_SETTINGS, 2, getString(R.string.menu_widget_settings))
+            menu.add(0, MENU_ABOUT, 3, getString(R.string.menu_about))
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     MENU_REFRESH -> {
@@ -302,6 +311,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     MENU_ADD_WIDGET -> requestWidgetPin()
+                    MENU_WIDGET_SETTINGS -> openWidgetSettings()
                     MENU_ABOUT -> AlertDialog.Builder(this@MainActivity)
                         .setTitle("AJ Schedule")
                         .setMessage("Your schedule website, with offline data and a glanceable home-screen widget.")
@@ -315,10 +325,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestWidgetPin() {
-        val provider = ComponentName(
-            packageName,
-            "$packageName.widget.AjScheduleWidgetProvider",
-        )
+        val provider = ComponentName(this, AjScheduleWidgetProvider::class.java)
         val requested = AppWidgetManager.getInstance(this).requestPinAppWidget(provider, null, null)
         if (!requested) {
             Toast.makeText(
@@ -327,6 +334,36 @@ class MainActivity : AppCompatActivity() {
                 Toast.LENGTH_LONG,
             ).show()
         }
+    }
+
+    private fun openWidgetSettings() {
+        val provider = ComponentName(this, AjScheduleWidgetProvider::class.java)
+        val widgetIds = AppWidgetManager.getInstance(this).getAppWidgetIds(provider)
+        when {
+            widgetIds.isEmpty() -> Toast.makeText(
+                this,
+                getString(R.string.widget_settings_none),
+                Toast.LENGTH_SHORT,
+            ).show()
+
+            widgetIds.size == 1 -> configureWidget(widgetIds.single())
+            else -> AlertDialog.Builder(this)
+                .setTitle(R.string.widget_settings_title)
+                .setItems(
+                    widgetIds.indices.map { index ->
+                        getString(R.string.widget_settings_item, index + 1)
+                    }.toTypedArray(),
+                ) { _, index -> configureWidget(widgetIds[index]) }
+                .show()
+        }
+    }
+
+    private fun configureWidget(appWidgetId: Int) {
+        startActivity(
+            Intent(this, WidgetConfigurationActivity::class.java)
+                .putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                .putExtra(WidgetConfigurationActivity.EXTRA_RECONFIGURE, true),
+        )
     }
 
     private fun showOfflineNotice(message: String) {

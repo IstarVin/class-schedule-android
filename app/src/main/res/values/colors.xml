@@ -3,16 +3,8 @@
     <color name="aj_board_light">#F3F1EA</color>
     <color name="aj_surface_light">#FFFFFF</color>
     <color name="aj_ink_light">#1E2430</color>
-    <color name="aj_ink_soft_light">#5B6270</color>
-    <color name="aj_line_light">#1A1E2430</color>
     <color name="aj_live_light">#1E8E52</color>
-    <color name="aj_next_light">#A5701E</color>
-
-    <color name="widget_light_background">#F8F9FC</color>
-    <color name="widget_light_primary">#1A1B1F</color>
-    <color name="widget_light_secondary">#70727A</color>
 
     <color name="widget_dark_background">#16171A</color>
     <color name="widget_dark_primary">#F3F3F5</color>
-    <color name="widget_dark_secondary">#A9ABB3</color>
 </resources>

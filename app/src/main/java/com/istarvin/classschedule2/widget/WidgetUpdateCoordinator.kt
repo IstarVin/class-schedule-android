@@ -53,7 +53,8 @@ internal object WidgetUpdateCoordinator {
         WidgetRefreshScheduler.schedule(context, snapshot.refreshAt)
     }
 
-    private fun snapshotFor(schedule: WidgetSchedule, now: ZonedDateTime): WidgetSnapshot {
+    /** Kept internal so local tests can cover time transitions without Android framework state. */
+    internal fun snapshotFor(schedule: WidgetSchedule, now: ZonedDateTime): WidgetSnapshot {
         val today = schedule.classesOn(now.toLocalDate())
         val minuteOfDay = now.hour * 60 + now.minute
         val current = today.firstOrNull { minuteOfDay >= it.startMinute && minuteOfDay < it.endMinute }
@@ -195,11 +196,7 @@ private object WidgetRemoteViews {
 
         views.setTextViewText(
             R.id.compact_state,
-            when {
-                isCurrent -> "NOW"
-                snapshot.next?.date == snapshot.now.toLocalDate() -> "UP NEXT"
-                else -> "NO CLASSES TODAY"
-            },
+            primaryLabel(snapshot),
         )
         views.setTextViewText(R.id.compact_code, primary.code)
         views.setTextViewText(R.id.compact_subject, primary.name)
@@ -268,7 +265,7 @@ private object WidgetRemoteViews {
         val isCurrent = snapshot.current != null
         views.setTextViewText(
             R.id.medium_primary_label,
-            if (isCurrent) "NOW" else if (snapshot.next?.date == snapshot.now.toLocalDate()) "UP NEXT" else "NEXT CLASS",
+            primaryLabel(snapshot),
         )
         views.setTextViewText(R.id.medium_primary_code, primary.code)
         views.setTextViewText(R.id.medium_primary_subject, primary.name)
@@ -460,7 +457,8 @@ private object WidgetRemoteViews {
     private fun statusLine(context: Context, snapshot: WidgetSnapshot, options: WidgetOptions): String = when (snapshot.state) {
         WidgetState.CURRENT -> {
             val item = snapshot.current!!
-            "Now · ${item.code} · ${minutesUntil(snapshot.now, WidgetUpdateCoordinator.at(snapshot.now.toLocalDate(), item.endMinute, snapshot.now))} left"
+            val prefix = if (isLastClassToday(snapshot)) "Last class today" else "Now"
+            "$prefix · ${item.code} · ${minutesUntil(snapshot.now, WidgetUpdateCoordinator.at(snapshot.now.toLocalDate(), item.endMinute, snapshot.now))} left"
         }
         WidgetState.UP_NEXT -> snapshot.next?.let { "Up next · ${it.scheduleClass.code} · ${minutesUntil(snapshot.now, WidgetUpdateCoordinator.at(it.date, it.scheduleClass.startMinute, snapshot.now))}" }
             ?: "No more classes today"
@@ -468,6 +466,17 @@ private object WidgetRemoteViews {
         WidgetState.NO_CLASSES_TODAY -> snapshot.next?.let { "No classes today · Next ${dateTime(context, it, options, snapshot.now.toLocalDate())}" } ?: "No classes today"
         WidgetState.EMPTY -> "No schedule saved"
     }
+
+    private fun primaryLabel(snapshot: WidgetSnapshot): String = when (snapshot.state) {
+        WidgetState.CURRENT -> if (isLastClassToday(snapshot)) "LAST CLASS TODAY" else "NOW"
+        WidgetState.UP_NEXT -> "UP NEXT"
+        WidgetState.DONE_FOR_TODAY -> "DONE FOR TODAY"
+        WidgetState.NO_CLASSES_TODAY -> "NO CLASSES TODAY"
+        WidgetState.EMPTY -> "NO SCHEDULE"
+    }
+
+    private fun isLastClassToday(snapshot: WidgetSnapshot): Boolean =
+        snapshot.current != null && snapshot.next?.date != snapshot.now.toLocalDate()
 
     private fun room(room: String, options: WidgetOptions): String? =
         room.takeIf { options.showRoom && it.isNotBlank() }?.let { "Room $it" }
