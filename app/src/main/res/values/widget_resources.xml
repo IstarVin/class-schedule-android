@@ -1,5 +1,5 @@
 <resources>
-    <string name="widget_name">AJ Schedule</string>
+    <string name="widget_name">Class Schedule</string>
     <string name="widget_description">Your current class, what is next, and today’s schedule.</string>
     <string name="widget_config_title">Customize widget</string>
     <string name="widget_config_style">Widget style</string>
@@ -7,7 +7,7 @@
     <string name="widget_config_colors">Colors</string>
     <string name="widget_config_time">Time format</string>
     <string name="widget_config_add">Add widget</string>
-    <string name="widget_config_preview">AJ Schedule · Preview</string>
+    <string name="widget_config_preview">Class Schedule · Preview</string>
 
     <string-array name="widget_style_entries">
         <item>Automatic (responsive)</item>
@@ -21,7 +21,7 @@
         <item>Dark</item>
     </string-array>
     <string-array name="widget_color_entries">
-        <item>AJ Schedule</item>
+        <item>Class Schedule</item>
         <item>Material You</item>
     </string-array>
     <string-array name="widget_time_entries">

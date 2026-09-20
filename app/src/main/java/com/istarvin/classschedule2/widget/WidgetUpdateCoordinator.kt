@@ -193,7 +193,7 @@ private object WidgetRemoteViews {
 
         if (primary == null) {
             views.setTextViewText(R.id.compact_state, "NO SCHEDULE")
-            views.setTextViewText(R.id.compact_code, "AJ SCHEDULE")
+            views.setTextViewText(R.id.compact_code, "CLASS SCHEDULE")
             views.setTextViewText(R.id.compact_subject, "Open your schedule")
             views.setTextViewText(R.id.compact_time, "Add classes to see what is next")
             views.setViewVisibility(R.id.compact_countdown, View.GONE)
@@ -259,7 +259,7 @@ private object WidgetRemoteViews {
 
         if (primary == null) {
             views.setTextViewText(R.id.medium_primary_label, "NO SCHEDULE")
-            views.setTextViewText(R.id.medium_primary_code, "AJ SCHEDULE")
+            views.setTextViewText(R.id.medium_primary_code, "CLASS SCHEDULE")
             views.setTextViewText(R.id.medium_primary_subject, "Open your schedule")
             views.setTextViewText(R.id.medium_primary_time, "Your saved schedule will appear here")
             views.setViewVisibility(R.id.medium_primary_room, View.GONE)
@@ -351,7 +351,7 @@ private object WidgetRemoteViews {
             views.setTextViewText(
                 R.id.large_empty,
                 snapshot.next?.let { "Next · ${it.scheduleClass.name} · ${dateTime(context, it, options, snapshot.now.toLocalDate())}" }
-                    ?: "Open AJ Schedule to add your classes",
+                    ?: "Open Class Schedule to add your classes",
             )
         } else {
             views.setViewVisibility(R.id.large_empty, View.GONE)

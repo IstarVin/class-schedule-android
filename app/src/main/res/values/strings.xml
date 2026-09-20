@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">AJ Schedule</string>
+    <string name="app_name">Class Schedule</string>
     <string name="widget_config_subtitle">Set a few defaults now. You can reconfigure this widget later from your home screen.</string>
     <string name="widget_config_save">Save changes</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_add_widget">Add widget</string>
     <string name="menu_widget_settings">Widget settings</string>
     <string name="menu_about">About</string>
-    <string name="widget_settings_none">Add an AJ Schedule widget first.</string>
+    <string name="widget_settings_none">Add a Class Schedule widget first.</string>
     <string name="widget_settings_title">Choose a widget</string>
     <string name="widget_settings_item">Widget %1$d</string>
     <string name="loading_schedule">Loading schedule</string>
@@ -18,7 +18,7 @@
     <string name="offline_loading_saved_schedule">You’re offline. Loading the latest website version saved on this device.</string>
     <string name="refreshing_schedule">Refreshing schedule</string>
     <string name="about_message">Your schedule website, with offline data and a glanceable home-screen widget.</string>
-    <string name="use_widget_picker">Use your home-screen widget picker to add AJ Schedule.</string>
+    <string name="use_widget_picker">Use your home-screen widget picker to add Class Schedule.</string>
     <string name="no_app_to_open_link">No app is available to open this link.</string>
     <string name="ssl_error_saved_data">The schedule site’s secure connection could not be verified. Showing saved data instead.</string>
 </resources>
