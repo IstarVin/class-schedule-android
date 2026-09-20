@@ -7,7 +7,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Bundle
 import android.os.SystemClock
 import android.text.format.DateFormat
 import android.view.View
@@ -23,34 +22,47 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 import kotlin.math.max
 
-/** Builds every RemoteViews variant from one cache snapshot, so all widget sizes agree on "now". */
+/** Builds every RemoteViews variant from one cache snapshot, so all widget types agree on "now". */
 internal object WidgetUpdateCoordinator {
     fun updateAll(context: Context) {
         val appContext = context.applicationContext
         val manager = AppWidgetManager.getInstance(appContext)
-        val component = ComponentName(appContext, AjScheduleWidgetProvider::class.java)
-        val ids = manager.getAppWidgetIds(component)
-        if (ids.isEmpty()) {
+        val activeProviders = WidgetProviderRegistry.entries.mapNotNull { entry ->
+            manager.getAppWidgetIds(ComponentName(appContext, entry.providerClass))
+                .takeIf { it.isNotEmpty() }
+                ?.let { ids -> entry to ids }
+        }
+        if (activeProviders.isEmpty()) {
             WidgetRefreshScheduler.cancel(appContext)
             return
         }
-        update(appContext, manager, ids)
+        val snapshot = snapshotFor(WidgetScheduleReader.load(appContext), ZonedDateTime.now())
+        activeProviders.forEach { (entry, ids) ->
+            update(appContext, manager, ids, entry.layout, snapshot)
+        }
+        WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
     }
 
-    fun update(context: Context, appWidgetIds: IntArray) {
+    fun update(context: Context, appWidgetIds: IntArray, layout: WidgetLayout) {
         if (appWidgetIds.isEmpty()) return
-        update(context.applicationContext, AppWidgetManager.getInstance(context), appWidgetIds)
+        val appContext = context.applicationContext
+        val manager = AppWidgetManager.getInstance(appContext)
+        val snapshot = snapshotFor(WidgetScheduleReader.load(appContext), ZonedDateTime.now())
+        update(appContext, manager, appWidgetIds, layout, snapshot)
+        WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
     }
 
-    private fun update(context: Context, manager: AppWidgetManager, appWidgetIds: IntArray) {
-        val snapshot = snapshotFor(WidgetScheduleReader.load(context), ZonedDateTime.now())
+    private fun update(
+        context: Context,
+        manager: AppWidgetManager,
+        appWidgetIds: IntArray,
+        layout: WidgetLayout,
+        snapshot: WidgetSnapshot,
+    ) {
         appWidgetIds.forEach { id ->
-            val hostOptions = manager.getAppWidgetOptions(id)
             val preferences = WidgetPreferences.read(context, id)
-            val layout = WidgetLayoutSelector.resolve(hostOptions, preferences.style)
             manager.updateAppWidget(id, WidgetRemoteViews.create(context, id, layout, preferences, snapshot))
         }
-        WidgetRefreshScheduler.schedule(context, snapshot.refreshAt)
     }
 
     /** Kept internal so local tests can cover time transitions without Android framework state. */
@@ -131,23 +143,6 @@ internal object WidgetUpdateCoordinator {
     internal fun at(date: LocalDate, minute: Int, reference: ZonedDateTime): ZonedDateTime =
         if (minute == 1440) date.plusDays(1).atStartOfDay(reference.zone)
         else date.atTime(LocalTime.of(minute / 60, minute % 60)).atZone(reference.zone)
-}
-
-private object WidgetLayoutSelector {
-    fun resolve(hostOptions: Bundle, style: WidgetStyle): WidgetLayout = when (style) {
-        WidgetStyle.COMPACT -> WidgetLayout.COMPACT
-        WidgetStyle.MEDIUM -> WidgetLayout.MEDIUM
-        WidgetStyle.LARGE -> WidgetLayout.LARGE
-        WidgetStyle.AUTOMATIC -> {
-            val width = hostOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
-            val height = hostOptions.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 0)
-            when {
-                width >= 250 && height >= 210 -> WidgetLayout.LARGE
-                width >= 180 || height >= 130 -> WidgetLayout.MEDIUM
-                else -> WidgetLayout.COMPACT
-            }
-        }
-    }
 }
 
 private object WidgetRemoteViews {

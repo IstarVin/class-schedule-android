@@ -76,10 +76,7 @@
                 android:background="@color/widget_accent" />
         </LinearLayout>
 
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/widget_config_style" android:textStyle="bold" />
-        <Spinner android:id="@+id/config_style" android:layout_width="match_parent" android:layout_height="wrap_content" android:entries="@array/widget_style_entries" />
-
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/widget_config_appearance" android:textStyle="bold" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/widget_config_appearance" android:textStyle="bold" />
         <Spinner android:id="@+id/config_appearance" android:layout_width="match_parent" android:layout_height="wrap_content" android:entries="@array/widget_appearance_entries" />
 
         <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/widget_config_colors" android:textStyle="bold" />

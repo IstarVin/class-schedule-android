@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+
+    <path
+        android:fillColor="@color/widget_light_surface"
+        android:pathData="M16,0L304,0A16,16 0,0 1,320 16L320,164A16,16 0,0 1,304 180L16,180A16,16 0,0 1,0 164L0,16A16,16 0,0 1,16 0Z" />
+    <path
+        android:fillColor="@color/widget_light_panel"
+        android:pathData="M20,20L300,20A10,10 0,0 1,310 30L310,150A10,10 0,0 1,300 160L20,160A10,10 0,0 1,10 150L10,30A10,10 0,0 1,20 20Z" />
+    <path
+        android:fillColor="@color/widget_light_accent"
+        android:pathData="M26,31L100,31A6,6 0,0 1,106 37L106,51A6,6 0,0 1,100 57L26,57A6,6 0,0 1,20 51L20,37A6,6 0,0 1,26 31Z" />
+    <path
+        android:fillColor="@color/widget_light_accent"
+        android:pathData="M24,78L106,78A5,5 0,0 1,111 83L111,89A5,5 0,0 1,106 94L24,94A5,5 0,0 1,19 89L19,83A5,5 0,0 1,24 78Z" />
+    <path
+        android:fillColor="@color/widget_light_text_primary"
+        android:pathData="M24,105L270,105A5,5 0,0 1,275 110L275,121A5,5 0,0 1,270 126L24,126A5,5 0,0 1,19 121L19,110A5,5 0,0 1,24 105Z" />
+    <path
+        android:fillColor="@color/widget_light_text_secondary"
+        android:pathData="M24,136L190,136A4,4 0,0 1,194 140L194,145A4,4 0,0 1,190 149L24,149A4,4 0,0 1,20 145L20,140A4,4 0,0 1,24 136Z" />
+</vector>

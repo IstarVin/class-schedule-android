@@ -1,20 +1,17 @@
 <resources>
-    <string name="widget_name">Class Schedule</string>
-    <string name="widget_description">Your current class, what is next, and today’s schedule.</string>
+    <string name="widget_name">Class Schedule · Now &amp; Next</string>
+    <string name="widget_description">Your current class and the next class at a glance.</string>
+    <string name="widget_compact_name">Class Schedule · Compact</string>
+    <string name="widget_compact_description">The next class, countdown, and a quick glance at what follows.</string>
+    <string name="widget_large_name">Class Schedule · Today</string>
+    <string name="widget_large_description">Your classes for today with the next class highlighted.</string>
     <string name="widget_config_title">Customize widget</string>
-    <string name="widget_config_style">Widget style</string>
     <string name="widget_config_appearance">Appearance</string>
     <string name="widget_config_colors">Colors</string>
     <string name="widget_config_time">Time format</string>
     <string name="widget_config_add">Add widget</string>
     <string name="widget_config_preview">Class Schedule · Preview</string>
 
-    <string-array name="widget_style_entries">
-        <item>Automatic (responsive)</item>
-        <item>Compact · Next class</item>
-        <item>Now + next</item>
-        <item>Today</item>
-    </string-array>
     <string-array name="widget_appearance_entries">
         <item>Follow system</item>
         <item>Light</item>

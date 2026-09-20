@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="420dp"
+    android:height="180dp"
+    android:viewportWidth="420"
+    android:viewportHeight="180">
+
+    <path
+        android:fillColor="@color/widget_light_surface"
+        android:pathData="M16,0L404,0A16,16 0,0 1,420 16L420,164A16,16 0,0 1,404 180L16,180A16,16 0,0 1,0 164L0,16A16,16 0,0 1,16 0Z" />
+    <path
+        android:fillColor="@color/widget_light_panel"
+        android:pathData="M20,20L218,20A10,10 0,0 1,228 30L228,150A10,10 0,0 1,218 160L20,160A10,10 0,0 1,10 150L10,30A10,10 0,0 1,20 20Z" />
+    <path
+        android:fillColor="@color/widget_light_panel"
+        android:pathData="M244,20L400,20A10,10 0,0 1,410 30L410,150A10,10 0,0 1,400 160L244,160A10,10 0,0 1,234 150L234,30A10,10 0,0 1,244 20Z" />
+    <path
+        android:fillColor="@color/widget_light_accent"
+        android:pathData="M28,30L92,30A5,5 0,0 1,97 35L97,47A5,5 0,0 1,92 52L28,52A5,5 0,0 1,23 47L23,35A5,5 0,0 1,28 30Z" />
+    <path
+        android:fillColor="@color/widget_light_text_primary"
+        android:pathData="M28,70L195,70A5,5 0,0 1,200 75L200,85A5,5 0,0 1,195 90L28,90A5,5 0,0 1,23 85L23,75A5,5 0,0 1,28 70Z" />
+    <path
+        android:fillColor="@color/widget_light_text_secondary"
+        android:pathData="M28,101L170,101A4,4 0,0 1,174 105L174,111A4,4 0,0 1,170 115L28,115A4,4 0,0 1,24 111L24,105A4,4 0,0 1,28 101Z" />
+    <path
+        android:fillColor="@color/widget_light_accent"
+        android:pathData="M252,30L300,30A5,5 0,0 1,305 35L305,47A5,5 0,0 1,300 52L252,52A5,5 0,0 1,247 47L247,35A5,5 0,0 1,252 30Z" />
+    <path
+        android:fillColor="@color/widget_light_text_primary"
+        android:pathData="M252,70L390,70A5,5 0,0 1,395 75L395,85A5,5 0,0 1,390 90L252,90A5,5 0,0 1,247 85L247,75A5,5 0,0 1,252 70Z" />
+    <path
+        android:fillColor="@color/widget_light_text_secondary"
+        android:pathData="M252,101L365,101A4,4 0,0 1,369 105L369,111A4,4 0,0 1,365 115L252,115A4,4 0,0 1,248 111L248,105A4,4 0,0 1,252 101Z" />
+</vector>

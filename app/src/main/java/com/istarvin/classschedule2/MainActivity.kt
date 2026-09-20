@@ -38,8 +38,8 @@ import androidx.core.view.WindowCompat
 import com.istarvin.classschedule2.data.OfflineScheduleHtml
 import com.istarvin.classschedule2.data.ScheduleCache
 import com.istarvin.classschedule2.data.ScheduleSyncWorker
-import com.istarvin.classschedule2.widget.AjScheduleWidgetProvider
 import com.istarvin.classschedule2.widget.WidgetConfigurationActivity
+import com.istarvin.classschedule2.widget.WidgetProviderRegistry
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
@@ -328,7 +328,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestWidgetPin() {
-        val provider = ComponentName(this, AjScheduleWidgetProvider::class.java)
+        val provider = ComponentName(this, WidgetProviderRegistry.entries.first().providerClass)
         val requested = AppWidgetManager.getInstance(this).requestPinAppWidget(provider, null, null)
         if (!requested) {
             Toast.makeText(
@@ -340,8 +340,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openWidgetSettings() {
-        val provider = ComponentName(this, AjScheduleWidgetProvider::class.java)
-        val widgetIds = AppWidgetManager.getInstance(this).getAppWidgetIds(provider)
+        val manager = AppWidgetManager.getInstance(this)
+        val widgetIds = WidgetProviderRegistry.entries
+            .flatMap { entry -> manager.getAppWidgetIds(ComponentName(this, entry.providerClass)).toList() }
         when {
             widgetIds.isEmpty() -> Toast.makeText(
                 this,

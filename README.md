@@ -1,15 +1,15 @@
 # Class Schedule
 
-An Android app for viewing the AJ schedule and keeping the current class close at hand with a configurable home-screen widget.
+An Android app for viewing the AJ schedule and keeping the current class close at hand with selectable home-screen widgets.
 
 The app uses a small native shell around [AJ Schedule](https://ajschedule.pages.dev/). It also keeps a validated local copy of the schedule so the app and widget can continue to show saved data when the network is unavailable.
 
 ## Features
 
 - WebView-based schedule experience with a native loading and offline fallback UI.
-- Home-screen widget with compact, medium, and large layouts.
+- Three home-screen widget types in the widget picker: Compact, Now & Next, and Today.
 - Widget states for the current class, next class, completed day, and days without classes.
-- Widget customization for layout, light/dark appearance, Material You colors, time format, countdown, room, next-class, and progress-bar visibility.
+- Widget customization for light/dark appearance, Material You colors, time format, countdown, room, next-class, and progress-bar visibility.
 - Automatic schedule refresh every six hours when a network connection is available.
 - Refreshes on widget actions, date/time/time-zone changes, locale changes, device boot, and app updates.
 - Bundled schedule data for a useful first launch before the first successful network refresh.
@@ -42,8 +42,8 @@ Release builds use the signing values in the root-level `keystore.properties` fi
 ## Using the widget
 
 1. Install and open Class Schedule once so the bundled schedule is initialized.
-2. Add **Class Schedule** from the home-screen widget picker.
-3. Choose the widget style and display options in the configuration screen.
+2. Choose **Class Schedule · Compact**, **Now & Next**, or **Class Schedule · Today** from the home-screen widget picker. Each type has its own minimum size and preview.
+3. Set display options in the configuration screen.
 4. Resize or reconfigure the widget later from the home screen as needed.
 
 The widget reads the same cache used by the app and does not perform network requests from its broadcast receiver. Network synchronization is handled by WorkManager, while time and system events trigger a local redraw.

@@ -1,7 +1,6 @@
 package com.istarvin.classschedule2.widget
 
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
@@ -36,8 +35,9 @@ class WidgetConfigurationActivity : AppCompatActivity() {
             finish()
             return
         }
-        val expectedProvider = ComponentName(this, AjScheduleWidgetProvider::class.java)
-        if (AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)?.provider != expectedProvider) {
+        val provider = AppWidgetManager.getInstance(this).getAppWidgetInfo(appWidgetId)?.provider
+        val widgetLayout = WidgetProviderRegistry.layoutFor(provider)
+        if (widgetLayout == null) {
             // This exported activity is intended only for IDs allocated to this provider.
             finish()
             return
@@ -47,7 +47,6 @@ class WidgetConfigurationActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.widget_config_title)
 
-        val style = findViewById<Spinner>(R.id.config_style)
         val appearance = findViewById<Spinner>(R.id.config_appearance)
         val colors = findViewById<Spinner>(R.id.config_colors)
         val timeFormat = findViewById<Spinner>(R.id.config_time_format)
@@ -63,7 +62,6 @@ class WidgetConfigurationActivity : AppCompatActivity() {
         val previewProgress = findViewById<View>(R.id.config_preview_progress)
 
         WidgetPreferences.read(this, appWidgetId).also { saved ->
-            style.setSelection(saved.style.ordinal)
             appearance.setSelection(saved.appearance.ordinal)
             colors.setSelection(saved.colorSource.ordinal)
             timeFormat.setSelection(saved.timeFormat.ordinal)
@@ -73,7 +71,6 @@ class WidgetConfigurationActivity : AppCompatActivity() {
             progress.isChecked = saved.showProgress
         }
         fun updatePreview() {
-            val selectedStyle = WidgetStyle.entries[style.selectedItemPosition]
             val selectedAppearance = WidgetAppearance.entries[appearance.selectedItemPosition]
             val useDynamicColor = colors.selectedItemPosition == WidgetColorSource.MATERIAL_YOU.ordinal &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -110,16 +107,15 @@ class WidgetConfigurationActivity : AppCompatActivity() {
             previewDetails.setTextColor(secondary)
             previewProgress.setBackgroundColor(accent)
 
-            previewLabel.text = when (selectedStyle) {
-                WidgetStyle.COMPACT -> "UP NEXT · ITE183"
-                WidgetStyle.LARGE -> "TODAY · ITE183"
-                else -> "NOW · ITE183"
+            previewLabel.text = when (widgetLayout) {
+                WidgetLayout.COMPACT -> "UP NEXT · ITE183"
+                WidgetLayout.LARGE -> "TODAY · ITE183"
+                WidgetLayout.MEDIUM -> "NOW · ITE183"
             }
-            preview.text = when (selectedStyle) {
-                WidgetStyle.COMPACT -> "Compact · next class at a glance"
-                WidgetStyle.MEDIUM -> "Now + next · the balanced default"
-                WidgetStyle.LARGE -> "Today · your whole school day"
-                WidgetStyle.AUTOMATIC -> "Responsive · adapts as you resize"
+            preview.text = when (widgetLayout) {
+                WidgetLayout.COMPACT -> "Compact · next class at a glance"
+                WidgetLayout.MEDIUM -> "Now + next · the balanced default"
+                WidgetLayout.LARGE -> "Today · your whole school day"
             }
             previewDetails.text = buildList {
                 if (room.isChecked) add("Room TBA")
@@ -133,7 +129,6 @@ class WidgetConfigurationActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) = updatePreview()
             override fun onNothingSelected(parent: AdapterView<*>?) = Unit
         }
-        style.onItemSelectedListener = selectionListener
         appearance.onItemSelectedListener = selectionListener
         colors.onItemSelectedListener = selectionListener
         timeFormat.onItemSelectedListener = selectionListener
@@ -153,7 +148,6 @@ class WidgetConfigurationActivity : AppCompatActivity() {
                 this,
                 appWidgetId,
                 WidgetOptions(
-                    style = WidgetStyle.entries[style.selectedItemPosition],
                     appearance = WidgetAppearance.entries[appearance.selectedItemPosition],
                     colorSource = WidgetColorSource.entries[colors.selectedItemPosition],
                     timeFormat = WidgetTimeFormat.entries[timeFormat.selectedItemPosition],
@@ -163,7 +157,7 @@ class WidgetConfigurationActivity : AppCompatActivity() {
                     showProgress = progress.isChecked,
                 ),
             )
-            WidgetUpdateCoordinator.update(this, intArrayOf(appWidgetId))
+            WidgetUpdateCoordinator.update(this, intArrayOf(appWidgetId), widgetLayout)
             setResult(
                 RESULT_OK,
                 Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId),

@@ -38,22 +38,10 @@ internal data class WidgetSnapshot(
     val refreshAt: ZonedDateTime,
 )
 
-internal enum class WidgetLayout {
+enum class WidgetLayout {
     COMPACT,
     MEDIUM,
     LARGE,
-}
-
-internal enum class WidgetStyle(val storedValue: String) {
-    AUTOMATIC("automatic"),
-    COMPACT("compact"),
-    MEDIUM("medium"),
-    LARGE("large");
-
-    companion object {
-        fun fromStored(value: String?): WidgetStyle =
-            entries.firstOrNull { it.storedValue == value } ?: AUTOMATIC
-    }
 }
 
 internal enum class WidgetAppearance(val storedValue: String) {
@@ -89,7 +77,6 @@ internal enum class WidgetTimeFormat(val storedValue: String) {
 }
 
 internal data class WidgetOptions(
-    val style: WidgetStyle = WidgetStyle.AUTOMATIC,
     val appearance: WidgetAppearance = WidgetAppearance.SYSTEM,
     val colorSource: WidgetColorSource = WidgetColorSource.AJ_SCHEDULE,
     val timeFormat: WidgetTimeFormat = WidgetTimeFormat.SYSTEM,

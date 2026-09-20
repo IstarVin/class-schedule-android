@@ -3,11 +3,10 @@ package com.istarvin.classschedule2.widget
 import android.content.Context
 import androidx.core.content.edit
 
-/** Per-widget preferences. Keeping keys scoped by widget ID avoids leaking a removed widget's style. */
+/** Per-widget preferences. Keeping keys scoped by widget ID avoids leaking a removed widget's settings. */
 internal object WidgetPreferences {
     private const val PREFS_NAME = "aj_schedule_widget_preferences"
 
-    private const val STYLE = "style"
     private const val APPEARANCE = "appearance"
     private const val COLOR_SOURCE = "color_source"
     private const val TIME_FORMAT = "time_format"
@@ -19,7 +18,6 @@ internal object WidgetPreferences {
     fun read(context: Context, appWidgetId: Int): WidgetOptions {
         val prefs = context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return WidgetOptions(
-            style = WidgetStyle.fromStored(prefs.getString(key(appWidgetId, STYLE), null)),
             appearance = WidgetAppearance.fromStored(prefs.getString(key(appWidgetId, APPEARANCE), null)),
             colorSource = WidgetColorSource.fromStored(prefs.getString(key(appWidgetId, COLOR_SOURCE), null)),
             timeFormat = WidgetTimeFormat.fromStored(prefs.getString(key(appWidgetId, TIME_FORMAT), null)),
@@ -33,8 +31,7 @@ internal object WidgetPreferences {
     fun save(context: Context, appWidgetId: Int, options: WidgetOptions) {
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit {
-                putString(key(appWidgetId, STYLE), options.style.storedValue)
-                    .putString(key(appWidgetId, APPEARANCE), options.appearance.storedValue)
+                putString(key(appWidgetId, APPEARANCE), options.appearance.storedValue)
                     .putString(key(appWidgetId, COLOR_SOURCE), options.colorSource.storedValue)
                     .putString(key(appWidgetId, TIME_FORMAT), options.timeFormat.storedValue)
                     .putBoolean(key(appWidgetId, SHOW_COUNTDOWN), options.showCountdown)
@@ -48,7 +45,6 @@ internal object WidgetPreferences {
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
             appWidgetIds.forEach { id ->
                 listOf(
-                    STYLE,
                     APPEARANCE,
                     COLOR_SOURCE,
                     TIME_FORMAT,

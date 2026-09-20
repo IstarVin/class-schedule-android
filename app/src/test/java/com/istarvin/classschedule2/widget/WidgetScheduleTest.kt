@@ -13,9 +13,9 @@ class WidgetScheduleTest {
 
     private val schedule = WidgetSchedule(
         listOf(
-            ScheduleClass(DayOfWeek.MONDAY, 9 * 60, 10 * 60, "ITE183", "Web Systems", "TBA"),
-            ScheduleClass(DayOfWeek.MONDAY, 13 * 60, 14 * 60, "ITE105", "Security", "TBA"),
-            ScheduleClass(DayOfWeek.FRIDAY, 15 * 60, 16 * 60, "ITD111", "Business Intelligence", "TBA"),
+            ScheduleClass(DayOfWeek.MONDAY, 9 * 60, 10 * 60, "ITE183", "", "Web Systems", "TBA"),
+            ScheduleClass(DayOfWeek.MONDAY, 13 * 60, 14 * 60, "ITE105", "", "Security", "TBA"),
+            ScheduleClass(DayOfWeek.FRIDAY, 15 * 60, 16 * 60, "ITD111", "", "Business Intelligence", "TBA"),
         ),
     )
 
