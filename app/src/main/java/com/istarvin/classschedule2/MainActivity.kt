@@ -34,7 +34,9 @@ import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.toColorInt
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.istarvin.classschedule2.data.OfflineScheduleHtml
 import com.istarvin.classschedule2.data.ScheduleCache
 import com.istarvin.classschedule2.data.ScheduleSyncWorker
@@ -71,8 +73,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.hide()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         applySystemBarAppearance(isSystemDark())
-        setContentView(createContentView())
+        val contentView = createContentView()
+        setContentView(contentView)
+        applySystemBarInsets(contentView)
         configureWebView()
         onBackPressedDispatcher.addCallback(
             this,
@@ -414,6 +419,28 @@ class MainActivity : AppCompatActivity() {
             isAppearanceLightStatusBars = !isDark
             isAppearanceLightNavigationBars = !isDark
         }
+    }
+
+    private fun applySystemBarInsets(root: View) {
+        val initialPadding = intArrayOf(
+            root.paddingLeft,
+            root.paddingTop,
+            root.paddingRight,
+            root.paddingBottom,
+        )
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
+            )
+            view.setPadding(
+                initialPadding[0],
+                initialPadding[1] + systemBars.top,
+                initialPadding[2],
+                initialPadding[3] + systemBars.bottom,
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(root)
     }
 
     private fun roundedBackground(color: String): GradientDrawable =

@@ -14,6 +14,9 @@ import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.istarvin.classschedule2.R
 
 /** Small native setup flow launched by the widget host before it binds an instance. */
@@ -26,6 +29,7 @@ class WidgetConfigurationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setResult(RESULT_CANCELED)
         appWidgetId = intent?.getIntExtra(
             AppWidgetManager.EXTRA_APPWIDGET_ID,
@@ -44,6 +48,7 @@ class WidgetConfigurationActivity : AppCompatActivity() {
         }
 
         setContentView(R.layout.activity_widget_configuration)
+        applySystemBarInsets(findViewById(R.id.config_root))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = getString(R.string.widget_config_title)
 
@@ -169,5 +174,27 @@ class WidgetConfigurationActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         finish()
         return true
+    }
+
+    private fun applySystemBarInsets(root: View) {
+        val initialPadding = intArrayOf(
+            root.paddingLeft,
+            root.paddingTop,
+            root.paddingRight,
+            root.paddingBottom,
+        )
+        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout(),
+            )
+            view.setPadding(
+                initialPadding[0],
+                initialPadding[1] + systemBars.top,
+                initialPadding[2],
+                initialPadding[3] + systemBars.bottom,
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(root)
     }
 }
