@@ -35,6 +35,7 @@ internal object WidgetScheduleReader {
                         startMinute = start,
                         endMinute = end,
                         code = code,
+                        section = subject?.optString("sec")?.trim().orEmpty(),
                         name = subject?.optString("name")?.trim().takeUnless { it.isNullOrEmpty() } ?: code,
                         room = event.optString("room").trim(),
                     ),

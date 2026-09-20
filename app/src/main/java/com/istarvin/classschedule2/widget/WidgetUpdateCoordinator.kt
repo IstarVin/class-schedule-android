@@ -185,6 +185,7 @@ private object WidgetRemoteViews {
         val colors = palette(context, options)
         views.setTextColor(R.id.compact_state, colors.accent)
         views.setTextColor(R.id.compact_code, colors.accent)
+        views.setTextColor(R.id.compact_section, colors.secondary)
         views.setTextColor(R.id.compact_subject, colors.primary)
         views.setTextColor(R.id.compact_time, colors.secondary)
         views.setTextColor(R.id.compact_countdown, colors.accent)
@@ -194,6 +195,7 @@ private object WidgetRemoteViews {
         if (primary == null) {
             views.setTextViewText(R.id.compact_state, "NO SCHEDULE")
             views.setTextViewText(R.id.compact_code, "CLASS SCHEDULE")
+            views.setViewVisibility(R.id.compact_section, View.GONE)
             views.setTextViewText(R.id.compact_subject, "Open your schedule")
             views.setTextViewText(R.id.compact_time, "Add classes to see what is next")
             views.setViewVisibility(R.id.compact_countdown, View.GONE)
@@ -206,6 +208,7 @@ private object WidgetRemoteViews {
             primaryLabel(snapshot),
         )
         views.setTextViewText(R.id.compact_code, primary.code)
+        setOptionalText(views, R.id.compact_section, primary.section)
         views.setTextViewText(R.id.compact_subject, primary.name)
         views.setTextViewText(
             R.id.compact_time,
@@ -245,9 +248,11 @@ private object WidgetRemoteViews {
             R.id.medium_primary_label,
             R.id.medium_primary_time,
             R.id.medium_primary_room,
+            R.id.medium_primary_section,
             R.id.medium_next_label,
             R.id.medium_next_time,
             R.id.medium_next_room,
+            R.id.medium_next_section,
         ).forEach { views.setTextColor(it, colors.secondary) }
         listOf(R.id.medium_primary_code, R.id.medium_next_code, R.id.medium_countdown).forEach {
             views.setTextColor(it, colors.accent)
@@ -260,6 +265,7 @@ private object WidgetRemoteViews {
         if (primary == null) {
             views.setTextViewText(R.id.medium_primary_label, "NO SCHEDULE")
             views.setTextViewText(R.id.medium_primary_code, "CLASS SCHEDULE")
+            views.setViewVisibility(R.id.medium_primary_section, View.GONE)
             views.setTextViewText(R.id.medium_primary_subject, "Open your schedule")
             views.setTextViewText(R.id.medium_primary_time, "Your saved schedule will appear here")
             views.setViewVisibility(R.id.medium_primary_room, View.GONE)
@@ -276,6 +282,7 @@ private object WidgetRemoteViews {
             primaryLabel(snapshot),
         )
         views.setTextViewText(R.id.medium_primary_code, primary.code)
+        setOptionalText(views, R.id.medium_primary_section, primary.section)
         views.setTextViewText(R.id.medium_primary_subject, primary.name)
         views.setTextViewText(
             R.id.medium_primary_time,
@@ -312,6 +319,7 @@ private object WidgetRemoteViews {
             views.setViewVisibility(R.id.medium_divider, View.VISIBLE)
             views.setTextViewText(R.id.medium_next_label, if (isCurrent) "NEXT" else "THEN")
             views.setTextViewText(R.id.medium_next_code, secondary.scheduleClass.code)
+            setOptionalText(views, R.id.medium_next_section, secondary.scheduleClass.section)
             views.setTextViewText(R.id.medium_next_subject, secondary.scheduleClass.name)
             views.setTextViewText(R.id.medium_next_time, dateTime(context, secondary, options, snapshot.now.toLocalDate()))
             setOptionalText(views, R.id.medium_next_room, room(secondary.scheduleClass.room, options))
@@ -361,6 +369,7 @@ private object WidgetRemoteViews {
         val startTimeIds = intArrayOf(R.id.large_start_time_1, R.id.large_start_time_2, R.id.large_start_time_3, R.id.large_start_time_4, R.id.large_start_time_5)
         val endTimeIds = intArrayOf(R.id.large_end_time_1, R.id.large_end_time_2, R.id.large_end_time_3, R.id.large_end_time_4, R.id.large_end_time_5)
         val codeIds = intArrayOf(R.id.large_code_1, R.id.large_code_2, R.id.large_code_3, R.id.large_code_4, R.id.large_code_5)
+        val sectionIds = intArrayOf(R.id.large_section_1, R.id.large_section_2, R.id.large_section_3, R.id.large_section_4, R.id.large_section_5)
         val subjectIds = intArrayOf(R.id.large_subject_1, R.id.large_subject_2, R.id.large_subject_3, R.id.large_subject_4, R.id.large_subject_5)
         val roomIds = intArrayOf(R.id.large_room_1, R.id.large_room_2, R.id.large_room_3, R.id.large_room_4, R.id.large_room_5)
         val nowIds = intArrayOf(R.id.large_now_1, R.id.large_now_2, R.id.large_now_3, R.id.large_now_4, R.id.large_now_5)
@@ -377,10 +386,12 @@ private object WidgetRemoteViews {
             views.setTextViewText(startTimeIds[index], time(context, item.startMinute, options))
             views.setTextViewText(endTimeIds[index], time(context, item.endMinute, options))
             views.setTextViewText(codeIds[index], item.code)
+            setOptionalText(views, sectionIds[index], item.section)
             views.setTextViewText(subjectIds[index], item.name)
             setOptionalText(views, roomIds[index], room(item.room, options))
             views.setViewVisibility(nowIds[index], if (isCurrent) View.VISIBLE else View.GONE)
             views.setTextColor(codeIds[index], if (isPast) colors.muted else colors.accent)
+            views.setTextColor(sectionIds[index], if (isPast) colors.muted else colors.secondary)
             views.setTextColor(startTimeIds[index], if (isPast) colors.muted else colors.secondary)
             views.setTextColor(endTimeIds[index], colors.muted)
             views.setTextColor(subjectIds[index], if (isPast) colors.muted else colors.primary)

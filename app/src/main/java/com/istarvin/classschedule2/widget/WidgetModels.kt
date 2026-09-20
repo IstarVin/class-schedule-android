@@ -10,6 +10,7 @@ internal data class ScheduleClass(
     val startMinute: Int,
     val endMinute: Int,
     val code: String,
+    val section: String,
     val name: String,
     val room: String,
 )
