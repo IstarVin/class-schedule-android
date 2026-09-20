@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="6dp"
         android:ellipsize="end"
         android:includeFontPadding="false"
         android:singleLine="true"
@@ -66,30 +66,113 @@
         android:gravity="center"
         android:textSize="14sp" />
 
-    <LinearLayout android:id="@+id/large_row_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-        <TextView android:id="@+id/large_time_1" android:layout_width="76dp" android:layout_height="wrap_content" android:textSize="11sp" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_subject_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
+    <LinearLayout android:id="@+id/large_row_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="7dp">
+        <TextView android:id="@+id/large_status_bar_1" android:layout_width="3dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:background="@color/widget_accent" android:text="" />
+        <TextView android:id="@+id/large_time_1" android:layout_width="96dp" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="11sp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_code_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:textSize="9sp" android:textStyle="bold" /><TextView android:id="@+id/large_subject_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="2" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_1" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
         <TextView android:id="@+id/large_now_1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="NOW" android:textSize="10sp" android:textStyle="bold" />
     </LinearLayout>
-    <LinearLayout android:id="@+id/large_row_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-        <TextView android:id="@+id/large_time_2" android:layout_width="76dp" android:layout_height="wrap_content" android:textSize="11sp" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_subject_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
+    <LinearLayout android:id="@+id/large_row_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="7dp">
+        <TextView android:id="@+id/large_status_bar_2" android:layout_width="3dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:background="@color/widget_accent" android:text="" />
+        <TextView android:id="@+id/large_time_2" android:layout_width="96dp" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="11sp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_code_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:textSize="9sp" android:textStyle="bold" /><TextView android:id="@+id/large_subject_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="2" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_2" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
         <TextView android:id="@+id/large_now_2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="NOW" android:textSize="10sp" android:textStyle="bold" />
     </LinearLayout>
-    <LinearLayout android:id="@+id/large_row_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-        <TextView android:id="@+id/large_time_3" android:layout_width="76dp" android:layout_height="wrap_content" android:textSize="11sp" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_subject_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
+    <LinearLayout android:id="@+id/large_row_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="7dp">
+        <TextView android:id="@+id/large_status_bar_3" android:layout_width="3dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:background="@color/widget_accent" android:text="" />
+        <TextView android:id="@+id/large_time_3" android:layout_width="96dp" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="11sp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_code_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:textSize="9sp" android:textStyle="bold" /><TextView android:id="@+id/large_subject_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="2" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_3" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
         <TextView android:id="@+id/large_now_3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="NOW" android:textSize="10sp" android:textStyle="bold" />
     </LinearLayout>
-    <LinearLayout android:id="@+id/large_row_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-        <TextView android:id="@+id/large_time_4" android:layout_width="76dp" android:layout_height="wrap_content" android:textSize="11sp" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_subject_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
+    <LinearLayout android:id="@+id/large_row_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="7dp">
+        <TextView android:id="@+id/large_status_bar_4" android:layout_width="3dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:background="@color/widget_accent" android:text="" />
+        <TextView android:id="@+id/large_time_4" android:layout_width="96dp" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="11sp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_code_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:textSize="9sp" android:textStyle="bold" /><TextView android:id="@+id/large_subject_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="2" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_4" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
         <TextView android:id="@+id/large_now_4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="NOW" android:textSize="10sp" android:textStyle="bold" />
     </LinearLayout>
-    <LinearLayout android:id="@+id/large_row_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="10dp">
-        <TextView android:id="@+id/large_time_5" android:layout_width="76dp" android:layout_height="wrap_content" android:textSize="11sp" />
-        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_subject_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
+    <LinearLayout android:id="@+id/large_row_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:background="@drawable/widget_panel_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="7dp">
+        <TextView android:id="@+id/large_status_bar_5" android:layout_width="3dp" android:layout_height="match_parent" android:layout_marginEnd="8dp" android:background="@color/widget_accent" android:text="" />
+        <TextView android:id="@+id/large_time_5" android:layout_width="96dp" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="11sp" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical"><TextView android:id="@+id/large_code_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:includeFontPadding="false" android:textSize="9sp" android:textStyle="bold" /><TextView android:id="@+id/large_subject_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:maxLines="2" android:textSize="13sp" android:textStyle="bold" /><TextView android:id="@+id/large_room_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:includeFontPadding="false" android:singleLine="true" android:textSize="10sp" /></LinearLayout>
         <TextView android:id="@+id/large_now_5" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="NOW" android:textSize="10sp" android:textStyle="bold" />
     </LinearLayout>
-    <TextView android:id="@+id/large_more" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:gravity="center" android:textSize="11sp" />
+    <TextView android:id="@+id/large_more" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:gravity="center" android:textSize="11sp" />
+
+    <LinearLayout
+        android:id="@+id/large_up_next_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/widget_panel_background"
+        android:orientation="vertical"
+        android:padding="9dp">
+
+        <TextView
+            android:id="@+id/large_up_next_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="UP NEXT"
+            android:textAllCaps="true"
+            android:textSize="9sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/large_up_next_subject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:maxLines="2"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/large_up_next_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/large_up_next_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:singleLine="true"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/large_up_next_countdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/large_up_next_following"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:ellipsize="end"
+            android:includeFontPadding="false"
+            android:singleLine="true"
+            android:textSize="10sp" />
+    </LinearLayout>
 </LinearLayout>

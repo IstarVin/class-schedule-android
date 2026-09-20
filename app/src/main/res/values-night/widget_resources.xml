@@ -4,7 +4,7 @@
     <color name="widget_current">#263A53</color>
     <color name="widget_divider">#34373E</color>
     <color name="widget_text_primary">#F3F3F5</color>
-    <color name="widget_text_secondary">#A9ABB3</color>
-    <color name="widget_text_muted">#70727A</color>
+    <color name="widget_text_secondary">#C0C2C9</color>
+    <color name="widget_text_muted">#858993</color>
     <color name="widget_accent">#9CC4FF</color>
 </resources>

@@ -35,23 +35,23 @@
     <color name="widget_current">#DDEAFB</color>
     <color name="widget_divider">#D8DEE9</color>
     <color name="widget_text_primary">#1A1B1F</color>
-    <color name="widget_text_secondary">#70727A</color>
-    <color name="widget_text_muted">#9A9CA4</color>
+    <color name="widget_text_secondary">#626772</color>
+    <color name="widget_text_muted">#858993</color>
     <color name="widget_accent">#476A9B</color>
 
     <color name="widget_light_surface">#F8F9FC</color>
     <color name="widget_light_panel">#EEF2F8</color>
     <color name="widget_light_current">#DDEAFB</color>
     <color name="widget_light_text_primary">#1A1B1F</color>
-    <color name="widget_light_text_secondary">#70727A</color>
-    <color name="widget_light_text_muted">#9A9CA4</color>
+    <color name="widget_light_text_secondary">#626772</color>
+    <color name="widget_light_text_muted">#858993</color>
     <color name="widget_light_accent">#476A9B</color>
 
     <color name="widget_dark_surface">#16171A</color>
     <color name="widget_dark_panel">#202227</color>
     <color name="widget_dark_current">#263A53</color>
     <color name="widget_dark_text_primary">#F3F3F5</color>
-    <color name="widget_dark_text_secondary">#A9ABB3</color>
-    <color name="widget_dark_text_muted">#70727A</color>
+    <color name="widget_dark_text_secondary">#C0C2C9</color>
+    <color name="widget_dark_text_muted">#858993</color>
     <color name="widget_dark_accent">#9CC4FF</color>
 </resources>

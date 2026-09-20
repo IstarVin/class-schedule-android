@@ -91,7 +91,7 @@
                 android:singleLine="true"
                 android:textSize="11sp" />
 
-            <Chronometer
+            <TextView
                 android:id="@+id/medium_countdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -77,7 +77,7 @@
         android:maxLines="1"
         android:textSize="12sp" />
 
-    <Chronometer
+    <TextView
         android:id="@+id/compact_countdown"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

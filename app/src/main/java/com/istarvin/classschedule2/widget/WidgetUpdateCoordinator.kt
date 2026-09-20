@@ -6,13 +6,13 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.text.format.DateFormat
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.net.toUri
 import com.istarvin.classschedule2.R
 import java.time.Duration
 import java.time.LocalDate
@@ -61,7 +61,7 @@ internal object WidgetUpdateCoordinator {
         val next = nextAfter(
             schedule = schedule,
             date = now.toLocalDate(),
-            minute = if (current == null) minuteOfDay else current.endMinute,
+            minute = current?.endMinute ?: minuteOfDay,
             includeMinute = current != null,
         )
         val following = next?.let {
@@ -110,8 +110,8 @@ internal object WidgetUpdateCoordinator {
     ): ZonedDateTime {
         if (current != null) {
             val end = at(now.toLocalDate(), current.endMinute, now)
-            // A running Chronometer keeps the text live. A 15-minute update keeps the optional
-            // RemoteViews progress bar useful without a battery-expensive per-minute alarm.
+            // A 15-minute update keeps the optional RemoteViews progress bar useful without a
+            // battery-expensive per-minute alarm.
             val quarterHour = now.truncatedTo(ChronoUnit.MINUTES)
                 .plusMinutes((15 - (now.minute % 15)).toLong())
             return if (quarterHour.isBefore(end)) quarterHour else end
@@ -119,7 +119,13 @@ internal object WidgetUpdateCoordinator {
         val midnight = now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
         val nextStart = next?.let { at(it.date, it.scheduleClass.startMinute, now) }
         // A date change can alter the state even if Monday's first class is days away.
-        return if (nextStart != null && nextStart.isBefore(midnight)) nextStart else midnight
+        if (nextStart != null && nextStart.isBefore(midnight)) {
+            // Keep the calm countdown label fresh as it crosses hour/quarter-hour boundaries.
+            val quarterHour = now.truncatedTo(ChronoUnit.MINUTES)
+                .plusMinutes((15 - (now.minute % 15)).toLong())
+            return if (quarterHour.isBefore(nextStart)) quarterHour else nextStart
+        }
+        return midnight
     }
 
     internal fun at(date: LocalDate, minute: Int, reference: ZonedDateTime): ZonedDateTime =
@@ -177,7 +183,7 @@ private object WidgetRemoteViews {
         val primary = snapshot.current ?: snapshot.next?.scheduleClass
         val isCurrent = snapshot.current != null
         val colors = palette(context, options)
-        views.setTextColor(R.id.compact_state, colors.secondary)
+        views.setTextColor(R.id.compact_state, colors.accent)
         views.setTextColor(R.id.compact_code, colors.accent)
         views.setTextColor(R.id.compact_subject, colors.primary)
         views.setTextColor(R.id.compact_time, colors.secondary)
@@ -216,7 +222,7 @@ private object WidgetRemoteViews {
             now = snapshot.now,
             target = target,
             enabled = options.showCountdown && (isCurrent || snapshot.next?.date == snapshot.now.toLocalDate()),
-            suffix = if (isCurrent) "%s left" else "%s until start",
+            prefix = if (isCurrent) "Ends in" else "Starts in",
         )
         val nextLine = when {
             !options.showNext -> null
@@ -287,7 +293,7 @@ private object WidgetRemoteViews {
             snapshot.now,
             target,
             options.showCountdown && (isCurrent || snapshot.next?.date == snapshot.now.toLocalDate()),
-            if (isCurrent) "%s left" else "%s until start",
+            if (isCurrent) "Ends in" else "Starts in",
         )
         if (isCurrent && options.showProgress) {
             val elapsed = (snapshot.now.hour * 60 + snapshot.now.minute) - primary.startMinute
@@ -326,11 +332,20 @@ private object WidgetRemoteViews {
         views.setTextColor(R.id.large_empty, colors.secondary)
         views.setTextColor(R.id.large_refresh, colors.accent)
         views.setTextColor(R.id.large_more, colors.secondary)
+        listOf(
+            R.id.large_up_next_label,
+            R.id.large_up_next_time,
+            R.id.large_up_next_room,
+            R.id.large_up_next_following,
+        ).forEach { views.setTextColor(it, colors.secondary) }
+        views.setTextColor(R.id.large_up_next_label, colors.accent)
+        views.setTextColor(R.id.large_up_next_subject, colors.primary)
+        views.setTextColor(R.id.large_up_next_countdown, colors.accent)
         views.setTextViewText(
             R.id.large_date,
             snapshot.now.format(DateTimeFormatter.ofPattern("EEEE · MMM d", locale)).uppercase(locale),
         )
-        views.setTextViewText(R.id.large_status, statusLine(context, snapshot, options))
+        views.setTextViewText(R.id.large_status, todaySummary(snapshot))
         if (snapshot.today.isEmpty()) {
             views.setViewVisibility(R.id.large_empty, View.VISIBLE)
             views.setTextViewText(
@@ -344,21 +359,41 @@ private object WidgetRemoteViews {
 
         val rowIds = intArrayOf(R.id.large_row_1, R.id.large_row_2, R.id.large_row_3, R.id.large_row_4, R.id.large_row_5)
         val timeIds = intArrayOf(R.id.large_time_1, R.id.large_time_2, R.id.large_time_3, R.id.large_time_4, R.id.large_time_5)
+        val codeIds = intArrayOf(R.id.large_code_1, R.id.large_code_2, R.id.large_code_3, R.id.large_code_4, R.id.large_code_5)
         val subjectIds = intArrayOf(R.id.large_subject_1, R.id.large_subject_2, R.id.large_subject_3, R.id.large_subject_4, R.id.large_subject_5)
         val roomIds = intArrayOf(R.id.large_room_1, R.id.large_room_2, R.id.large_room_3, R.id.large_room_4, R.id.large_room_5)
         val nowIds = intArrayOf(R.id.large_now_1, R.id.large_now_2, R.id.large_now_3, R.id.large_now_4, R.id.large_now_5)
+        val statusBarIds = intArrayOf(R.id.large_status_bar_1, R.id.large_status_bar_2, R.id.large_status_bar_3, R.id.large_status_bar_4, R.id.large_status_bar_5)
         snapshot.today.take(5).forEachIndexed { index, item ->
             val isCurrent = snapshot.current?.let { it.startMinute == item.startMinute && it.code == item.code } == true
             val isPast = !isCurrent && snapshot.now.hour * 60 + snapshot.now.minute >= item.endMinute
+            val isFirstUpcoming = !isPast && !isCurrent && snapshot.next?.let {
+                it.date == snapshot.now.toLocalDate() &&
+                    it.scheduleClass.startMinute == item.startMinute &&
+                    it.scheduleClass.code == item.code
+            } == true
             views.setViewVisibility(rowIds[index], View.VISIBLE)
             views.setTextViewText(timeIds[index], range(context, item, options))
-            views.setTextViewText(subjectIds[index], "${item.code} · ${item.name}")
+            views.setTextViewText(codeIds[index], item.code)
+            views.setTextViewText(subjectIds[index], item.name)
             setOptionalText(views, roomIds[index], room(item.room, options))
             views.setViewVisibility(nowIds[index], if (isCurrent) View.VISIBLE else View.GONE)
+            views.setTextColor(codeIds[index], if (isPast) colors.muted else colors.accent)
             views.setTextColor(timeIds[index], if (isPast) colors.muted else colors.secondary)
             views.setTextColor(subjectIds[index], if (isPast) colors.muted else colors.primary)
             views.setTextColor(roomIds[index], if (isPast) colors.muted else colors.secondary)
             views.setTextColor(nowIds[index], colors.accent)
+            views.setViewVisibility(statusBarIds[index], View.VISIBLE)
+            views.setInt(
+                statusBarIds[index],
+                "setBackgroundColor",
+                when {
+                    isCurrent -> colors.accent
+                    isFirstUpcoming -> colors.accent
+                    isPast -> colors.muted
+                    else -> colors.secondary
+                },
+            )
             views.setInt(
                 rowIds[index],
                 "setBackgroundResource",
@@ -373,6 +408,39 @@ private object WidgetRemoteViews {
             views.setViewVisibility(R.id.large_more, View.VISIBLE)
         } else {
             views.setViewVisibility(R.id.large_more, View.GONE)
+        }
+
+        val next = snapshot.next
+        if (next == null) {
+            views.setViewVisibility(R.id.large_up_next_panel, View.GONE)
+        } else {
+            views.setViewVisibility(R.id.large_up_next_panel, View.VISIBLE)
+            views.setTextViewText(R.id.large_up_next_label, "UP NEXT")
+            views.setTextViewText(R.id.large_up_next_subject, next.scheduleClass.name)
+            views.setTextViewText(
+                R.id.large_up_next_time,
+                if (next.date == snapshot.now.toLocalDate()) {
+                    time(context, next.scheduleClass.startMinute, options)
+                } else {
+                    dateTime(context, next, options, snapshot.now.toLocalDate())
+                },
+            )
+            setOptionalText(views, R.id.large_up_next_room, room(next.scheduleClass.room, options))
+            configureCountdown(
+                views = views,
+                viewId = R.id.large_up_next_countdown,
+                now = snapshot.now,
+                target = WidgetUpdateCoordinator.at(next.date, next.scheduleClass.startMinute, snapshot.now),
+                enabled = options.showCountdown && next.date == snapshot.now.toLocalDate(),
+                prefix = "Starts in",
+            )
+            setOptionalText(
+                views,
+                R.id.large_up_next_following,
+                snapshot.following?.let {
+                    "Then · ${it.scheduleClass.code} · ${dateTime(context, it, options, snapshot.now.toLocalDate())}"
+                },
+            )
         }
     }
 
@@ -404,7 +472,7 @@ private object WidgetRemoteViews {
         val launch = context.packageManager.getLaunchIntentForPackage(context.packageName)
             ?: Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER).setPackage(context.packageName)
         launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        launch.data = Uri.parse("aj-schedule://widget/$appWidgetId/open")
+        launch.data = "aj-schedule://widget/$appWidgetId/open".toUri()
         val openApp = PendingIntent.getActivity(
             context,
             appWidgetId,
@@ -416,7 +484,7 @@ private object WidgetRemoteViews {
             appWidgetId,
             Intent(context, WidgetRefreshReceiver::class.java)
                 .setAction(WidgetRefreshReceiver.ACTION_MANUAL_REFRESH)
-                .setData(Uri.parse("aj-schedule://widget/$appWidgetId/refresh")),
+                .setData("aj-schedule://widget/$appWidgetId/refresh".toUri()),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         when (layout) {
@@ -441,23 +509,24 @@ private object WidgetRemoteViews {
         now: ZonedDateTime,
         target: ZonedDateTime?,
         enabled: Boolean,
-        suffix: String,
+        prefix: String,
     ) {
         if (!enabled || target == null || !target.isAfter(now)) {
             views.setViewVisibility(viewId, View.GONE)
             return
         }
         val remaining = Duration.between(now, target).toMillis()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            views.setChronometerCountDown(viewId, true)
-            views.setChronometer(viewId, SystemClock.elapsedRealtime() + remaining, suffix, true)
-        } else {
-            // API 30 does not expose a RemoteViews count-down Chronometer. A static, accurate
-            // value is preferable to a future-base count-up timer; the transition alarm refreshes it.
-            val minutes = max(1, remaining / 60_000L)
-            val duration = if (minutes < 60) "$minutes min" else "${minutes / 60}h ${minutes % 60}m"
-            views.setTextViewText(viewId, if (suffix.contains("left")) "$duration left" else "$duration until start")
+        // A static minute-level label is easier to scan than a live HH:MM:SS timer. The widget
+        // refresh alarm updates this label as the class approaches, while the final minute is
+        // intentionally still calm instead of introducing a second-by-second countdown.
+        val minutes = (remaining + 59_999L) / 60_000L
+        val duration = when {
+            minutes < 1 -> "less than 1 min"
+            minutes < 60 -> "$minutes min"
+            minutes % 60 == 0L -> "${minutes / 60} hr"
+            else -> "${minutes / 60}h ${minutes % 60}m"
         }
+        views.setTextViewText(viewId, "$prefix $duration")
         views.setViewVisibility(viewId, View.VISIBLE)
     }
 
@@ -470,17 +539,10 @@ private object WidgetRemoteViews {
         }
     }
 
-    private fun statusLine(context: Context, snapshot: WidgetSnapshot, options: WidgetOptions): String = when (snapshot.state) {
-        WidgetState.CURRENT -> {
-            val item = snapshot.current!!
-            val prefix = if (isLastClassToday(snapshot)) "Last class today" else "Now"
-            "$prefix · ${item.code} · ${minutesUntil(snapshot.now, WidgetUpdateCoordinator.at(snapshot.now.toLocalDate(), item.endMinute, snapshot.now))} left"
-        }
-        WidgetState.UP_NEXT -> snapshot.next?.let { "Up next · ${it.scheduleClass.code} · ${minutesUntil(snapshot.now, WidgetUpdateCoordinator.at(it.date, it.scheduleClass.startMinute, snapshot.now))}" }
-            ?: "No more classes today"
-        WidgetState.DONE_FOR_TODAY -> snapshot.next?.let { "Done for today · Next ${dateTime(context, it, options, snapshot.now.toLocalDate())}" } ?: "You’re done for today"
-        WidgetState.NO_CLASSES_TODAY -> snapshot.next?.let { "No classes today · Next ${dateTime(context, it, options, snapshot.now.toLocalDate())}" } ?: "No classes today"
-        WidgetState.EMPTY -> "No schedule saved"
+    private fun todaySummary(snapshot: WidgetSnapshot): String = when {
+        snapshot.today.isEmpty() -> "No classes today"
+        snapshot.today.size == 1 -> "1 class today"
+        else -> "${snapshot.today.size} classes today"
     }
 
     private fun primaryLabel(snapshot: WidgetSnapshot): String = when (snapshot.state) {
@@ -497,8 +559,28 @@ private object WidgetRemoteViews {
     private fun room(room: String, options: WidgetOptions): String? =
         room.takeIf { options.showRoom && it.isNotBlank() }?.let { "Room $it" }
 
-    private fun range(context: Context, item: ScheduleClass, options: WidgetOptions): String =
-        "${time(context, item.startMinute, options)}–${time(context, item.endMinute, options)}"
+    private fun range(context: Context, item: ScheduleClass, options: WidgetOptions): String {
+        val use24Hour = when (options.timeFormat) {
+            WidgetTimeFormat.SYSTEM -> DateFormat.is24HourFormat(context)
+            WidgetTimeFormat.HOUR_12 -> false
+            WidgetTimeFormat.HOUR_24 -> true
+        }
+        if (use24Hour) return "${time(context, item.startMinute, options)}–${time(context, item.endMinute, options)}"
+
+        val start = localTime(item.startMinute)
+        val end = localTime(item.endMinute)
+        val startMeridiem = start.format(DateTimeFormatter.ofPattern("a", Locale.getDefault()))
+        val endMeridiem = end.format(DateTimeFormatter.ofPattern("a", Locale.getDefault()))
+        val clock = DateTimeFormatter.ofPattern("h:mm", Locale.getDefault())
+        return if (startMeridiem == endMeridiem) {
+            "${start.format(clock)}–${end.format(clock)} $endMeridiem"
+        } else {
+            "${start.format(clock)} $startMeridiem–${end.format(clock)} $endMeridiem"
+        }
+    }
+
+    private fun localTime(minute: Int): LocalTime =
+        if (minute == 1440) LocalTime.MIDNIGHT else LocalTime.of(minute / 60, minute % 60)
 
     private fun dateTime(
         context: Context,
@@ -521,18 +603,9 @@ private object WidgetRemoteViews {
             WidgetTimeFormat.HOUR_24 -> true
         }
         if (minute == 1440) return if (use24Hour) "00:00" else "12:00 AM"
-        return LocalTime.of(minute / 60, minute % 60).format(
+        return localTime(minute).format(
             DateTimeFormatter.ofPattern(if (use24Hour) "HH:mm" else "h:mm a", Locale.getDefault()),
         )
-    }
-
-    private fun minutesUntil(now: ZonedDateTime, target: ZonedDateTime): String {
-        val minutes = max(0, Duration.between(now, target).toMinutes())
-        return when {
-            minutes < 1 -> "less than a minute"
-            minutes < 60 -> "$minutes min"
-            else -> "${minutes / 60}h ${minutes % 60}m"
-        }
     }
 
     private data class Palette(val primary: Int, val secondary: Int, val muted: Int, val accent: Int)
