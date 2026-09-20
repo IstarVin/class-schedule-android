@@ -12,6 +12,7 @@ import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.charset.StandardCharsets
+import androidx.core.content.edit
 
 /**
  * The single schedule-data handoff between the WebView shell, background sync,
@@ -98,7 +99,7 @@ object ScheduleCache {
             when (val status = connection.responseCode) {
                 HttpURLConnection.HTTP_NOT_MODIFIED -> {
                     val now = System.currentTimeMillis()
-                    preferences.edit().putLong(KEY_LAST_UPDATED, now).apply()
+                    preferences.edit { putLong(KEY_LAST_UPDATED, now) }
                     RefreshResult.NotModified(now)
                 }
 
@@ -108,12 +109,12 @@ object ScheduleCache {
                     writeAtomically(file(appContext), bytes)
 
                     val now = System.currentTimeMillis()
-                    preferences.edit()
-                        .putLong(KEY_LAST_UPDATED, now)
-                        .apply {
-                            connection?.getHeaderField("ETag")?.let { putString(KEY_ETAG, it) }
-                        }
-                        .apply()
+                    preferences.edit {
+                        putLong(KEY_LAST_UPDATED, now)
+                            .apply {
+                                connection.getHeaderField("ETag")?.let { putString(KEY_ETAG, it) }
+                            }
+                    }
                     RefreshResult.Updated(bytes.size, now)
                 }
 
