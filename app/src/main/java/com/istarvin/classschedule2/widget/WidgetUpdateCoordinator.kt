@@ -358,7 +358,8 @@ private object WidgetRemoteViews {
         }
 
         val rowIds = intArrayOf(R.id.large_row_1, R.id.large_row_2, R.id.large_row_3, R.id.large_row_4, R.id.large_row_5)
-        val timeIds = intArrayOf(R.id.large_time_1, R.id.large_time_2, R.id.large_time_3, R.id.large_time_4, R.id.large_time_5)
+        val startTimeIds = intArrayOf(R.id.large_start_time_1, R.id.large_start_time_2, R.id.large_start_time_3, R.id.large_start_time_4, R.id.large_start_time_5)
+        val endTimeIds = intArrayOf(R.id.large_end_time_1, R.id.large_end_time_2, R.id.large_end_time_3, R.id.large_end_time_4, R.id.large_end_time_5)
         val codeIds = intArrayOf(R.id.large_code_1, R.id.large_code_2, R.id.large_code_3, R.id.large_code_4, R.id.large_code_5)
         val subjectIds = intArrayOf(R.id.large_subject_1, R.id.large_subject_2, R.id.large_subject_3, R.id.large_subject_4, R.id.large_subject_5)
         val roomIds = intArrayOf(R.id.large_room_1, R.id.large_room_2, R.id.large_room_3, R.id.large_room_4, R.id.large_room_5)
@@ -373,13 +374,15 @@ private object WidgetRemoteViews {
                     it.scheduleClass.code == item.code
             } == true
             views.setViewVisibility(rowIds[index], View.VISIBLE)
-            views.setTextViewText(timeIds[index], range(context, item, options))
+            views.setTextViewText(startTimeIds[index], time(context, item.startMinute, options))
+            views.setTextViewText(endTimeIds[index], time(context, item.endMinute, options))
             views.setTextViewText(codeIds[index], item.code)
             views.setTextViewText(subjectIds[index], item.name)
             setOptionalText(views, roomIds[index], room(item.room, options))
             views.setViewVisibility(nowIds[index], if (isCurrent) View.VISIBLE else View.GONE)
             views.setTextColor(codeIds[index], if (isPast) colors.muted else colors.accent)
-            views.setTextColor(timeIds[index], if (isPast) colors.muted else colors.secondary)
+            views.setTextColor(startTimeIds[index], if (isPast) colors.muted else colors.secondary)
+            views.setTextColor(endTimeIds[index], colors.muted)
             views.setTextColor(subjectIds[index], if (isPast) colors.muted else colors.primary)
             views.setTextColor(roomIds[index], if (isPast) colors.muted else colors.secondary)
             views.setTextColor(nowIds[index], colors.accent)
