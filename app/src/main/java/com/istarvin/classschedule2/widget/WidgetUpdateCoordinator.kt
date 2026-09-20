@@ -183,6 +183,7 @@ private object WidgetRemoteViews {
         views.setTextColor(R.id.compact_time, colors.secondary)
         views.setTextColor(R.id.compact_countdown, colors.accent)
         views.setTextColor(R.id.compact_next, colors.secondary)
+        views.setTextColor(R.id.compact_refresh, colors.accent)
 
         if (primary == null) {
             views.setTextViewText(R.id.compact_state, "NO SCHEDULE")
@@ -245,6 +246,7 @@ private object WidgetRemoteViews {
         listOf(R.id.medium_primary_code, R.id.medium_next_code, R.id.medium_countdown).forEach {
             views.setTextColor(it, colors.accent)
         }
+        views.setTextColor(R.id.medium_refresh, colors.accent)
         listOf(R.id.medium_primary_subject, R.id.medium_next_subject).forEach {
             views.setTextColor(it, colors.primary)
         }
@@ -319,8 +321,11 @@ private object WidgetRemoteViews {
         val colors = palette(context, options)
         val locale = Locale.getDefault()
         views.setTextColor(R.id.large_date, colors.primary)
+        views.setTextColor(R.id.large_overline, colors.accent)
         views.setTextColor(R.id.large_status, colors.secondary)
         views.setTextColor(R.id.large_empty, colors.secondary)
+        views.setTextColor(R.id.large_refresh, colors.accent)
+        views.setTextColor(R.id.large_more, colors.secondary)
         views.setTextViewText(
             R.id.large_date,
             snapshot.now.format(DateTimeFormatter.ofPattern("EEEE · MMM d", locale)).uppercase(locale),
@@ -357,7 +362,7 @@ private object WidgetRemoteViews {
             views.setInt(
                 rowIds[index],
                 "setBackgroundResource",
-                if (isCurrent) activeRowBackground(options) else R.drawable.widget_row_background,
+                if (isCurrent) activeRowBackground(context, options) else panelBackground(context, options),
             )
         }
         for (index in snapshot.today.size.coerceAtMost(5) until rowIds.size) {
@@ -373,14 +378,25 @@ private object WidgetRemoteViews {
 
     private fun applyAppearance(context: Context, views: RemoteViews, layout: WidgetLayout, options: WidgetOptions) {
         val background = rootBackground(context, options)
+        val panel = panelBackground(context, options)
         when (layout) {
-            WidgetLayout.COMPACT -> views.setInt(R.id.compact_root, "setBackgroundResource", background)
+            WidgetLayout.COMPACT -> {
+                views.setInt(R.id.compact_root, "setBackgroundResource", background)
+                views.setInt(R.id.compact_state, "setBackgroundResource", panel)
+                views.setInt(R.id.compact_refresh, "setBackgroundResource", panel)
+            }
             WidgetLayout.MEDIUM -> {
                 views.setInt(R.id.medium_root, "setBackgroundResource", background)
-                views.setInt(R.id.medium_primary_panel, "setBackgroundResource", panelBackground(context, options))
-                views.setInt(R.id.medium_next_panel, "setBackgroundResource", panelBackground(context, options))
+                views.setInt(R.id.medium_primary_panel, "setBackgroundResource", panel)
+                views.setInt(R.id.medium_next_panel, "setBackgroundResource", panel)
+                // The refresh control sits inside a panel, so use the root surface to retain a
+                // visible, compact touch target in every color mode.
+                views.setInt(R.id.medium_refresh, "setBackgroundResource", background)
             }
-            WidgetLayout.LARGE -> views.setInt(R.id.large_root, "setBackgroundResource", background)
+            WidgetLayout.LARGE -> {
+                views.setInt(R.id.large_root, "setBackgroundResource", background)
+                views.setInt(R.id.large_refresh, "setBackgroundResource", panel)
+            }
         }
     }
 
@@ -581,10 +597,19 @@ private object WidgetRemoteViews {
         }
     }
 
-    private fun activeRowBackground(options: WidgetOptions): Int = when (options.appearance) {
-        WidgetAppearance.SYSTEM -> R.drawable.widget_row_active
-        WidgetAppearance.LIGHT -> R.drawable.widget_row_active_light
-        WidgetAppearance.DARK -> R.drawable.widget_row_active_dark
+    private fun activeRowBackground(context: Context, options: WidgetOptions): Int {
+        if (options.colorSource == WidgetColorSource.MATERIAL_YOU && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            return if (isDark(context, options.appearance)) {
+                R.drawable.widget_row_active_dynamic_dark
+            } else {
+                R.drawable.widget_row_active_dynamic_light
+            }
+        }
+        return when (options.appearance) {
+            WidgetAppearance.SYSTEM -> R.drawable.widget_row_active
+            WidgetAppearance.LIGHT -> R.drawable.widget_row_active_light
+            WidgetAppearance.DARK -> R.drawable.widget_row_active_dark
+        }
     }
 
     private fun isDark(context: Context, appearance: WidgetAppearance): Boolean = when (appearance) {

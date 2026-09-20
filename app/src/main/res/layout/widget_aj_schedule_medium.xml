@@ -23,20 +23,40 @@
             android:orientation="vertical"
             android:padding="13dp">
 
-            <TextView
-                android:id="@+id/medium_primary_label"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="NOW"
-                android:textAllCaps="true"
-                android:textSize="10sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/medium_primary_label"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:includeFontPadding="false"
+                    android:text="NOW"
+                    android:textAllCaps="true"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/medium_refresh"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/widget_icon_button_background"
+                    android:contentDescription="Refresh schedule"
+                    android:gravity="center"
+                    android:text="↻"
+                    android:textSize="16sp" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/medium_primary_code"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
+                android:includeFontPadding="false"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -46,8 +66,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="1dp"
                 android:maxLines="2"
-                android:textSize="17sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -56,6 +78,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:singleLine="true"
                 android:textSize="11sp" />
 
@@ -64,6 +87,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:singleLine="true"
                 android:textSize="11sp" />
 
@@ -73,6 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:singleLine="true"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -112,6 +137,7 @@
                 android:layout_height="wrap_content"
                 android:text="NEXT"
                 android:textAllCaps="true"
+                android:includeFontPadding="false"
                 android:textSize="10sp"
                 android:textStyle="bold" />
 
@@ -120,6 +146,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
+                android:includeFontPadding="false"
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
@@ -129,8 +156,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:lineSpacingExtra="1dp"
                 android:maxLines="3"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -139,6 +168,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:singleLine="true"
                 android:textSize="11sp" />
 
@@ -147,18 +177,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:singleLine="true"
                 android:textSize="11sp" />
         </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/medium_refresh"
-        android:layout_width="32dp"
-        android:layout_height="26dp"
-        android:layout_gravity="end"
-        android:contentDescription="Refresh schedule"
-        android:gravity="center"
-        android:text="↻"
-        android:textSize="17sp" />
 </LinearLayout>
