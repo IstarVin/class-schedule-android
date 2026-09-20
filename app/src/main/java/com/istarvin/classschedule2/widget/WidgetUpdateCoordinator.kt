@@ -38,7 +38,11 @@ internal object WidgetUpdateCoordinator {
         }
         val snapshot = snapshotFor(WidgetScheduleReader.load(appContext), ZonedDateTime.now())
         activeProviders.forEach { (entry, ids) ->
-            update(appContext, manager, ids, entry.layout, snapshot)
+            if (entry.usesGlance) {
+                requestGlanceCompactUpdate(appContext)
+            } else {
+                update(appContext, manager, ids, entry.layout, snapshot)
+            }
         }
         WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
     }
@@ -48,7 +52,16 @@ internal object WidgetUpdateCoordinator {
         val appContext = context.applicationContext
         val manager = AppWidgetManager.getInstance(appContext)
         val snapshot = snapshotFor(WidgetScheduleReader.load(appContext), ZonedDateTime.now())
-        update(appContext, manager, appWidgetIds, layout, snapshot)
+        val glanceIds = appWidgetIds.filter { id ->
+            WidgetProviderRegistry.entryFor(manager.getAppWidgetInfo(id)?.provider)?.usesGlance == true
+        }.toIntArray()
+        val remoteViewIds = appWidgetIds.filterNot { id -> glanceIds.contains(id) }.toIntArray()
+        if (remoteViewIds.isNotEmpty()) {
+            update(appContext, manager, remoteViewIds, layout, snapshot)
+        }
+        if (glanceIds.isNotEmpty()) {
+            requestGlanceCompactUpdate(appContext)
+        }
         WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
     }
 

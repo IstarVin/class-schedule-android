@@ -9,6 +9,7 @@ import com.istarvin.classschedule2.data.ScheduleSyncWorker
 internal data class WidgetProviderEntry(
     val providerClass: Class<out AppWidgetProvider>,
     val layout: WidgetLayout,
+    val usesGlance: Boolean = false,
 )
 
 internal object WidgetProviderRegistry {
@@ -16,10 +17,17 @@ internal object WidgetProviderRegistry {
         WidgetProviderEntry(AjScheduleWidgetProvider::class.java, WidgetLayout.MEDIUM),
         WidgetProviderEntry(AjScheduleCompactWidgetProvider::class.java, WidgetLayout.COMPACT),
         WidgetProviderEntry(AjScheduleLargeWidgetProvider::class.java, WidgetLayout.LARGE),
+        WidgetProviderEntry(
+            AjScheduleCompactGlanceWidgetReceiver::class.java,
+            WidgetLayout.COMPACT,
+            usesGlance = true,
+        ),
     )
 
-    fun layoutFor(provider: ComponentName?): WidgetLayout? =
-        entries.firstOrNull { it.providerClass.name == provider?.className }?.layout
+    fun entryFor(provider: ComponentName?): WidgetProviderEntry? =
+        entries.firstOrNull { it.providerClass.name == provider?.className }
+
+    fun layoutFor(provider: ComponentName?): WidgetLayout? = entryFor(provider)?.layout
 
     fun hasWidgets(context: Context): Boolean {
         val manager = AppWidgetManager.getInstance(context)
