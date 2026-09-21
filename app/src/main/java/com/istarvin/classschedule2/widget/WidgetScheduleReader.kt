@@ -47,32 +47,22 @@ internal object WidgetScheduleReader {
 }
 
 internal class WidgetSchedule(private val classes: List<ScheduleClass>) {
-    /** Adjacent parts of the same subject are a single class in a glanceable widget. */
     fun classesOn(date: LocalDate): List<ScheduleClass> {
-        val sameDay = classes.asSequence()
+        return classes.asSequence()
             .filter { it.day == date.dayOfWeek }
             .sortedBy { it.startMinute }
             .toList()
-        if (sameDay.isEmpty()) return emptyList()
-
-        val merged = mutableListOf<ScheduleClass>()
-        sameDay.forEach { item ->
-            val previous = merged.lastOrNull()
-            if (previous != null && previous.code == item.code && previous.endMinute == item.startMinute) {
-                merged[merged.lastIndex] = previous.copy(
-                    endMinute = item.endMinute,
-                    room = mergeRooms(previous.room, item.room),
-                )
-            } else {
-                merged += item
-            }
-        }
-        return merged
     }
+}
 
-    private fun mergeRooms(first: String, second: String): String = when {
-        first.isBlank() -> second
-        second.isBlank() || second == first -> first
-        else -> "$first → $second"
-    }
+/** Returns at most three entries, keeping the active or next entry in the middle when possible. */
+internal fun centeredTodayWindow(
+    classes: List<ScheduleClass>,
+    anchor: ScheduleClass?,
+): List<ScheduleClass> {
+    if (classes.size <= 3) return classes
+
+    val anchorIndex = anchor?.let(classes::indexOf)?.takeIf { it >= 0 } ?: 0
+    val start = (anchorIndex - 1).coerceIn(0, classes.size - 3)
+    return classes.subList(start, start + 3)
 }

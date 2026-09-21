@@ -31,6 +31,7 @@ internal enum class WidgetState {
 internal data class WidgetSnapshot(
     val now: ZonedDateTime,
     val today: List<ScheduleClass>,
+    val todayWindow: List<ScheduleClass>,
     val current: ScheduleClass?,
     val next: ScheduledClass?,
     val following: ScheduledClass?,

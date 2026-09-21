@@ -18,6 +18,16 @@ class WidgetScheduleTest {
         ),
     )
 
+    private val fiveEventSchedule = WidgetSchedule(
+        listOf(
+            ScheduleClass(DayOfWeek.MONDAY, 9 * 60, 10 * 60, "ITD112", "", "First", "TBA"),
+            ScheduleClass(DayOfWeek.MONDAY, 10 * 60, 11 * 60, "ITD112", "", "Second", "TBA"),
+            ScheduleClass(DayOfWeek.MONDAY, 13 * 60, 14 * 60, "ITE104", "", "Third", "TBA"),
+            ScheduleClass(DayOfWeek.MONDAY, 14 * 60, 15 * 60, "ITD111", "", "Fourth", "TBA"),
+            ScheduleClass(DayOfWeek.MONDAY, 15 * 60, 16 * 60, "ITD111", "", "Fifth", "TBA"),
+        ),
+    )
+
     @Test
     fun `during class shows current class and next class`() {
         val snapshot = WidgetUpdateCoordinator.snapshotFor(schedule, at(2026, 9, 21, 9, 30))
@@ -27,6 +37,25 @@ class WidgetScheduleTest {
         assertEquals("ITE105", snapshot.next?.scheduleClass?.code)
         assertEquals(LocalDate.of(2026, 9, 21), snapshot.next?.date)
         assertEquals(at(2026, 9, 21, 10, 0), snapshot.refreshAt)
+    }
+
+    @Test
+    fun `today window keeps raw events and centers the current event`() {
+        val snapshot = WidgetUpdateCoordinator.snapshotFor(fiveEventSchedule, at(2026, 9, 21, 13, 30))
+
+        assertEquals(5, snapshot.today.size)
+        assertEquals(listOf("ITD112", "ITE104", "ITD111"), snapshot.todayWindow.map(ScheduleClass::code))
+        assertEquals("ITE104", snapshot.current?.code)
+        assertEquals("ITE104", snapshot.todayWindow[1].code)
+    }
+
+    @Test
+    fun `today window is clamped when current event is at the end of the day`() {
+        val snapshot = WidgetUpdateCoordinator.snapshotFor(fiveEventSchedule, at(2026, 9, 21, 15, 30))
+
+        assertEquals(listOf("ITE104", "ITD111", "ITD111"), snapshot.todayWindow.map(ScheduleClass::code))
+        assertEquals("ITD111", snapshot.current?.code)
+        assertEquals("ITD111", snapshot.todayWindow[2].code)
     }
 
     @Test

@@ -585,22 +585,8 @@ private fun LargeGlanceContent(
                 maxLines = 2,
             )
         } else {
-            snapshot.today.take(5).forEachIndexed { index, item ->
+            snapshot.todayWindow.forEachIndexed { index, item ->
                 LargeClassRow(context, options, snapshot, colors, item, index)
-            }
-            if (snapshot.today.size > 5) {
-                Text(
-                    text = context.resources.getQuantityString(
-                        R.plurals.widget_glance_more_classes,
-                        snapshot.today.size - 5,
-                        snapshot.today.size - 5,
-                    ),
-                    modifier = GlanceModifier
-                        .fillMaxWidth()
-                        .padding(top = 3.dp),
-                    style = TextStyle(color = colors.secondary, fontSize = 11.sp, textAlign = TextAlign.Center),
-                    maxLines = 1,
-                )
             }
         }
 
