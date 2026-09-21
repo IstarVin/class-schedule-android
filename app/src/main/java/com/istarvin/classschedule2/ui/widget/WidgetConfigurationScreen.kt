@@ -26,10 +26,12 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -43,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.roundToInt
 import com.istarvin.classschedule2.R
 import com.istarvin.classschedule2.widget.WidgetAppearance
 import com.istarvin.classschedule2.widget.WidgetColorSource
@@ -58,6 +61,7 @@ internal fun WidgetConfigurationScreen(
     onSave: (WidgetOptions) -> Unit,
 ) {
     var appearance by remember { mutableStateOf(initialOptions.appearance) }
+    var transparencyPercent by remember { mutableFloatStateOf(initialOptions.transparencyPercent.toFloat()) }
     var colorSource by remember { mutableStateOf(initialOptions.colorSource) }
     var timeFormat by remember { mutableStateOf(initialOptions.timeFormat) }
     var showRoom by remember { mutableStateOf(initialOptions.showRoom) }
@@ -107,6 +111,7 @@ internal fun WidgetConfigurationScreen(
             WidgetPreview(
                 widgetLayout = widgetLayout,
                 appearance = appearance,
+                transparencyPercent = transparencyPercent.roundToInt(),
                 colorSource = colorSource,
                 showRoom = showRoom,
                 showNext = showNext,
@@ -123,6 +128,20 @@ internal fun WidgetConfigurationScreen(
                     selectedIndex = appearance.ordinal,
                     entries = appearanceEntries,
                     onSelected = { appearance = WidgetAppearance.entries[it] },
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                ConfigurationSlider(
+                    label = stringResource(R.string.widget_config_transparency),
+                    value = transparencyPercent,
+                    valueLabel = if (transparencyPercent == 0f) {
+                        stringResource(R.string.widget_config_transparency_opaque)
+                    } else {
+                        stringResource(
+                            R.string.widget_config_transparency_value,
+                            transparencyPercent.roundToInt(),
+                        )
+                    },
+                    onValueChange = { transparencyPercent = it },
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 ConfigurationDropdown(
@@ -154,6 +173,7 @@ internal fun WidgetConfigurationScreen(
                     onSave(
                         WidgetOptions(
                             appearance = appearance,
+                            transparencyPercent = transparencyPercent.roundToInt(),
                             colorSource = colorSource,
                             timeFormat = timeFormat,
                             showRoom = showRoom,
@@ -283,6 +303,44 @@ private fun ConfigurationDropdown(
     }
 }
 
+@Composable
+private fun ConfigurationSlider(
+    label: String,
+    value: Float,
+    valueLabel: String,
+    onValueChange: (Float) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 7.dp, horizontal = 4.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = valueLabel,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 13.sp,
+            )
+        }
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = 0f..100f,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
 private data class PreviewColors(
     val card: Color,
     val primary: Color,
@@ -294,11 +352,13 @@ private data class PreviewColors(
 private fun WidgetPreview(
     widgetLayout: WidgetLayout,
     appearance: WidgetAppearance,
+    transparencyPercent: Int,
     colorSource: WidgetColorSource,
     showRoom: Boolean,
     showNext: Boolean,
     showProgress: Boolean,
 ) {
+    val backgroundAlpha = 1f - transparencyPercent.coerceIn(0, 100) / 100f
     val systemDark = isSystemInDarkTheme()
     val dark = when (appearance) {
         WidgetAppearance.DARK -> true
@@ -355,8 +415,8 @@ private fun WidgetPreview(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = colors.card,
-        border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.2f)),
+        color = colors.card.copy(alpha = backgroundAlpha),
+        border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.2f * backgroundAlpha)),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
@@ -407,8 +467,8 @@ private fun WidgetPreview(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    color = colors.card,
-                    border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.18f)),
+                    color = colors.card.copy(alpha = backgroundAlpha),
+                    border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.18f * backgroundAlpha)),
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(

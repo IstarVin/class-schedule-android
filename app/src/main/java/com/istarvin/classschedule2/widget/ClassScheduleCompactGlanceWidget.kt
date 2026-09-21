@@ -995,6 +995,7 @@ private data class GlancePalette(
 )
 
 private fun glancePalette(context: Context, options: WidgetOptions): GlancePalette {
+    val backgroundAlpha = 1f - options.transparencyPercent / 100f
     val dark = isDark(context, options.appearance)
     val dynamic = options.colorSource == WidgetColorSource.MATERIAL_YOU && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val surface = if (dynamic) {
@@ -1093,25 +1094,25 @@ private fun glancePalette(context: Context, options: WidgetOptions): GlancePalet
         )
     }
     return GlancePalette(
-        surface = glanceColor(surface),
-        panel = glanceColor(panel),
-        current = glanceColor(current),
-        divider = glanceColor(divider),
+        surface = glanceColor(surface, backgroundAlpha),
+        panel = glanceColor(panel, backgroundAlpha),
+        current = glanceColor(current, backgroundAlpha),
+        divider = glanceColor(divider, backgroundAlpha),
         primary = glanceColor(context.getColor(resources[0])),
         secondary = glanceColor(context.getColor(resources[1])),
         muted = glanceColor(context.getColor(resources[2])),
         accent = glanceColor(context.getColor(resources[3])),
-        nowAccent = glanceColor(nowAccent),
-        nextAccent = glanceColor(nextAccent),
+        nowAccent = glanceColor(nowAccent, backgroundAlpha),
+        nextAccent = glanceColor(nextAccent, backgroundAlpha),
     )
 }
 
-private fun glanceColor(color: Int): ColorProvider {
+private fun glanceColor(color: Int, alphaMultiplier: Float = 1f): ColorProvider {
     val composeColor = ComposeColor(
         red = AndroidColor.red(color) / 255f,
         green = AndroidColor.green(color) / 255f,
         blue = AndroidColor.blue(color) / 255f,
-        alpha = AndroidColor.alpha(color) / 255f,
+        alpha = (AndroidColor.alpha(color) / 255f * alphaMultiplier).coerceIn(0f, 1f),
     )
     // The two-argument public factory produces a provider Glance's RemoteViews translator
     // understands for both backgrounds and text. Use the same value for both modes because the
