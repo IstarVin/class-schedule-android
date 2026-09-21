@@ -109,6 +109,7 @@ internal object WidgetUpdateCoordinator {
         val todayAnchor = current ?: next
             ?.takeIf { it.date == now.toLocalDate() }
             ?.scheduleClass
+            ?: today.lastOrNull()
         return WidgetSnapshot(
             now = now,
             today = today,
