@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,8 +26,6 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -143,36 +139,6 @@ internal fun WidgetConfigurationScreen(
                     selectedIndex = timeFormat.ordinal,
                     entries = timeEntries,
                     onSelected = { timeFormat = WidgetTimeFormat.entries[it] },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-            ConfigurationSection(
-                title = stringResource(R.string.widget_config_section_content),
-                subtitle = stringResource(R.string.widget_config_section_content_subtitle),
-            ) {
-                ConfigurationSwitch(
-                    label = stringResource(R.string.widget_config_show_countdown),
-                    checked = showCountdown,
-                    onCheckedChange = { showCountdown = it },
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                ConfigurationSwitch(
-                    label = stringResource(R.string.widget_config_show_room),
-                    checked = showRoom,
-                    onCheckedChange = { showRoom = it },
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                ConfigurationSwitch(
-                    label = stringResource(R.string.widget_config_show_next),
-                    checked = showNext,
-                    onCheckedChange = { showNext = it },
-                )
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                ConfigurationSwitch(
-                    label = stringResource(R.string.widget_config_show_progress),
-                    checked = showProgress,
-                    onCheckedChange = { showProgress = it },
                 )
             }
 
@@ -317,43 +283,6 @@ private fun ConfigurationDropdown(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ConfigurationSwitch(
-    label: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .toggleable(
-                value = checked,
-                role = Role.Switch,
-                onValueChange = onCheckedChange,
-            )
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = label,
-            color = MaterialTheme.colorScheme.onSurface,
-            fontSize = 15.sp,
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                uncheckedTrackColor = MaterialTheme.colorScheme.surface,
-                uncheckedBorderColor = MaterialTheme.colorScheme.outline,
-            ),
-        )
     }
 }
 
