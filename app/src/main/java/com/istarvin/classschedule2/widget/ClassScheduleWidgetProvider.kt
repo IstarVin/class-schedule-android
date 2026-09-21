@@ -17,19 +17,19 @@ internal data class WidgetProviderEntry(
 internal object WidgetProviderRegistry {
     val entries = listOf(
         WidgetProviderEntry(
-            providerClass = AjScheduleWidgetProvider::class.java,
+            providerClass = ClassScheduleWidgetProvider::class.java,
             layout = WidgetLayout.MEDIUM,
-            glanceWidget = AjScheduleMediumGlanceWidget,
+            glanceWidget = ClassScheduleMediumGlanceWidget,
         ),
         WidgetProviderEntry(
-            providerClass = AjScheduleCompactWidgetProvider::class.java,
+            providerClass = ClassScheduleCompactWidgetProvider::class.java,
             layout = WidgetLayout.COMPACT,
-            glanceWidget = AjScheduleCompactGlanceWidget,
+            glanceWidget = ClassScheduleCompactGlanceWidget,
         ),
         WidgetProviderEntry(
-            providerClass = AjScheduleLargeWidgetProvider::class.java,
+            providerClass = ClassScheduleLargeWidgetProvider::class.java,
             layout = WidgetLayout.LARGE,
-            glanceWidget = AjScheduleLargeGlanceWidget,
+            glanceWidget = ClassScheduleLargeGlanceWidget,
         ),
     )
 
@@ -50,7 +50,7 @@ internal object WidgetProviderRegistry {
 }
 
 /** Shared lifecycle for the selectable Glance widget types. */
-abstract class AjScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
+abstract class ClassScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
     protected abstract val widgetLayout: WidgetLayout
 
     override fun onEnabled(context: Context) {
@@ -80,17 +80,17 @@ abstract class AjScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
     }
 }
 
-class AjScheduleWidgetProvider : AjScheduleGlanceWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = AjScheduleMediumGlanceWidget
+class ClassScheduleWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = ClassScheduleMediumGlanceWidget
     override val widgetLayout: WidgetLayout = WidgetLayout.MEDIUM
 }
 
-class AjScheduleCompactWidgetProvider : AjScheduleGlanceWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = AjScheduleCompactGlanceWidget
+class ClassScheduleCompactWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = ClassScheduleCompactGlanceWidget
     override val widgetLayout: WidgetLayout = WidgetLayout.COMPACT
 }
 
-class AjScheduleLargeWidgetProvider : AjScheduleGlanceWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = AjScheduleLargeGlanceWidget
+class ClassScheduleLargeWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = ClassScheduleLargeGlanceWidget
     override val widgetLayout: WidgetLayout = WidgetLayout.LARGE
 }

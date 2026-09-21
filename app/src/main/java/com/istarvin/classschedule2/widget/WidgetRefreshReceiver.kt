@@ -33,7 +33,7 @@ class WidgetRefreshReceiver : BroadcastReceiver() {
         const val ACTION_SCHEDULE_UPDATED = ScheduleCache.ACTION_SCHEDULE_UPDATED
 
         private val UPDATE_EXECUTOR = Executors.newSingleThreadExecutor { runnable ->
-            Thread(runnable, "aj-schedule-widget-update").apply { isDaemon = true }
+            Thread(runnable, "class-schedule-widget-update").apply { isDaemon = true }
         }
     }
 }

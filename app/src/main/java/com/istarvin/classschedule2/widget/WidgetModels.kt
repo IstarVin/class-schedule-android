@@ -56,12 +56,12 @@ internal enum class WidgetAppearance(val storedValue: String) {
 }
 
 internal enum class WidgetColorSource(val storedValue: String) {
-    AJ_SCHEDULE("aj_schedule"),
+    CLASS_SCHEDULE("class_schedule"),
     MATERIAL_YOU("material_you");
 
     companion object {
         fun fromStored(value: String?): WidgetColorSource =
-            entries.firstOrNull { it.storedValue == value } ?: AJ_SCHEDULE
+            entries.firstOrNull { it.storedValue == value } ?: CLASS_SCHEDULE
     }
 }
 
@@ -78,7 +78,7 @@ internal enum class WidgetTimeFormat(val storedValue: String) {
 
 internal data class WidgetOptions(
     val appearance: WidgetAppearance = WidgetAppearance.SYSTEM,
-    val colorSource: WidgetColorSource = WidgetColorSource.AJ_SCHEDULE,
+    val colorSource: WidgetColorSource = WidgetColorSource.CLASS_SCHEDULE,
     val timeFormat: WidgetTimeFormat = WidgetTimeFormat.SYSTEM,
     val showCountdown: Boolean = true,
     val showRoom: Boolean = true,

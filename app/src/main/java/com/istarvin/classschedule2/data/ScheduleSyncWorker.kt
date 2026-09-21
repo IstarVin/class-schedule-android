@@ -36,8 +36,8 @@ class ScheduleSyncWorker(
     }
 
     companion object {
-        private const val UNIQUE_MANUAL_SYNC = "aj_schedule_manual_sync"
-        private const val UNIQUE_PERIODIC_SYNC = "aj_schedule_periodic_sync"
+        private const val UNIQUE_MANUAL_SYNC = "class_schedule_manual_sync"
+        private const val UNIQUE_PERIODIC_SYNC = "class_schedule_periodic_sync"
         private const val MAX_RETRY_ATTEMPTS = 3
 
         private val networkConstraints = Constraints.Builder()

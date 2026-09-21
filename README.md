@@ -1,8 +1,8 @@
 # Class Schedule
 
-An Android app for viewing the AJ schedule and keeping the current class close at hand with selectable home-screen widgets.
+An Android app for viewing the schedule and keeping the current class close at hand with selectable home-screen widgets.
 
-The app uses a small native shell around [AJ Schedule](https://ajschedule.pages.dev/). It also keeps a validated local copy of the schedule so the app and widget can continue to show saved data when the network is unavailable.
+The app uses a small native shell around the [schedule service](https://ajschedule.pages.dev/). It also keeps a validated local copy of the schedule so the app and widget can continue to show saved data when the network is unavailable.
 
 ## Features
 
@@ -81,7 +81,7 @@ app/src/main/java/com/istarvin/classschedule2/
 │   ├── ScheduleSyncWorker.kt               Periodic and manual synchronization
 │   └── OfflineScheduleHtml.kt              Local HTML fallback
 └── widget/
-    ├── AjScheduleWidgetProvider.kt         AppWidget provider
+    ├── ClassScheduleWidgetProvider.kt     AppWidget provider
     ├── WidgetConfigurationActivity.kt      Widget setup screen
     ├── WidgetRefreshReceiver.kt            Event-driven widget refreshes
     └── WidgetUpdateCoordinator.kt           Widget state and rendering

@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             allowContentAccess = false
             mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
             setSupportMultipleWindows(false)
-            userAgentString = "$userAgentString AJ-Schedule-Android/1.0"
+            userAgentString = "$userAgentString Class-Schedule-Android/1.0"
         }
         CookieManager.getInstance().apply {
             setAcceptCookie(true)

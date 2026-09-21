@@ -33,7 +33,7 @@
             android:exported="true" />
 
         <receiver
-            android:name=".widget.AjScheduleWidgetProvider"
+            android:name=".widget.ClassScheduleWidgetProvider"
             android:exported="false"
             android:label="@string/widget_name"
             android:permission="android.permission.BIND_APPWIDGET">
@@ -43,11 +43,11 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/aj_schedule_widget_info" />
+                android:resource="@xml/class_schedule_widget_info" />
         </receiver>
 
         <receiver
-            android:name=".widget.AjScheduleCompactWidgetProvider"
+            android:name=".widget.ClassScheduleCompactWidgetProvider"
             android:exported="false"
             android:label="@string/widget_compact_name"
             android:permission="android.permission.BIND_APPWIDGET">
@@ -57,11 +57,11 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/aj_schedule_compact_widget_info" />
+                android:resource="@xml/class_schedule_compact_widget_info" />
         </receiver>
 
         <receiver
-            android:name=".widget.AjScheduleLargeWidgetProvider"
+            android:name=".widget.ClassScheduleLargeWidgetProvider"
             android:exported="false"
             android:label="@string/widget_large_name"
             android:permission="android.permission.BIND_APPWIDGET">
@@ -71,7 +71,7 @@
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/aj_schedule_large_widget_info" />
+                android:resource="@xml/class_schedule_large_widget_info" />
         </receiver>
 
         <receiver

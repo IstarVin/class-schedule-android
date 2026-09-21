@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="aj_board_light">#F3F1EA</color>
-    <color name="aj_surface_light">#FFFFFF</color>
-    <color name="aj_ink_light">#1E2430</color>
-    <color name="aj_live_light">#1E8E52</color>
+    <color name="schedule_board_light">#F3F1EA</color>
+    <color name="schedule_surface_light">#FFFFFF</color>
+    <color name="schedule_ink_light">#1E2430</color>
+    <color name="schedule_live_light">#1E8E52</color>
 
     <color name="widget_dark_background">#16171A</color>
     <color name="widget_dark_primary">#F3F3F5</color>

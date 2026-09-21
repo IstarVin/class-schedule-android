@@ -5,7 +5,7 @@ import androidx.core.content.edit
 
 /** Per-widget preferences. Keeping keys scoped by widget ID avoids leaking a removed widget's settings. */
 internal object WidgetPreferences {
-    private const val PREFS_NAME = "aj_schedule_widget_preferences"
+    private const val PREFS_NAME = "class_schedule_widget_preferences"
 
     private const val APPEARANCE = "appearance"
     private const val COLOR_SOURCE = "color_source"

@@ -67,11 +67,11 @@ internal abstract class ScheduleGlanceWidget(
     }
 }
 
-internal object AjScheduleCompactGlanceWidget : ScheduleGlanceWidget(WidgetLayout.COMPACT)
+internal object ClassScheduleCompactGlanceWidget : ScheduleGlanceWidget(WidgetLayout.COMPACT)
 
-internal object AjScheduleMediumGlanceWidget : ScheduleGlanceWidget(WidgetLayout.MEDIUM)
+internal object ClassScheduleMediumGlanceWidget : ScheduleGlanceWidget(WidgetLayout.MEDIUM)
 
-internal object AjScheduleLargeGlanceWidget : ScheduleGlanceWidget(WidgetLayout.LARGE)
+internal object ClassScheduleLargeGlanceWidget : ScheduleGlanceWidget(WidgetLayout.LARGE)
 
 @Composable
 private fun ScheduleGlanceContent(
