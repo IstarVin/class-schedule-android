@@ -62,6 +62,9 @@ internal fun WidgetConfigurationScreen(
 ) {
     var appearance by remember { mutableStateOf(initialOptions.appearance) }
     var transparencyPercent by remember { mutableFloatStateOf(initialOptions.transparencyPercent.toFloat()) }
+    var panelTransparencyPercent by remember {
+        mutableFloatStateOf(initialOptions.panelTransparencyPercent.toFloat())
+    }
     var colorSource by remember { mutableStateOf(initialOptions.colorSource) }
     var timeFormat by remember { mutableStateOf(initialOptions.timeFormat) }
     var showRoom by remember { mutableStateOf(initialOptions.showRoom) }
@@ -112,6 +115,7 @@ internal fun WidgetConfigurationScreen(
                 widgetLayout = widgetLayout,
                 appearance = appearance,
                 transparencyPercent = transparencyPercent.roundToInt(),
+                panelTransparencyPercent = panelTransparencyPercent.roundToInt(),
                 colorSource = colorSource,
                 showRoom = showRoom,
                 showNext = showNext,
@@ -131,7 +135,7 @@ internal fun WidgetConfigurationScreen(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 ConfigurationSlider(
-                    label = stringResource(R.string.widget_config_transparency),
+                    label = stringResource(R.string.widget_config_surface_transparency),
                     value = transparencyPercent,
                     valueLabel = if (transparencyPercent == 0f) {
                         stringResource(R.string.widget_config_transparency_opaque)
@@ -142,6 +146,20 @@ internal fun WidgetConfigurationScreen(
                         )
                     },
                     onValueChange = { transparencyPercent = it },
+                )
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                ConfigurationSlider(
+                    label = stringResource(R.string.widget_config_panel_transparency),
+                    value = panelTransparencyPercent,
+                    valueLabel = if (panelTransparencyPercent == 0f) {
+                        stringResource(R.string.widget_config_transparency_opaque)
+                    } else {
+                        stringResource(
+                            R.string.widget_config_transparency_value,
+                            panelTransparencyPercent.roundToInt(),
+                        )
+                    },
+                    onValueChange = { panelTransparencyPercent = it },
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 ConfigurationDropdown(
@@ -174,6 +192,7 @@ internal fun WidgetConfigurationScreen(
                         WidgetOptions(
                             appearance = appearance,
                             transparencyPercent = transparencyPercent.roundToInt(),
+                            panelTransparencyPercent = panelTransparencyPercent.roundToInt(),
                             colorSource = colorSource,
                             timeFormat = timeFormat,
                             showRoom = showRoom,
@@ -342,6 +361,7 @@ private fun ConfigurationSlider(
 }
 
 private data class PreviewColors(
+    val surface: Color,
     val card: Color,
     val primary: Color,
     val secondary: Color,
@@ -353,12 +373,14 @@ private fun WidgetPreview(
     widgetLayout: WidgetLayout,
     appearance: WidgetAppearance,
     transparencyPercent: Int,
+    panelTransparencyPercent: Int,
     colorSource: WidgetColorSource,
     showRoom: Boolean,
     showNext: Boolean,
     showProgress: Boolean,
 ) {
-    val backgroundAlpha = 1f - transparencyPercent.coerceIn(0, 100) / 100f
+    val surfaceAlpha = 1f - transparencyPercent.coerceIn(0, 100) / 100f
+    val panelAlpha = 1f - panelTransparencyPercent.coerceIn(0, 100) / 100f
     val systemDark = isSystemInDarkTheme()
     val dark = when (appearance) {
         WidgetAppearance.DARK -> true
@@ -369,6 +391,10 @@ private fun WidgetPreview(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val colors = if (useDynamicColor) {
         PreviewColors(
+            surface = colorResource(
+                if (dark) android.R.color.system_neutral1_900
+                else android.R.color.system_neutral1_50,
+            ),
             card = colorResource(
                 if (dark) android.R.color.system_neutral1_800
                 else android.R.color.system_neutral1_100,
@@ -388,6 +414,7 @@ private fun WidgetPreview(
         )
     } else {
         PreviewColors(
+            surface = colorResource(if (dark) R.color.widget_dark_surface else R.color.widget_light_surface),
             card = colorResource(if (dark) R.color.widget_dark_panel else R.color.widget_light_panel),
             primary = colorResource(if (dark) R.color.widget_dark_text_primary else R.color.widget_light_text_primary),
             secondary = colorResource(if (dark) R.color.widget_dark_text_secondary else R.color.widget_light_text_secondary),
@@ -415,10 +442,15 @@ private fun WidgetPreview(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = colors.card.copy(alpha = backgroundAlpha),
-        border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.2f * backgroundAlpha)),
+        color = colors.surface.copy(alpha = surfaceAlpha),
+        border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.2f * surfaceAlpha)),
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .background(colors.card.copy(alpha = panelAlpha), RoundedCornerShape(18.dp))
+                .padding(12.dp),
+        ) {
             Text(
                 text = stringResource(R.string.widget_config_preview),
                 color = colors.accent,
@@ -467,8 +499,8 @@ private fun WidgetPreview(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    color = colors.card.copy(alpha = backgroundAlpha),
-                    border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.18f * backgroundAlpha)),
+                    color = colors.card.copy(alpha = panelAlpha),
+                    border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.18f * panelAlpha)),
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(

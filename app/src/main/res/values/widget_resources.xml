@@ -9,7 +9,8 @@
     <string name="widget_stacked_description">A focused stack showing your current and upcoming classes.</string>
     <string name="widget_config_title">Customize widget</string>
     <string name="widget_config_appearance">Appearance</string>
-    <string name="widget_config_transparency">Transparency</string>
+    <string name="widget_config_surface_transparency">Surface transparency</string>
+    <string name="widget_config_panel_transparency">Panel transparency</string>
     <string name="widget_config_colors">Colors</string>
     <string name="widget_config_time">Time format</string>
     <string name="widget_config_add">Add widget</string>

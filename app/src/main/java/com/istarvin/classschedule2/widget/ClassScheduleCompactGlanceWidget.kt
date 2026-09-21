@@ -986,7 +986,8 @@ private data class GlancePalette(
 )
 
 private fun glancePalette(context: Context, options: WidgetOptions): GlancePalette {
-    val backgroundAlpha = 1f - options.transparencyPercent / 100f
+    val surfaceAlpha = 1f - options.transparencyPercent.coerceIn(0, 100) / 100f
+    val panelAlpha = 1f - options.panelTransparencyPercent.coerceIn(0, 100) / 100f
     val dark = isDark(context, options.appearance)
     val dynamic = options.colorSource == WidgetColorSource.MATERIAL_YOU && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val surface = if (dynamic) {
@@ -1085,16 +1086,16 @@ private fun glancePalette(context: Context, options: WidgetOptions): GlancePalet
         )
     }
     return GlancePalette(
-        surface = glanceColor(surface, backgroundAlpha),
-        panel = glanceColor(panel, backgroundAlpha),
-        current = glanceColor(current, backgroundAlpha),
-        divider = glanceColor(divider, backgroundAlpha),
+        surface = glanceColor(surface, surfaceAlpha),
+        panel = glanceColor(panel, panelAlpha),
+        current = glanceColor(current, panelAlpha),
+        divider = glanceColor(divider, panelAlpha),
         primary = glanceColor(context.getColor(resources[0])),
         secondary = glanceColor(context.getColor(resources[1])),
         muted = glanceColor(context.getColor(resources[2])),
         accent = glanceColor(context.getColor(resources[3])),
-        nowAccent = glanceColor(nowAccent, backgroundAlpha),
-        nextAccent = glanceColor(nextAccent, backgroundAlpha),
+        nowAccent = glanceColor(nowAccent, panelAlpha),
+        nextAccent = glanceColor(nextAccent, panelAlpha),
     )
 }
 
