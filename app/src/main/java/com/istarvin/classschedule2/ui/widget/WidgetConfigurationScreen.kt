@@ -60,7 +60,6 @@ internal fun WidgetConfigurationScreen(
     var appearance by remember { mutableStateOf(initialOptions.appearance) }
     var colorSource by remember { mutableStateOf(initialOptions.colorSource) }
     var timeFormat by remember { mutableStateOf(initialOptions.timeFormat) }
-    var showCountdown by remember { mutableStateOf(initialOptions.showCountdown) }
     var showRoom by remember { mutableStateOf(initialOptions.showRoom) }
     var showNext by remember { mutableStateOf(initialOptions.showNext) }
     var showProgress by remember { mutableStateOf(initialOptions.showProgress) }
@@ -109,7 +108,6 @@ internal fun WidgetConfigurationScreen(
                 widgetLayout = widgetLayout,
                 appearance = appearance,
                 colorSource = colorSource,
-                showCountdown = showCountdown,
                 showRoom = showRoom,
                 showNext = showNext,
                 showProgress = showProgress,
@@ -158,7 +156,6 @@ internal fun WidgetConfigurationScreen(
                             appearance = appearance,
                             colorSource = colorSource,
                             timeFormat = timeFormat,
-                            showCountdown = showCountdown,
                             showRoom = showRoom,
                             showNext = showNext,
                             showProgress = showProgress,
@@ -298,7 +295,6 @@ private fun WidgetPreview(
     widgetLayout: WidgetLayout,
     appearance: WidgetAppearance,
     colorSource: WidgetColorSource,
-    showCountdown: Boolean,
     showRoom: Boolean,
     showNext: Boolean,
     showProgress: Boolean,
@@ -353,7 +349,6 @@ private fun WidgetPreview(
     }
     val previewDetails = buildList {
         if (showRoom) add(stringResource(R.string.widget_config_preview_room))
-        if (showCountdown) add(stringResource(R.string.widget_config_preview_countdown))
         if (showNext) add(stringResource(R.string.widget_config_preview_next))
     }.ifEmpty { listOf(stringResource(R.string.widget_config_preview_empty)) }
 

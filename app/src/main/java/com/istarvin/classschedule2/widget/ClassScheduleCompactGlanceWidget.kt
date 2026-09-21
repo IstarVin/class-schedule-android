@@ -42,7 +42,6 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.istarvin.classschedule2.MainActivity
 import com.istarvin.classschedule2.R
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
@@ -299,27 +298,6 @@ private fun StackedClassCard(
     modifier: GlanceModifier,
 ) {
     val item = scheduled.scheduleClass
-    val target = if (isCurrent) {
-        WidgetUpdateCoordinator.at(scheduled.date, item.endMinute, snapshot.now)
-    } else {
-        WidgetUpdateCoordinator.at(scheduled.date, item.startMinute, snapshot.now)
-    }
-    val countdown = countdownText(context, snapshot, options, target, isCurrent)
-    val countdownLabel = if (isCurrent || countdown == null) {
-        countdown
-    } else {
-        context.getString(
-            R.string.widget_glance_countdown_with_day,
-            when (scheduled.date) {
-                snapshot.now.toLocalDate() -> context.getString(R.string.widget_glance_today)
-                snapshot.now.toLocalDate().plusDays(1) -> context.getString(R.string.widget_glance_tomorrow)
-                else -> scheduled.date.format(
-                    DateTimeFormatter.ofPattern("EEE", context.resources.configuration.locales[0]),
-                )
-            },
-            countdown,
-        )
-    }
 
     Box(
         modifier = modifier
@@ -380,14 +358,6 @@ private fun StackedClassCard(
                     style = TextStyle(color = colors.secondary, fontSize = 11.sp),
                     maxLines = 1,
                 )
-                countdownLabel?.let {
-                    Text(
-                        text = it,
-                        modifier = GlanceModifier.padding(top = 10.dp),
-                        style = TextStyle(color = colors.primary, fontSize = 12.sp),
-                        maxLines = 1,
-                    )
-                }
                 if (isCurrent && options.showProgress) {
                     val elapsed = (snapshot.now.hour * 60 + snapshot.now.minute) - item.startMinute
                     val duration = (item.endMinute - item.startMinute).coerceAtLeast(1)
@@ -678,20 +648,6 @@ private fun LargeGlanceContent(
                         )
                     }
                 }
-                countdownText(
-                    context = context,
-                    snapshot = snapshot,
-                    options = options,
-                    target = WidgetUpdateCoordinator.at(next.date, next.scheduleClass.startMinute, snapshot.now),
-                    isCurrent = false,
-                )?.let {
-                    Text(
-                        text = it,
-                        modifier = GlanceModifier.padding(top = 3.dp),
-                        style = TextStyle(color = colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold),
-                        maxLines = 1,
-                    )
-                }
                 if (options.showNext) {
                     snapshot.following?.let {
                         Text(
@@ -867,23 +823,6 @@ private fun PrimaryContent(
             maxLines = 1,
         )
     }
-    val target = if (isCurrent) {
-        WidgetUpdateCoordinator.at(snapshot.now.toLocalDate(), primary.endMinute, snapshot.now)
-    } else {
-        snapshot.next?.let {
-            WidgetUpdateCoordinator.at(it.date, it.scheduleClass.startMinute, snapshot.now)
-        }
-    }
-    countdownText(context, snapshot, options, target, isCurrent)?.let {
-        Text(
-            text = it,
-            modifier = GlanceModifier
-                .fillMaxWidth()
-                .padding(top = 3.dp),
-            style = TextStyle(color = colors.accent, fontSize = 12.sp, fontWeight = FontWeight.Bold),
-            maxLines = 1,
-        )
-    }
     if (showProgress && isCurrent && options.showProgress) {
         val elapsed = (snapshot.now.hour * 60 + snapshot.now.minute) - primary.startMinute
         val duration = (primary.endMinute - primary.startMinute).coerceAtLeast(1)
@@ -979,28 +918,6 @@ private fun todaySummary(context: Context, snapshot: WidgetSnapshot): String =
             snapshot.today.size,
         )
     }
-
-private fun countdownText(
-    context: Context,
-    snapshot: WidgetSnapshot,
-    options: WidgetOptions,
-    target: ZonedDateTime?,
-    isCurrent: Boolean,
-): String? {
-    if (!options.showCountdown || target == null || !target.isAfter(snapshot.now)) return null
-    if (!isCurrent && snapshot.next?.date != snapshot.now.toLocalDate()) return null
-    val minutes = (Duration.between(snapshot.now, target).toMillis() + 59_999L) / 60_000L
-    val duration = when {
-        minutes < 1 -> context.getString(R.string.widget_glance_less_than_minute)
-        minutes < 60 -> context.getString(R.string.widget_glance_minutes, minutes)
-        minutes % 60 == 0L -> context.getString(R.string.widget_glance_hours, minutes / 60)
-        else -> context.getString(R.string.widget_glance_hours_minutes, minutes / 60, minutes % 60)
-    }
-    return context.getString(
-        if (isCurrent) R.string.widget_glance_ends_in else R.string.widget_glance_starts_in,
-        duration,
-    )
-}
 
 private fun timeRange(context: Context, item: ScheduleClass, options: WidgetOptions): String {
     val start = localTime(item.startMinute)

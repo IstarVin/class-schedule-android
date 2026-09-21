@@ -12,7 +12,6 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
@@ -142,19 +141,13 @@ internal object WidgetUpdateCoordinator {
         next: ScheduledClass?,
     ): ZonedDateTime {
         if (current != null) {
-            val end = at(now.toLocalDate(), current.endMinute, now)
-            // Refresh at the next minute so progress and countdown labels stay current.
-            val nextMinute = now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
-            return if (nextMinute.isBefore(end)) nextMinute else end
+            return at(now.toLocalDate(), current.endMinute, now)
         }
         val midnight = now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
         val nextStart = next?.let { at(it.date, it.scheduleClass.startMinute, now) }
-        // A date change can alter the state even if Monday's first class is days away.
-        if (nextStart != null && nextStart.isBefore(midnight)) {
-            val nextMinute = now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
-            return if (nextMinute.isBefore(nextStart)) nextMinute else nextStart
-        }
-        return midnight
+        // Refresh at the next class boundary. A date change can alter the state even when the
+        // next class is not until a later day.
+        return if (nextStart != null && nextStart.isBefore(midnight)) nextStart else midnight
     }
 
     internal fun at(date: LocalDate, minute: Int, reference: ZonedDateTime): ZonedDateTime =
@@ -178,7 +171,7 @@ internal object WidgetSnapshotState {
     }
 }
 
-/** One inexact alarm is shared by all widget instances; it is recalculated on every update. */
+/** One boundary alarm is shared by all widget instances; it is recalculated on every update. */
 internal object WidgetRefreshScheduler {
     private const val REQUEST_CODE = 7301
 
@@ -186,11 +179,23 @@ internal object WidgetRefreshScheduler {
         val alarmManager = context.getSystemService(AlarmManager::class.java) ?: return
         // Preserve the minute boundary when the current time includes seconds.
         val delay = max(1_000L, Duration.between(ZonedDateTime.now(), refreshAt).toMillis())
-        alarmManager.setAndAllowWhileIdle(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + delay,
-            refreshPendingIntent(context),
-        )
+        val triggerAt = SystemClock.elapsedRealtime() + delay
+        try {
+            // Boundary changes should be reflected when the clock reaches the class time, even
+            // if the device is idle. The manifest declares SCHEDULE_EXACT_ALARM for API 31+;
+            // devices where that special access is unavailable still get the inexact fallback.
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerAt,
+                refreshPendingIntent(context),
+            )
+        } catch (_: SecurityException) {
+            alarmManager.setAndAllowWhileIdle(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                triggerAt,
+                refreshPendingIntent(context),
+            )
+        }
     }
 
     fun cancel(context: Context) {

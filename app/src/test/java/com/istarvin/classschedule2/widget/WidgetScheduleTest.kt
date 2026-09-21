@@ -1,7 +1,6 @@
 package com.istarvin.classschedule2.widget
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -27,7 +26,7 @@ class WidgetScheduleTest {
         assertEquals("ITE183", snapshot.current?.code)
         assertEquals("ITE105", snapshot.next?.scheduleClass?.code)
         assertEquals(LocalDate.of(2026, 9, 21), snapshot.next?.date)
-        assertEquals(at(2026, 9, 21, 9, 31), snapshot.refreshAt)
+        assertEquals(at(2026, 9, 21, 10, 0), snapshot.refreshAt)
     }
 
     @Test
@@ -36,8 +35,24 @@ class WidgetScheduleTest {
 
         assertEquals(WidgetState.UP_NEXT, snapshot.state)
         assertEquals("ITE105", snapshot.next?.scheduleClass?.code)
-        assertNotNull(snapshot.refreshAt)
-        assertEquals(at(2026, 9, 21, 11, 31), snapshot.refreshAt)
+        assertEquals(at(2026, 9, 21, 13, 0), snapshot.refreshAt)
+    }
+
+    @Test
+    fun `before a class refreshes at its start boundary`() {
+        val snapshot = WidgetUpdateCoordinator.snapshotFor(schedule, at(2026, 9, 21, 8, 0))
+
+        assertEquals(WidgetState.UP_NEXT, snapshot.state)
+        assertEquals(at(2026, 9, 21, 9, 0), snapshot.refreshAt)
+    }
+
+    @Test
+    fun `at a class start immediately shows the current class`() {
+        val snapshot = WidgetUpdateCoordinator.snapshotFor(schedule, at(2026, 9, 21, 13, 0))
+
+        assertEquals(WidgetState.CURRENT, snapshot.state)
+        assertEquals("ITE105", snapshot.current?.code)
+        assertEquals(at(2026, 9, 21, 14, 0), snapshot.refreshAt)
     }
 
     @Test

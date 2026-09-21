@@ -2,7 +2,7 @@
     <string name="widget_name">Class Schedule · Now &amp; Next</string>
     <string name="widget_description">Your current class and the next class at a glance.</string>
     <string name="widget_compact_name">Class Schedule · Compact</string>
-    <string name="widget_compact_description">The next class, countdown, and a quick glance at what follows.</string>
+    <string name="widget_compact_description">The next class and a quick glance at what follows.</string>
     <string name="widget_large_name">Class Schedule · Today</string>
     <string name="widget_large_description">Your classes for today with the next class highlighted.</string>
     <string name="widget_stacked_name">Class Schedule · Now + Next</string>
