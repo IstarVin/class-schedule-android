@@ -34,34 +34,6 @@
             android:exported="true" />
 
         <receiver
-            android:name=".widget.ClassScheduleWidgetProvider"
-            android:exported="false"
-            android:label="@string/widget_name"
-            android:permission="android.permission.BIND_APPWIDGET">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/class_schedule_widget_info" />
-        </receiver>
-
-        <receiver
-            android:name=".widget.ClassScheduleCompactWidgetProvider"
-            android:exported="false"
-            android:label="@string/widget_compact_name"
-            android:permission="android.permission.BIND_APPWIDGET">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/class_schedule_compact_widget_info" />
-        </receiver>
-
-        <receiver
             android:name=".widget.ClassScheduleLargeWidgetProvider"
             android:exported="false"
             android:label="@string/widget_large_name"

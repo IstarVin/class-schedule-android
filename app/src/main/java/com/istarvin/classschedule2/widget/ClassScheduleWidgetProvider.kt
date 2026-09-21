@@ -17,24 +17,14 @@ internal data class WidgetProviderEntry(
 internal object WidgetProviderRegistry {
     val entries = listOf(
         WidgetProviderEntry(
-            providerClass = ClassScheduleWidgetProvider::class.java,
-            layout = WidgetLayout.MEDIUM,
-            glanceWidget = ClassScheduleMediumGlanceWidget,
-        ),
-        WidgetProviderEntry(
-            providerClass = ClassScheduleCompactWidgetProvider::class.java,
-            layout = WidgetLayout.COMPACT,
-            glanceWidget = ClassScheduleCompactGlanceWidget,
+            providerClass = ClassScheduleStackedWidgetProvider::class.java,
+            layout = WidgetLayout.STACKED,
+            glanceWidget = ClassScheduleStackedGlanceWidget,
         ),
         WidgetProviderEntry(
             providerClass = ClassScheduleLargeWidgetProvider::class.java,
             layout = WidgetLayout.LARGE,
             glanceWidget = ClassScheduleLargeGlanceWidget,
-        ),
-        WidgetProviderEntry(
-            providerClass = ClassScheduleStackedWidgetProvider::class.java,
-            layout = WidgetLayout.STACKED,
-            glanceWidget = ClassScheduleStackedGlanceWidget,
         ),
     )
 
@@ -84,16 +74,6 @@ abstract class ClassScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
             ScheduleSyncWorker.cancelPeriodic(context)
         }
     }
-}
-
-class ClassScheduleWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = ClassScheduleMediumGlanceWidget
-    override val widgetLayout: WidgetLayout = WidgetLayout.MEDIUM
-}
-
-class ClassScheduleCompactWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget = ClassScheduleCompactGlanceWidget
-    override val widgetLayout: WidgetLayout = WidgetLayout.COMPACT
 }
 
 class ClassScheduleLargeWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
