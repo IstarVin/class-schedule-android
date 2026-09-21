@@ -39,7 +39,11 @@ class WidgetConfigurationActivity : AppCompatActivity() {
         }
 
         val savedOptions = WidgetPreferences.read(this, appWidgetId)
-        val isReconfigure = intent.getBooleanExtra(EXTRA_RECONFIGURE, false)
+        // The app supplies EXTRA_RECONFIGURE from its widget settings menu. Widget hosts
+        // can also launch this activity directly when editing an existing widget, so use
+        // the saved per-widget options as a fallback for that path.
+        val isReconfigure = intent.getBooleanExtra(EXTRA_RECONFIGURE, false) ||
+            WidgetPreferences.hasSavedOptions(this, appWidgetId)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ClassScheduleTheme {

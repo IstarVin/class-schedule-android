@@ -41,6 +41,11 @@ internal object WidgetPreferences {
             }
     }
 
+    fun hasSavedOptions(context: Context, appWidgetId: Int): Boolean =
+        context.applicationContext
+            .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .contains(key(appWidgetId, APPEARANCE))
+
     fun remove(context: Context, appWidgetIds: IntArray) {
         context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
             appWidgetIds.forEach { id ->
