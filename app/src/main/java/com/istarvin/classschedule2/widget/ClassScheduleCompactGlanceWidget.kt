@@ -63,14 +63,16 @@ internal abstract class ScheduleGlanceWidget(
             )
         }
         val initialOptions = WidgetPreferences.read(appContext, appWidgetId)
+        val snapshots = WidgetSnapshotState.observe(appWidgetId, snapshot)
         WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
         provideContent {
             // Glance may recompose an existing session instead of restarting provideGlance when
-            // update() is called. Observe the saved options so a configuration save is visible
-            // immediately in either case.
+            // update() is called. Observe both sources so every widget value is refreshed in the
+            // existing composition as well as when a new one is created.
             val options by WidgetPreferences.observe(appContext, appWidgetId)
                 .collectAsState(initial = initialOptions)
-            ScheduleGlanceContent(appContext, layout, options, snapshot)
+            val currentSnapshot by snapshots.collectAsState()
+            ScheduleGlanceContent(appContext, layout, options, currentSnapshot)
         }
     }
 }

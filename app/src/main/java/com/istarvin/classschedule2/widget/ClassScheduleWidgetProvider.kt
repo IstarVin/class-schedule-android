@@ -62,6 +62,7 @@ abstract class ClassScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         super.onDeleted(context, appWidgetIds)
         WidgetPreferences.remove(context, appWidgetIds)
+        WidgetSnapshotState.remove(appWidgetIds)
         WidgetUpdateCoordinator.updateAll(context)
     }
 

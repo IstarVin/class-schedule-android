@@ -13,12 +13,16 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /** Coordinates cache snapshots, Glance redraws, and the shared time-boundary alarm. */
 internal object WidgetUpdateCoordinator {
@@ -44,6 +48,7 @@ internal object WidgetUpdateCoordinator {
             val glanceManager = GlanceAppWidgetManager(appContext)
             activeProviders.forEach { (entry, appWidgetIds) ->
                 appWidgetIds.forEach { appWidgetId ->
+                    WidgetSnapshotState.update(appWidgetId, snapshot)
                     updateGlanceWidget(entry, glanceManager, appContext, appWidgetId)
                 }
             }
@@ -61,6 +66,7 @@ internal object WidgetUpdateCoordinator {
             val entry = WidgetProviderRegistry.entryFor(layout) ?: return@launch
             val glanceManager = GlanceAppWidgetManager(appContext)
             appWidgetIds.forEach { appWidgetId ->
+                WidgetSnapshotState.update(appWidgetId, snapshot)
                 updateGlanceWidget(entry, glanceManager, appContext, appWidgetId)
             }
             WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
@@ -157,6 +163,22 @@ internal object WidgetUpdateCoordinator {
     internal fun at(date: LocalDate, minute: Int, reference: ZonedDateTime): ZonedDateTime =
         if (minute == 1440) date.plusDays(1).atStartOfDay(reference.zone)
         else date.atTime(LocalTime.of(minute / 60, minute % 60)).atZone(reference.zone)
+}
+
+/** Keeps active Glance compositions in sync with the latest schedule/time snapshot. */
+internal object WidgetSnapshotState {
+    private val snapshots = ConcurrentHashMap<Int, MutableStateFlow<WidgetSnapshot>>()
+
+    fun observe(appWidgetId: Int, initial: WidgetSnapshot): StateFlow<WidgetSnapshot> =
+        snapshots.computeIfAbsent(appWidgetId) { MutableStateFlow(initial) }.asStateFlow()
+
+    fun update(appWidgetId: Int, snapshot: WidgetSnapshot) {
+        snapshots[appWidgetId]?.value = snapshot
+    }
+
+    fun remove(appWidgetIds: IntArray) {
+        appWidgetIds.forEach(snapshots::remove)
+    }
 }
 
 /** One inexact alarm is shared by all widget instances; it is recalculated on every update. */
