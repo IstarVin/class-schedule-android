@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var offlineCard: LinearLayout
     private lateinit var offlineMessage: TextView
     private lateinit var retryButton: TextView
+    private lateinit var dismissOfflineButton: TextView
     private var cacheFallbackAttempted = false
     private var showingLocalScheduleFallback = false
 
@@ -189,6 +190,16 @@ class MainActivity : AppCompatActivity() {
                 setTextColor(Color.WHITE)
                 textSize = 14f
             }
+            dismissOfflineButton = TextView(this@MainActivity).apply {
+                text = getString(R.string.dismiss_offline_message_symbol)
+                textSize = 24f
+                gravity = Gravity.CENTER
+                setTextColor(Color.WHITE)
+                contentDescription = getString(R.string.dismiss_offline_message)
+                minWidth = 48.dp
+                minHeight = 48.dp
+                setOnClickListener { hideOfflineNotice() }
+            }
             retryButton = TextView(this@MainActivity).apply {
                 setTextColor("#A7F3D0".toColorInt())
                 textSize = 14f
@@ -199,7 +210,24 @@ class MainActivity : AppCompatActivity() {
                 setOnClickListener { loadScheduleSite(forceNetwork = true) }
             }
             offlineCard.addView(
-                offlineMessage,
+                LinearLayout(this@MainActivity).apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    addView(
+                        offlineMessage,
+                        LinearLayout.LayoutParams(
+                            0,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            1f,
+                        ),
+                    )
+                    addView(
+                        dismissOfflineButton,
+                        LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ),
+                    )
+                },
                 LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT,

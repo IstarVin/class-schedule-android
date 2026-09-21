@@ -76,9 +76,9 @@ internal abstract class ScheduleGlanceWidget(
     }
 }
 
-internal object ClassScheduleCompactGlanceWidget : ScheduleGlanceWidget(WidgetLayout.COMPACT)
+// internal object ClassScheduleCompactGlanceWidget : ScheduleGlanceWidget(WidgetLayout.COMPACT)
 
-internal object ClassScheduleMediumGlanceWidget : ScheduleGlanceWidget(WidgetLayout.MEDIUM)
+// internal object ClassScheduleMediumGlanceWidget : ScheduleGlanceWidget(WidgetLayout.MEDIUM)
 
 internal object ClassScheduleLargeGlanceWidget : ScheduleGlanceWidget(WidgetLayout.LARGE)
 
@@ -217,7 +217,7 @@ private fun StackedGlanceContent(
                 snapshot = snapshot,
                 scheduled = current,
                 isCurrent = true,
-                label = R.string.widget_glance_right_now,
+                label = context.getString(R.string.widget_glance_right_now),
                 accent = colors.nowAccent,
                 colors = colors,
             )
@@ -231,7 +231,7 @@ private fun StackedGlanceContent(
                 snapshot = snapshot,
                 scheduled = next,
                 isCurrent = false,
-                label = R.string.widget_glance_up_next_title,
+                label = stackedUpNextLabel(context, next, snapshot.now.toLocalDate()),
                 accent = colors.nextAccent,
                 colors = colors,
             )
@@ -285,7 +285,7 @@ private fun StackedClassCard(
     snapshot: WidgetSnapshot,
     scheduled: ScheduledClass,
     isCurrent: Boolean,
-    label: Int,
+    label: String,
     accent: ColorProvider,
     colors: GlancePalette,
 ) {
@@ -316,7 +316,7 @@ private fun StackedClassCard(
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
                     Text(
-                        text = context.getString(label),
+                        text = label,
                         modifier = GlanceModifier.defaultWeight(),
                         style = TextStyle(color = colors.secondary, fontSize = 10.sp, fontWeight = FontWeight.Bold),
                         maxLines = 1,
@@ -420,6 +420,33 @@ private fun stackedTimeDetails(context: Context, item: ScheduleClass, options: W
     } else {
         range
     }
+}
+
+private fun stackedUpNextLabel(
+    context: Context,
+    scheduled: ScheduledClass,
+    today: LocalDate,
+): String = context.getString(
+    R.string.widget_glance_up_next_for,
+    stackedDateLabel(
+        date = scheduled.date,
+        today = today,
+        todayLabel = context.getString(R.string.widget_glance_today),
+        tomorrowLabel = context.getString(R.string.widget_glance_tomorrow),
+        locale = Locale.getDefault(),
+    ),
+)
+
+internal fun stackedDateLabel(
+    date: LocalDate,
+    today: LocalDate,
+    todayLabel: String,
+    tomorrowLabel: String,
+    locale: Locale,
+): String = when (date) {
+    today -> todayLabel
+    today.plusDays(1) -> tomorrowLabel
+    else -> date.format(DateTimeFormatter.ofPattern("EEEE · MMM d", locale))
 }
 
 @Composable
@@ -583,20 +610,27 @@ private fun LargeGlanceContent(
         }
 
         if (snapshot.today.isEmpty()) {
-            Text(
-                text = snapshot.next?.let {
-                    context.getString(
-                        R.string.widget_glance_empty_next,
-                        it.scheduleClass.name,
-                        dateTime(context, it, options, snapshot.now.toLocalDate()),
-                    )
-                } ?: context.getString(R.string.widget_glance_empty_schedule),
+            Column(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .padding(top = 12.dp),
-                style = TextStyle(color = colors.secondary, fontSize = 14.sp, textAlign = TextAlign.Center),
-                maxLines = 2,
-            )
+                    .padding(top = 12.dp)
+                    .background(colors.panel)
+                    .cornerRadius(10.dp)
+                    .padding(horizontal = 9.dp, vertical = 8.dp),
+            ) {
+                Text(
+                    text = snapshot.next?.let {
+                        context.getString(
+                            R.string.widget_glance_empty_next,
+                            it.scheduleClass.name,
+                            dateTime(context, it, options, snapshot.now.toLocalDate()),
+                        )
+                    } ?: context.getString(R.string.widget_glance_empty_schedule),
+                    modifier = GlanceModifier.fillMaxWidth(),
+                    style = TextStyle(color = colors.secondary, fontSize = 14.sp, textAlign = TextAlign.Center),
+                    maxLines = 2,
+                )
+            }
         } else {
             snapshot.todayWindow.forEachIndexed { index, item ->
                 LargeClassRow(context, options, snapshot, colors, item, index)

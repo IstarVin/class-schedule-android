@@ -6,6 +6,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.util.Locale
 
 class WidgetScheduleTest {
     private val zone = ZoneId.of("UTC")
@@ -117,7 +118,22 @@ class WidgetScheduleTest {
 
         assertEquals(WidgetState.NO_CLASSES_TODAY, snapshot.state)
         assertEquals("ITE183", snapshot.next?.scheduleClass?.code)
+        assertEquals(LocalDate.of(2026, 9, 28), snapshot.next?.date)
         assertEquals(at(2026, 9, 27, 0, 0), snapshot.refreshAt)
+    }
+
+    @Test
+    fun `stacked next label calls out tomorrow and later weekday dates`() {
+        val today = LocalDate.of(2026, 9, 26)
+
+        assertEquals(
+            "Tomorrow",
+            stackedDateLabel(today.plusDays(1), today, "Today", "Tomorrow", Locale.US),
+        )
+        assertEquals(
+            "Monday · Sep 28",
+            stackedDateLabel(today.plusDays(2), today, "Today", "Tomorrow", Locale.US),
+        )
     }
 
     @Test
