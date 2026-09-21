@@ -37,7 +37,7 @@ internal object WidgetPreferences {
             ).coerceIn(0, 100),
             panelTransparencyPercent = prefs.getInt(
                 key(appWidgetId, PANEL_TRANSPARENCY_PERCENT),
-                0,
+                15,
             ).coerceIn(0, 100),
             colorSource = WidgetColorSource.fromStored(prefs.getString(key(appWidgetId, COLOR_SOURCE), null)),
             timeFormat = WidgetTimeFormat.fromStored(prefs.getString(key(appWidgetId, TIME_FORMAT), null)),
@@ -113,6 +113,6 @@ internal object WidgetPreferences {
         "low" -> 25
         "medium" -> 50
         "high" -> 75
-        else -> 0
+        else -> 100
     }
 }

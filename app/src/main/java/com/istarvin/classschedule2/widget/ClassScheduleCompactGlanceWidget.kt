@@ -548,31 +548,39 @@ private fun LargeGlanceContent(
     Column(
         modifier = rootModifier(colors, openApp).padding(14.dp),
     ) {
-        Row(
-            modifier = GlanceModifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Vertical.CenterVertically,
+        Column(
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .background(colors.panel)
+                .cornerRadius(14.dp)
+                .padding(horizontal = 11.dp, vertical = 9.dp),
         ) {
-            Column(modifier = GlanceModifier.defaultWeight()) {
-                Text(
-                    text = context.getString(R.string.widget_glance_no_schedule_code),
-                    style = TextStyle(color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold),
-                    maxLines = 1,
-                )
-                Text(
-                    text = snapshot.now.format(DateTimeFormatter.ofPattern("EEEE · MMM d", locale)).uppercase(locale),
-                    modifier = GlanceModifier.padding(top = 4.dp),
-                    style = TextStyle(color = colors.primary, fontSize = 18.sp, fontWeight = FontWeight.Bold),
-                    maxLines = 1,
-                )
+            Row(
+                modifier = GlanceModifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Vertical.CenterVertically,
+            ) {
+                Column(modifier = GlanceModifier.defaultWeight()) {
+                    Text(
+                        text = context.getString(R.string.widget_glance_no_schedule_code),
+                        style = TextStyle(color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                    )
+                    Text(
+                        text = snapshot.now.format(DateTimeFormatter.ofPattern("EEEE · MMM d", locale)).uppercase(locale),
+                        modifier = GlanceModifier.padding(top = 4.dp),
+                        style = TextStyle(color = colors.primary, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                    )
+                }
+                RefreshButton(context, colors, refresh)
             }
-            RefreshButton(context, colors, refresh)
+            Text(
+                text = todaySummary(context, snapshot),
+                modifier = GlanceModifier.padding(top = 5.dp),
+                style = TextStyle(color = colors.secondary, fontSize = 12.sp),
+                maxLines = 1,
+            )
         }
-        Text(
-            text = todaySummary(context, snapshot),
-            modifier = GlanceModifier.padding(top = 5.dp, bottom = 6.dp),
-            style = TextStyle(color = colors.secondary, fontSize = 12.sp),
-            maxLines = 1,
-        )
 
         if (snapshot.today.isEmpty()) {
             Text(

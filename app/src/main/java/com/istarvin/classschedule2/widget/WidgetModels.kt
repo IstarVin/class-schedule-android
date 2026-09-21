@@ -80,8 +80,8 @@ internal enum class WidgetTimeFormat(val storedValue: String) {
 
 internal data class WidgetOptions(
     val appearance: WidgetAppearance = WidgetAppearance.SYSTEM,
-    val transparencyPercent: Int = 0,
-    val panelTransparencyPercent: Int = 0,
+    val transparencyPercent: Int = 100,
+    val panelTransparencyPercent: Int = 15,
     val colorSource: WidgetColorSource = WidgetColorSource.CLASS_SCHEDULE,
     val timeFormat: WidgetTimeFormat = WidgetTimeFormat.SYSTEM,
     val showCountdown: Boolean = true,
