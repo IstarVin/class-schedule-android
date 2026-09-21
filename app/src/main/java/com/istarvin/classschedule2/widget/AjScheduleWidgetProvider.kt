@@ -1,31 +1,43 @@
 package com.istarvin.classschedule2.widget
 
-import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import com.istarvin.classschedule2.data.ScheduleSyncWorker
 
 internal data class WidgetProviderEntry(
     val providerClass: Class<out AppWidgetProvider>,
     val layout: WidgetLayout,
-    val usesGlance: Boolean = false,
+    val glanceWidget: GlanceAppWidget,
 )
 
 internal object WidgetProviderRegistry {
     val entries = listOf(
-        WidgetProviderEntry(AjScheduleWidgetProvider::class.java, WidgetLayout.MEDIUM),
-        WidgetProviderEntry(AjScheduleCompactWidgetProvider::class.java, WidgetLayout.COMPACT),
-        WidgetProviderEntry(AjScheduleLargeWidgetProvider::class.java, WidgetLayout.LARGE),
         WidgetProviderEntry(
-            AjScheduleCompactGlanceWidgetReceiver::class.java,
-            WidgetLayout.COMPACT,
-            usesGlance = true,
+            providerClass = AjScheduleWidgetProvider::class.java,
+            layout = WidgetLayout.MEDIUM,
+            glanceWidget = AjScheduleMediumGlanceWidget,
+        ),
+        WidgetProviderEntry(
+            providerClass = AjScheduleCompactWidgetProvider::class.java,
+            layout = WidgetLayout.COMPACT,
+            glanceWidget = AjScheduleCompactGlanceWidget,
+        ),
+        WidgetProviderEntry(
+            providerClass = AjScheduleLargeWidgetProvider::class.java,
+            layout = WidgetLayout.LARGE,
+            glanceWidget = AjScheduleLargeGlanceWidget,
         ),
     )
 
     fun entryFor(provider: ComponentName?): WidgetProviderEntry? =
         entries.firstOrNull { it.providerClass.name == provider?.className }
+
+    fun entryFor(layout: WidgetLayout): WidgetProviderEntry? =
+        entries.firstOrNull { it.layout == layout }
 
     fun layoutFor(provider: ComponentName?): WidgetLayout? = entryFor(provider)?.layout
 
@@ -37,24 +49,18 @@ internal object WidgetProviderRegistry {
     }
 }
 
-/** Shared lifecycle for the selectable widget types. Heavy work stays in [WidgetUpdateCoordinator]. */
-open class AjScheduleWidgetProvider : AppWidgetProvider() {
-    protected open val widgetLayout: WidgetLayout = WidgetLayout.MEDIUM
+/** Shared lifecycle for the selectable Glance widget types. */
+abstract class AjScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
+    protected abstract val widgetLayout: WidgetLayout
 
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        WidgetUpdateCoordinator.update(context, appWidgetIds, widgetLayout)
-    }
-
-    override fun onAppWidgetOptionsChanged(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetId: Int,
-        newOptions: android.os.Bundle,
-    ) {
-        WidgetUpdateCoordinator.update(context, intArrayOf(appWidgetId), widgetLayout)
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        ScheduleSyncWorker.ensurePeriodic(context)
+        WidgetUpdateCoordinator.updateAll(context)
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        super.onDeleted(context, appWidgetIds)
         WidgetPreferences.remove(context, appWidgetIds)
         WidgetUpdateCoordinator.updateAll(context)
     }
@@ -65,12 +71,8 @@ open class AjScheduleWidgetProvider : AppWidgetProvider() {
         WidgetUpdateCoordinator.update(context, newWidgetIds, widgetLayout)
     }
 
-    override fun onEnabled(context: Context) {
-        ScheduleSyncWorker.ensurePeriodic(context)
-        WidgetUpdateCoordinator.updateAll(context)
-    }
-
     override fun onDisabled(context: Context) {
+        super.onDisabled(context)
         if (!WidgetProviderRegistry.hasWidgets(context.applicationContext)) {
             WidgetRefreshScheduler.cancel(context.applicationContext)
             ScheduleSyncWorker.cancelPeriodic(context)
@@ -78,10 +80,17 @@ open class AjScheduleWidgetProvider : AppWidgetProvider() {
     }
 }
 
-class AjScheduleCompactWidgetProvider : AjScheduleWidgetProvider() {
+class AjScheduleWidgetProvider : AjScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = AjScheduleMediumGlanceWidget
+    override val widgetLayout: WidgetLayout = WidgetLayout.MEDIUM
+}
+
+class AjScheduleCompactWidgetProvider : AjScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = AjScheduleCompactGlanceWidget
     override val widgetLayout: WidgetLayout = WidgetLayout.COMPACT
 }
 
-class AjScheduleLargeWidgetProvider : AjScheduleWidgetProvider() {
+class AjScheduleLargeWidgetProvider : AjScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = AjScheduleLargeGlanceWidget
     override val widgetLayout: WidgetLayout = WidgetLayout.LARGE
 }

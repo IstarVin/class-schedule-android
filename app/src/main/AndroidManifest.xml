@@ -61,20 +61,6 @@
         </receiver>
 
         <receiver
-            android:name=".widget.AjScheduleCompactGlanceWidgetReceiver"
-            android:exported="false"
-            android:label="@string/widget_glance_compact_name"
-            android:permission="android.permission.BIND_APPWIDGET">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/aj_schedule_compact_glance_widget_info" />
-        </receiver>
-
-        <receiver
             android:name=".widget.AjScheduleLargeWidgetProvider"
             android:exported="false"
             android:label="@string/widget_large_name"
