@@ -6,9 +6,9 @@
         <item name="android:fontFamily">sans</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:windowBackground">#15181E</item>
-        <item name="android:statusBarColor">#15181E</item>
-        <item name="android:navigationBarColor">#15181E</item>
+        <item name="android:windowBackground">#12151B</item>
+        <item name="android:statusBarColor">#12151B</item>
+        <item name="android:navigationBarColor">#12151B</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>

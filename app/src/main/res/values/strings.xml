@@ -1,7 +1,28 @@
 <resources>
     <string name="app_name">Class Schedule</string>
+    <string name="widget_config_eyebrow">WIDGET SETUP</string>
     <string name="widget_config_subtitle">This widget’s size and layout come from the widget you selected. Set display defaults now, or change them later from your home screen.</string>
     <string name="widget_config_save">Save changes</string>
+    <string name="widget_config_section_style">Widget style</string>
+    <string name="widget_config_section_style_subtitle">Choose the look and time format for this widget.</string>
+    <string name="widget_config_section_content">At a glance</string>
+    <string name="widget_config_section_content_subtitle">Choose which details are visible on your home screen.</string>
+    <string name="widget_config_dropdown_chevron" translatable="false">⌄</string>
+    <string name="widget_config_show_countdown">Show countdown</string>
+    <string name="widget_config_show_room">Show room</string>
+    <string name="widget_config_show_next">Show next class</string>
+    <string name="widget_config_show_progress">Show progress bar</string>
+    <string name="widget_config_preview_subject">Web Systems and Technologies</string>
+    <string name="widget_config_preview_room">Room TBA</string>
+    <string name="widget_config_preview_countdown">45 min left</string>
+    <string name="widget_config_preview_next">Next · ITE105</string>
+    <string name="widget_config_preview_empty">A clean glance at your schedule</string>
+    <string name="widget_config_preview_compact_label">UP NEXT · ITE183</string>
+    <string name="widget_config_preview_medium_label">NOW · ITE183</string>
+    <string name="widget_config_preview_large_label">TODAY · ITE183</string>
+    <string name="widget_config_preview_compact_caption">Compact · next class at a glance</string>
+    <string name="widget_config_preview_medium_caption">Now + next · the balanced default</string>
+    <string name="widget_config_preview_large_caption">Today · your whole school day</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_add_widget">Add widget</string>
     <string name="menu_widget_settings">Widget settings</string>

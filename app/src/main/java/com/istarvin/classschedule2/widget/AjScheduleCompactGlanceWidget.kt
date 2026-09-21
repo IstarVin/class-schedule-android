@@ -292,7 +292,7 @@ private fun LargeGlanceContent(
     val colors = glancePalette(context, options)
     val openApp = actionStartActivity<MainActivity>()
     val refresh = refreshAction(context)
-    val locale = Locale.getDefault()
+    val locale = context.resources.configuration.locales[0]
 
     Column(
         modifier = rootModifier(colors, openApp).padding(14.dp),
