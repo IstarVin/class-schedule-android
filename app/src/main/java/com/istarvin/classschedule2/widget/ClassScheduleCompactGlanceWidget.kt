@@ -201,9 +201,17 @@ private fun StackedGlanceContent(
     ) {
         if (current == null) {
             if (snapshot.today.isEmpty() && next == null) {
-                StackedEmptyCard(context, colors)
+                StackedEmptyCard(
+                    context = context,
+                    colors = colors,
+                    modifier = GlanceModifier.defaultWeight(),
+                )
             } else {
-                StackedBreakCard(context, colors)
+                StackedBreakCard(
+                    context = context,
+                    colors = colors,
+                    modifier = GlanceModifier.defaultWeight(),
+                )
             }
         } else {
             StackedClassCard(
@@ -215,6 +223,7 @@ private fun StackedGlanceContent(
                 label = R.string.widget_glance_right_now,
                 accent = colors.nowAccent,
                 colors = colors,
+                modifier = GlanceModifier.defaultWeight(),
             )
         }
 
@@ -229,15 +238,20 @@ private fun StackedGlanceContent(
                 label = R.string.widget_glance_up_next_title,
                 accent = colors.nextAccent,
                 colors = colors,
+                modifier = GlanceModifier.defaultWeight(),
             )
         }
     }
 }
 
 @Composable
-private fun StackedBreakCard(context: Context, colors: GlancePalette) {
+private fun StackedBreakCard(
+    context: Context,
+    colors: GlancePalette,
+    modifier: GlanceModifier,
+) {
     Box(
-        modifier = GlanceModifier
+        modifier = modifier
             .fillMaxWidth()
             .background(colors.divider)
             .cornerRadius(12.dp),
@@ -245,11 +259,13 @@ private fun StackedBreakCard(context: Context, colors: GlancePalette) {
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(start = 3.dp),
         ) {
             Column(
                 modifier = GlanceModifier
                     .fillMaxWidth()
+                    .fillMaxHeight()
                     .background(colors.panel)
                     .cornerRadius(12.dp)
                     .padding(horizontal = 17.dp, vertical = 14.dp),
@@ -280,6 +296,7 @@ private fun StackedClassCard(
     label: Int,
     accent: ColorProvider,
     colors: GlancePalette,
+    modifier: GlanceModifier,
 ) {
     val item = scheduled.scheduleClass
     val target = if (isCurrent) {
@@ -305,7 +322,7 @@ private fun StackedClassCard(
     }
 
     Box(
-        modifier = GlanceModifier
+        modifier = modifier
             .fillMaxWidth()
             .background(accent)
             .cornerRadius(12.dp),
@@ -313,11 +330,13 @@ private fun StackedClassCard(
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
+                .fillMaxHeight()
                 .padding(start = 3.dp),
         ) {
             Column(
                 modifier = GlanceModifier
                     .fillMaxWidth()
+                    .fillMaxHeight()
                     .background(colors.panel)
                     .cornerRadius(12.dp)
                     .padding(horizontal = 17.dp, vertical = 14.dp),
@@ -388,9 +407,13 @@ private fun StackedClassCard(
 }
 
 @Composable
-private fun StackedEmptyCard(context: Context, colors: GlancePalette) {
+private fun StackedEmptyCard(
+    context: Context,
+    colors: GlancePalette,
+    modifier: GlanceModifier,
+) {
     Row(
-        modifier = GlanceModifier
+        modifier = modifier
             .fillMaxWidth()
             .background(colors.panel)
             .cornerRadius(12.dp)
