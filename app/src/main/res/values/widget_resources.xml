@@ -5,6 +5,8 @@
     <string name="widget_compact_description">The next class, countdown, and a quick glance at what follows.</string>
     <string name="widget_large_name">Class Schedule · Today</string>
     <string name="widget_large_description">Your classes for today with the next class highlighted.</string>
+    <string name="widget_stacked_name">Class Schedule · Now + Next</string>
+    <string name="widget_stacked_description">A focused stack showing your current and upcoming classes.</string>
     <string name="widget_config_title">Customize widget</string>
     <string name="widget_config_appearance">Appearance</string>
     <string name="widget_config_colors">Colors</string>
@@ -51,4 +53,10 @@
     <color name="widget_dark_text_secondary">#C0C2C9</color>
     <color name="widget_dark_text_muted">#858993</color>
     <color name="widget_dark_accent">#9CC4FF</color>
+    <color name="widget_now_accent">#D94D73</color>
+    <color name="widget_next_accent">#A97200</color>
+    <color name="widget_light_now_accent">#B4234D</color>
+    <color name="widget_light_next_accent">#8A5B00</color>
+    <color name="widget_dark_now_accent">#FF829F</color>
+    <color name="widget_dark_next_accent">#E8B83E</color>
 </resources>

@@ -27,6 +27,7 @@ class WidgetScheduleTest {
         assertEquals("ITE183", snapshot.current?.code)
         assertEquals("ITE105", snapshot.next?.scheduleClass?.code)
         assertEquals(LocalDate.of(2026, 9, 21), snapshot.next?.date)
+        assertEquals(at(2026, 9, 21, 9, 31), snapshot.refreshAt)
     }
 
     @Test
@@ -36,6 +37,7 @@ class WidgetScheduleTest {
         assertEquals(WidgetState.UP_NEXT, snapshot.state)
         assertEquals("ITE105", snapshot.next?.scheduleClass?.code)
         assertNotNull(snapshot.refreshAt)
+        assertEquals(at(2026, 9, 21, 11, 31), snapshot.refreshAt)
     }
 
     @Test

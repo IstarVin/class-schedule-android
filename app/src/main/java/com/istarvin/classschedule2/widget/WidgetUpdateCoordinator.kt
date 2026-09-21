@@ -143,19 +143,16 @@ internal object WidgetUpdateCoordinator {
     ): ZonedDateTime {
         if (current != null) {
             val end = at(now.toLocalDate(), current.endMinute, now)
-            // A 15-minute update keeps progress and countdown labels useful without a
-            // battery-expensive per-minute alarm.
-            val quarterHour = now.truncatedTo(ChronoUnit.MINUTES)
-                .plusMinutes((15 - (now.minute % 15)).toLong())
-            return if (quarterHour.isBefore(end)) quarterHour else end
+            // Refresh at the next minute so progress and countdown labels stay current.
+            val nextMinute = now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
+            return if (nextMinute.isBefore(end)) nextMinute else end
         }
         val midnight = now.toLocalDate().plusDays(1).atStartOfDay(now.zone)
         val nextStart = next?.let { at(it.date, it.scheduleClass.startMinute, now) }
         // A date change can alter the state even if Monday's first class is days away.
         if (nextStart != null && nextStart.isBefore(midnight)) {
-            val quarterHour = now.truncatedTo(ChronoUnit.MINUTES)
-                .plusMinutes((15 - (now.minute % 15)).toLong())
-            return if (quarterHour.isBefore(nextStart)) quarterHour else nextStart
+            val nextMinute = now.truncatedTo(ChronoUnit.MINUTES).plusMinutes(1)
+            return if (nextMinute.isBefore(nextStart)) nextMinute else nextStart
         }
         return midnight
     }
@@ -187,7 +184,8 @@ internal object WidgetRefreshScheduler {
 
     fun schedule(context: Context, refreshAt: ZonedDateTime) {
         val alarmManager = context.getSystemService(AlarmManager::class.java) ?: return
-        val delay = max(60_000L, Duration.between(ZonedDateTime.now(), refreshAt).toMillis())
+        // Preserve the minute boundary when the current time includes seconds.
+        val delay = max(1_000L, Duration.between(ZonedDateTime.now(), refreshAt).toMillis())
         alarmManager.setAndAllowWhileIdle(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
             SystemClock.elapsedRealtime() + delay,

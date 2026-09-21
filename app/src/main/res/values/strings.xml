@@ -10,6 +10,8 @@
     <string name="widget_config_preview_room">Room TBA</string>
     <string name="widget_config_preview_countdown">45 min left</string>
     <string name="widget_config_preview_next">Next · ITE105</string>
+    <string name="widget_config_preview_next_subject">Business Intelligence</string>
+    <string name="widget_config_preview_next_meta">Today · starts in 54 min</string>
     <string name="widget_config_preview_empty">A clean glance at your schedule</string>
     <string name="widget_config_preview_compact_label">UP NEXT · ITE183</string>
     <string name="widget_config_preview_medium_label">NOW · ITE183</string>
@@ -17,6 +19,8 @@
     <string name="widget_config_preview_compact_caption">Compact · next class at a glance</string>
     <string name="widget_config_preview_medium_caption">Now + next · the balanced default</string>
     <string name="widget_config_preview_large_caption">Today · your whole school day</string>
+    <string name="widget_config_preview_stacked_label">RIGHT NOW · ITE104</string>
+    <string name="widget_config_preview_stacked_caption">Now + next · two focused class cards</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_add_widget">Add widget</string>
     <string name="menu_widget_settings">Widget settings</string>
@@ -39,11 +43,16 @@
     <string name="widget_glance_then_label">THEN</string>
     <string name="widget_glance_up_next_label">UP NEXT</string>
     <string name="widget_glance_now_label">NOW</string>
+    <string name="widget_glance_right_now">Right now</string>
+    <string name="widget_glance_up_next_title">Up next</string>
+    <string name="widget_glance_no_class_in_session">No class in session — enjoy the break.</string>
     <string name="widget_glance_empty_next">Next · %1$s · %2$s</string>
     <string name="widget_glance_empty_schedule">Open Class Schedule to add your classes</string>
     <string name="widget_glance_ends_in">Ends in %1$s</string>
     <string name="widget_glance_starts_in">Starts in %1$s</string>
     <string name="widget_glance_room">Room %1$s</string>
+    <string name="widget_glance_room_time">%1$s · %2$s</string>
+    <string name="widget_glance_countdown_with_day">%1$s · %2$s</string>
     <string name="widget_glance_less_than_minute">less than 1 min</string>
     <string name="widget_glance_minutes">%1$d min</string>
     <string name="widget_glance_hours">%1$d hr</string>

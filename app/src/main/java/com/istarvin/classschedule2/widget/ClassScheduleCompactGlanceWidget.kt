@@ -83,6 +83,8 @@ internal object ClassScheduleMediumGlanceWidget : ScheduleGlanceWidget(WidgetLay
 
 internal object ClassScheduleLargeGlanceWidget : ScheduleGlanceWidget(WidgetLayout.LARGE)
 
+internal object ClassScheduleStackedGlanceWidget : ScheduleGlanceWidget(WidgetLayout.STACKED)
+
 @Composable
 private fun ScheduleGlanceContent(
     context: Context,
@@ -94,6 +96,7 @@ private fun ScheduleGlanceContent(
         WidgetLayout.COMPACT -> CompactGlanceContent(context, options, snapshot)
         WidgetLayout.MEDIUM -> MediumGlanceContent(context, options, snapshot)
         WidgetLayout.LARGE -> LargeGlanceContent(context, options, snapshot)
+        WidgetLayout.STACKED -> StackedGlanceContent(context, options, snapshot)
     }
 }
 
@@ -178,6 +181,246 @@ private fun CompactGlanceContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StackedGlanceContent(
+    context: Context,
+    options: WidgetOptions,
+    snapshot: WidgetSnapshot,
+) {
+    val colors = glancePalette(context, options)
+    val openApp = actionStartActivity<MainActivity>()
+
+    val current = snapshot.current?.let { ScheduledClass(it, snapshot.now.toLocalDate()) }
+    val next = snapshot.next
+
+    Column(
+        modifier = rootModifier(colors, openApp).padding(12.dp),
+    ) {
+        if (current == null) {
+            if (snapshot.today.isEmpty() && next == null) {
+                StackedEmptyCard(context, colors)
+            } else {
+                StackedBreakCard(context, colors)
+            }
+        } else {
+            StackedClassCard(
+                context = context,
+                options = options,
+                snapshot = snapshot,
+                scheduled = current,
+                isCurrent = true,
+                label = R.string.widget_glance_right_now,
+                accent = colors.nowAccent,
+                colors = colors,
+            )
+        }
+
+        if (options.showNext && next != null) {
+            Spacer(GlanceModifier.height(10.dp))
+            StackedClassCard(
+                context = context,
+                options = options,
+                snapshot = snapshot,
+                scheduled = next,
+                isCurrent = false,
+                label = R.string.widget_glance_up_next_title,
+                accent = colors.nextAccent,
+                colors = colors,
+            )
+        }
+    }
+}
+
+@Composable
+private fun StackedBreakCard(context: Context, colors: GlancePalette) {
+    Box(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .background(colors.divider)
+            .cornerRadius(12.dp),
+    ) {
+        Box(
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .padding(start = 3.dp),
+        ) {
+            Column(
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .background(colors.panel)
+                    .cornerRadius(12.dp)
+                    .padding(horizontal = 17.dp, vertical = 14.dp),
+            ) {
+                Text(
+                    text = context.getString(R.string.widget_glance_right_now),
+                    style = TextStyle(color = colors.secondary, fontSize = 10.sp),
+                    maxLines = 1,
+                )
+                Text(
+                    text = context.getString(R.string.widget_glance_no_class_in_session),
+                    modifier = GlanceModifier.padding(top = 14.dp),
+                    style = TextStyle(color = colors.secondary, fontSize = 12.sp),
+                    maxLines = 2,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StackedClassCard(
+    context: Context,
+    options: WidgetOptions,
+    snapshot: WidgetSnapshot,
+    scheduled: ScheduledClass,
+    isCurrent: Boolean,
+    label: Int,
+    accent: ColorProvider,
+    colors: GlancePalette,
+) {
+    val item = scheduled.scheduleClass
+    val target = if (isCurrent) {
+        WidgetUpdateCoordinator.at(scheduled.date, item.endMinute, snapshot.now)
+    } else {
+        WidgetUpdateCoordinator.at(scheduled.date, item.startMinute, snapshot.now)
+    }
+    val countdown = countdownText(context, snapshot, options, target, isCurrent)
+    val countdownLabel = if (isCurrent || countdown == null) {
+        countdown
+    } else {
+        context.getString(
+            R.string.widget_glance_countdown_with_day,
+            when (scheduled.date) {
+                snapshot.now.toLocalDate() -> context.getString(R.string.widget_glance_today)
+                snapshot.now.toLocalDate().plusDays(1) -> context.getString(R.string.widget_glance_tomorrow)
+                else -> scheduled.date.format(
+                    DateTimeFormatter.ofPattern("EEE", context.resources.configuration.locales[0]),
+                )
+            },
+            countdown,
+        )
+    }
+
+    Box(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .background(accent)
+            .cornerRadius(12.dp),
+    ) {
+        Box(
+            modifier = GlanceModifier
+                .fillMaxWidth()
+                .padding(start = 3.dp),
+        ) {
+            Column(
+                modifier = GlanceModifier
+                    .fillMaxWidth()
+                    .background(colors.panel)
+                    .cornerRadius(12.dp)
+                    .padding(horizontal = 17.dp, vertical = 14.dp),
+            ) {
+                Text(
+                    text = context.getString(label),
+                    style = TextStyle(color = colors.secondary, fontSize = 10.sp),
+                    maxLines = 1,
+                )
+                Row(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .padding(top = 9.dp),
+                    verticalAlignment = Alignment.Vertical.CenterVertically,
+                ) {
+                    Text(
+                        text = item.code,
+                        style = TextStyle(color = accent, fontSize = 11.sp, fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                    )
+                    if (item.section.isNotBlank()) {
+                        Text(
+                            text = item.section,
+                            modifier = GlanceModifier.padding(start = 8.dp),
+                            style = TextStyle(color = colors.secondary, fontSize = 11.sp),
+                            maxLines = 1,
+                        )
+                    }
+                }
+                Text(
+                    text = item.name,
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .padding(top = 3.dp),
+                    style = TextStyle(color = colors.primary, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                    maxLines = 2,
+                )
+                Text(
+                    text = stackedTimeDetails(context, item, options),
+                    modifier = GlanceModifier.padding(top = 6.dp),
+                    style = TextStyle(color = colors.secondary, fontSize = 11.sp),
+                    maxLines = 1,
+                )
+                countdownLabel?.let {
+                    Text(
+                        text = it,
+                        modifier = GlanceModifier.padding(top = 10.dp),
+                        style = TextStyle(color = colors.primary, fontSize = 12.sp),
+                        maxLines = 1,
+                    )
+                }
+                if (isCurrent && options.showProgress) {
+                    val elapsed = (snapshot.now.hour * 60 + snapshot.now.minute) - item.startMinute
+                    val duration = (item.endMinute - item.startMinute).coerceAtLeast(1)
+                    LinearProgressIndicator(
+                        progress = (elapsed.toFloat() / duration).coerceIn(0f, 1f),
+                        modifier = GlanceModifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .height(4.dp),
+                        color = accent,
+                        backgroundColor = colors.divider,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun StackedEmptyCard(context: Context, colors: GlancePalette) {
+    Row(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .background(colors.panel)
+            .cornerRadius(12.dp)
+            .padding(17.dp),
+    ) {
+        Column {
+            Text(
+                text = context.getString(R.string.widget_glance_no_schedule_code),
+                style = TextStyle(color = colors.accent, fontSize = 10.sp, fontWeight = FontWeight.Bold),
+            )
+            Text(
+                text = context.getString(R.string.widget_glance_no_schedule_subject),
+                modifier = GlanceModifier.padding(top = 8.dp),
+                style = TextStyle(color = colors.primary, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+            )
+            Text(
+                text = context.getString(R.string.widget_glance_no_schedule_time),
+                modifier = GlanceModifier.padding(top = 5.dp),
+                style = TextStyle(color = colors.secondary, fontSize = 12.sp),
+            )
+        }
+    }
+}
+
+private fun stackedTimeDetails(context: Context, item: ScheduleClass, options: WidgetOptions): String {
+    val range = timeRange(context, item, options)
+    return if (options.showRoom && item.room.isNotBlank()) {
+        context.getString(R.string.widget_glance_room_time, item.room, range)
+    } else {
+        range
     }
 }
 
@@ -807,6 +1050,8 @@ private data class GlancePalette(
     val secondary: ColorProvider,
     val muted: ColorProvider,
     val accent: ColorProvider,
+    val nowAccent: ColorProvider,
+    val nextAccent: ColorProvider,
 )
 
 private fun glancePalette(context: Context, options: WidgetOptions): GlancePalette {
@@ -863,6 +1108,28 @@ private fun glancePalette(context: Context, options: WidgetOptions): GlancePalet
             )
         }
     }
+    val nowAccent = if (dynamic) {
+        context.getColor(if (dark) android.R.color.system_accent1_200 else android.R.color.system_accent1_600)
+    } else {
+        context.getColor(
+            when (options.appearance) {
+                WidgetAppearance.SYSTEM -> R.color.widget_now_accent
+                WidgetAppearance.LIGHT -> R.color.widget_light_now_accent
+                WidgetAppearance.DARK -> R.color.widget_dark_now_accent
+            },
+        )
+    }
+    val nextAccent = if (dynamic) {
+        context.getColor(if (dark) android.R.color.system_accent2_200 else android.R.color.system_accent2_600)
+    } else {
+        context.getColor(
+            when (options.appearance) {
+                WidgetAppearance.SYSTEM -> R.color.widget_next_accent
+                WidgetAppearance.LIGHT -> R.color.widget_light_next_accent
+                WidgetAppearance.DARK -> R.color.widget_dark_next_accent
+            },
+        )
+    }
     val current = if (dynamic) {
         context.getColor(if (dark) android.R.color.system_neutral1_700 else android.R.color.system_neutral1_100)
     } else {
@@ -894,6 +1161,8 @@ private fun glancePalette(context: Context, options: WidgetOptions): GlancePalet
         secondary = glanceColor(context.getColor(resources[1])),
         muted = glanceColor(context.getColor(resources[2])),
         accent = glanceColor(context.getColor(resources[3])),
+        nowAccent = glanceColor(nowAccent),
+        nextAccent = glanceColor(nextAccent),
     )
 }
 

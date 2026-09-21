@@ -31,6 +31,11 @@ internal object WidgetProviderRegistry {
             layout = WidgetLayout.LARGE,
             glanceWidget = ClassScheduleLargeGlanceWidget,
         ),
+        WidgetProviderEntry(
+            providerClass = ClassScheduleStackedWidgetProvider::class.java,
+            layout = WidgetLayout.STACKED,
+            glanceWidget = ClassScheduleStackedGlanceWidget,
+        ),
     )
 
     fun entryFor(provider: ComponentName?): WidgetProviderEntry? =
@@ -94,4 +99,9 @@ class ClassScheduleCompactWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
 class ClassScheduleLargeWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = ClassScheduleLargeGlanceWidget
     override val widgetLayout: WidgetLayout = WidgetLayout.LARGE
+}
+
+class ClassScheduleStackedWidgetProvider : ClassScheduleGlanceWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = ClassScheduleStackedGlanceWidget
+    override val widgetLayout: WidgetLayout = WidgetLayout.STACKED
 }

@@ -75,6 +75,20 @@
         </receiver>
 
         <receiver
+            android:name=".widget.ClassScheduleStackedWidgetProvider"
+            android:exported="false"
+            android:label="@string/widget_stacked_name"
+            android:permission="android.permission.BIND_APPWIDGET">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/class_schedule_stacked_widget_info" />
+        </receiver>
+
+        <receiver
             android:name=".widget.WidgetRefreshReceiver"
             android:exported="false">
             <intent-filter>

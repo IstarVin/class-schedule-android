@@ -7,4 +7,6 @@
     <color name="widget_text_secondary">#C0C2C9</color>
     <color name="widget_text_muted">#858993</color>
     <color name="widget_accent">#9CC4FF</color>
+    <color name="widget_now_accent">#FF829F</color>
+    <color name="widget_next_accent">#E8B83E</color>
 </resources>

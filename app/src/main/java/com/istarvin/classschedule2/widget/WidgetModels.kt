@@ -42,6 +42,7 @@ enum class WidgetLayout {
     COMPACT,
     MEDIUM,
     LARGE,
+    STACKED,
 }
 
 internal enum class WidgetAppearance(val storedValue: String) {

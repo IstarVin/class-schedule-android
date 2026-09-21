@@ -343,11 +343,13 @@ private fun WidgetPreview(
         WidgetLayout.COMPACT -> stringResource(R.string.widget_config_preview_compact_label)
         WidgetLayout.MEDIUM -> stringResource(R.string.widget_config_preview_medium_label)
         WidgetLayout.LARGE -> stringResource(R.string.widget_config_preview_large_label)
+        WidgetLayout.STACKED -> stringResource(R.string.widget_config_preview_stacked_label)
     }
     val previewCaption = when (widgetLayout) {
         WidgetLayout.COMPACT -> stringResource(R.string.widget_config_preview_compact_caption)
         WidgetLayout.MEDIUM -> stringResource(R.string.widget_config_preview_medium_caption)
         WidgetLayout.LARGE -> stringResource(R.string.widget_config_preview_large_caption)
+        WidgetLayout.STACKED -> stringResource(R.string.widget_config_preview_stacked_caption)
     }
     val previewDetails = buildList {
         if (showRoom) add(stringResource(R.string.widget_config_preview_room))
@@ -404,6 +406,36 @@ private fun WidgetPreview(
                         .clip(RoundedCornerShape(50))
                         .background(colors.accent),
                 )
+            }
+            if (widgetLayout == WidgetLayout.STACKED && showNext) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    color = colors.card,
+                    border = BorderStroke(1.dp, colors.accent.copy(alpha = 0.18f)),
+                ) {
+                    Column(modifier = Modifier.padding(14.dp)) {
+                        Text(
+                            text = stringResource(R.string.widget_glance_up_next_title),
+                            color = colors.secondary,
+                            fontSize = 12.sp,
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 4.dp),
+                            text = stringResource(R.string.widget_config_preview_next_subject),
+                            color = colors.primary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 4.dp),
+                            text = stringResource(R.string.widget_config_preview_next_meta),
+                            color = colors.secondary,
+                            fontSize = 12.sp,
+                        )
+                    }
+                }
             }
         }
     }
