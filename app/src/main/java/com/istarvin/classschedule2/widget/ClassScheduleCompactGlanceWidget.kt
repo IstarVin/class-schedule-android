@@ -203,13 +203,11 @@ private fun StackedGlanceContent(
                 StackedEmptyCard(
                     context = context,
                     colors = colors,
-                    modifier = GlanceModifier.defaultWeight(),
                 )
             } else {
                 StackedBreakCard(
                     context = context,
                     colors = colors,
-                    modifier = GlanceModifier.defaultWeight(),
                 )
             }
         } else {
@@ -222,12 +220,11 @@ private fun StackedGlanceContent(
                 label = R.string.widget_glance_right_now,
                 accent = colors.nowAccent,
                 colors = colors,
-                modifier = GlanceModifier.defaultWeight(),
             )
         }
 
         if (options.showNext && next != null) {
-            Spacer(GlanceModifier.height(10.dp))
+            Spacer(GlanceModifier.height(8.dp))
             StackedClassCard(
                 context = context,
                 options = options,
@@ -237,7 +234,6 @@ private fun StackedGlanceContent(
                 label = R.string.widget_glance_up_next_title,
                 accent = colors.nextAccent,
                 colors = colors,
-                modifier = GlanceModifier.defaultWeight(),
             )
         }
     }
@@ -247,10 +243,9 @@ private fun StackedGlanceContent(
 private fun StackedBreakCard(
     context: Context,
     colors: GlancePalette,
-    modifier: GlanceModifier,
 ) {
     Box(
-        modifier = modifier
+        modifier = GlanceModifier
             .fillMaxWidth()
             .background(colors.divider)
             .cornerRadius(12.dp),
@@ -258,16 +253,14 @@ private fun StackedBreakCard(
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .fillMaxHeight()
                 .padding(start = 3.dp),
         ) {
             Column(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
                     .background(colors.panel)
                     .cornerRadius(12.dp)
-                    .padding(horizontal = 17.dp, vertical = 14.dp),
+                    .padding(horizontal = 14.dp, vertical = 11.dp),
             ) {
                 Text(
                     text = context.getString(R.string.widget_glance_right_now),
@@ -276,7 +269,7 @@ private fun StackedBreakCard(
                 )
                 Text(
                     text = context.getString(R.string.widget_glance_no_class_in_session),
-                    modifier = GlanceModifier.padding(top = 14.dp),
+                    modifier = GlanceModifier.padding(top = 7.dp),
                     style = TextStyle(color = colors.secondary, fontSize = 12.sp),
                     maxLines = 2,
                 )
@@ -295,12 +288,11 @@ private fun StackedClassCard(
     label: Int,
     accent: ColorProvider,
     colors: GlancePalette,
-    modifier: GlanceModifier,
 ) {
     val item = scheduled.scheduleClass
 
     Box(
-        modifier = modifier
+        modifier = GlanceModifier
             .fillMaxWidth()
             .background(accent)
             .cornerRadius(12.dp),
@@ -308,28 +300,27 @@ private fun StackedClassCard(
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
-                .fillMaxHeight()
                 .padding(start = 3.dp),
         ) {
             Column(
                 modifier = GlanceModifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
                     .background(colors.panel)
                     .cornerRadius(12.dp)
-                    .padding(horizontal = 17.dp, vertical = 14.dp),
+                    .padding(horizontal = 14.dp, vertical = 10.dp),
             ) {
-                Text(
-                    text = context.getString(label),
-                    style = TextStyle(color = colors.secondary, fontSize = 10.sp),
-                    maxLines = 1,
-                )
                 Row(
                     modifier = GlanceModifier
                         .fillMaxWidth()
-                        .padding(top = 9.dp),
+                        .padding(bottom = 4.dp),
                     verticalAlignment = Alignment.Vertical.CenterVertically,
                 ) {
+                    Text(
+                        text = context.getString(label),
+                        modifier = GlanceModifier.defaultWeight(),
+                        style = TextStyle(color = colors.secondary, fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                    )
                     Text(
                         text = item.code,
                         style = TextStyle(color = accent, fontSize = 11.sp, fontWeight = FontWeight.Bold),
@@ -338,7 +329,7 @@ private fun StackedClassCard(
                     if (item.section.isNotBlank()) {
                         Text(
                             text = item.section,
-                            modifier = GlanceModifier.padding(start = 8.dp),
+                            modifier = GlanceModifier.padding(start = 6.dp),
                             style = TextStyle(color = colors.secondary, fontSize = 11.sp),
                             maxLines = 1,
                         )
@@ -348,16 +339,31 @@ private fun StackedClassCard(
                     text = item.name,
                     modifier = GlanceModifier
                         .fillMaxWidth()
-                        .padding(top = 3.dp),
-                    style = TextStyle(color = colors.primary, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                        .padding(top = 0.dp),
+                    style = TextStyle(color = colors.primary, fontSize = 17.sp, fontWeight = FontWeight.Bold),
                     maxLines = 2,
                 )
-                Text(
-                    text = stackedTimeDetails(context, item, options),
-                    modifier = GlanceModifier.padding(top = 6.dp),
-                    style = TextStyle(color = colors.secondary, fontSize = 11.sp),
-                    maxLines = 1,
-                )
+                Row(
+                    modifier = GlanceModifier
+                        .fillMaxWidth()
+                        .padding(top = 5.dp),
+                    verticalAlignment = Alignment.Vertical.CenterVertically,
+                ) {
+                    Text(
+                        text = stackedTimeDetails(context, item, options),
+                        modifier = GlanceModifier.defaultWeight(),
+                        style = TextStyle(color = colors.secondary, fontSize = 11.sp),
+                        maxLines = 1,
+                    )
+                    if (isCurrent) {
+                        Text(
+                            text = context.getString(R.string.widget_glance_now_label),
+                            modifier = GlanceModifier.padding(start = 6.dp),
+                            style = TextStyle(color = accent, fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                            maxLines = 1,
+                        )
+                    }
+                }
                 if (isCurrent && options.showProgress) {
                     val elapsed = (snapshot.now.hour * 60 + snapshot.now.minute) - item.startMinute
                     val duration = (item.endMinute - item.startMinute).coerceAtLeast(1)
@@ -365,8 +371,8 @@ private fun StackedClassCard(
                         progress = (elapsed.toFloat() / duration).coerceIn(0f, 1f),
                         modifier = GlanceModifier
                             .fillMaxWidth()
-                            .padding(top = 10.dp)
-                            .height(4.dp),
+                            .padding(top = 7.dp)
+                            .height(3.dp),
                         color = accent,
                         backgroundColor = colors.divider,
                     )
@@ -380,14 +386,13 @@ private fun StackedClassCard(
 private fun StackedEmptyCard(
     context: Context,
     colors: GlancePalette,
-    modifier: GlanceModifier,
 ) {
     Row(
-        modifier = modifier
+        modifier = GlanceModifier
             .fillMaxWidth()
             .background(colors.panel)
             .cornerRadius(12.dp)
-            .padding(17.dp),
+            .padding(horizontal = 14.dp, vertical = 11.dp),
     ) {
         Column {
             Text(
@@ -396,12 +401,12 @@ private fun StackedEmptyCard(
             )
             Text(
                 text = context.getString(R.string.widget_glance_no_schedule_subject),
-                modifier = GlanceModifier.padding(top = 8.dp),
-                style = TextStyle(color = colors.primary, fontSize = 18.sp, fontWeight = FontWeight.Bold),
+                modifier = GlanceModifier.padding(top = 5.dp),
+                style = TextStyle(color = colors.primary, fontSize = 17.sp, fontWeight = FontWeight.Bold),
             )
             Text(
                 text = context.getString(R.string.widget_glance_no_schedule_time),
-                modifier = GlanceModifier.padding(top = 5.dp),
+                modifier = GlanceModifier.padding(top = 4.dp),
                 style = TextStyle(color = colors.secondary, fontSize = 12.sp),
             )
         }

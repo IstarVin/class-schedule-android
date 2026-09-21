@@ -1,50 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="320dp"
-    android:height="360dp"
+    android:height="260dp"
     android:viewportWidth="320"
-    android:viewportHeight="360">
+    android:viewportHeight="260">
 
     <path
         android:fillColor="@color/widget_dark_surface"
-        android:pathData="M16,0L304,0A16,16 0,0 1,320 16L320,344A16,16 0,0 1,304 360L16,360A16,16 0,0 1,0 344L0,16A16,16 0,0 1,16 0Z" />
+        android:pathData="M16,0L304,0A16,16 0,0 1,320 16L320,244A16,16 0,0 1,304 260L16,260A16,16 0,0 1,0 244L0,16A16,16 0,0 1,16 0Z" />
     <path
         android:fillColor="@color/widget_dark_panel"
-        android:pathData="M18,10L302,10A10,10 0,0 1,312 20L312,170A10,10 0,0 1,302 180L18,180A10,10 0,0 1,8 170L8,20A10,10 0,0 1,18 10Z" />
+        android:pathData="M18,8L302,8A10,10 0,0 1,312 18L312,122A10,10 0,0 1,302 132L18,132A10,10 0,0 1,8 122L8,18A10,10 0,0 1,18 8Z" />
     <path
         android:fillColor="@color/widget_dark_panel"
-        android:pathData="M18,190L302,190A10,10 0,0 1,312 200L312,350L8,350L8,200A10,10 0,0 1,18 190Z" />
+        android:pathData="M18,140L302,140A10,10 0,0 1,312 150L312,242L8,242L8,150A10,10 0,0 1,18 140Z" />
     <path
         android:fillColor="@color/widget_dark_now_accent"
-        android:pathData="M10,20L16,20L16,170L10,170Z" />
+        android:pathData="M10,18L16,18L16,122L10,122Z" />
     <path
         android:fillColor="@color/widget_dark_next_accent"
-        android:pathData="M10,200L16,200L16,340L10,340Z" />
+        android:pathData="M10,150L16,150L16,232L10,232Z" />
     <path
         android:fillColor="@color/widget_dark_text_secondary"
-        android:pathData="M30,25L92,25A3,3 0,0 1,95 28L95,32A3,3 0,0 1,92 35L30,35A3,3 0,0 1,27 32L27,28A3,3 0,0 1,30 25Z" />
+        android:pathData="M30,20L92,20A3,3 0,0 1,95 23L95,27A3,3 0,0 1,92 30L30,30A3,3 0,0 1,27 27L27,23A3,3 0,0 1,30 20Z" />
     <path
         android:fillColor="@color/widget_dark_now_accent"
-        android:pathData="M30,48L92,48A3,3 0,0 1,95 51L95,55A3,3 0,0 1,92 58L30,58A3,3 0,0 1,27 55L27,51A3,3 0,0 1,30 48Z" />
+        android:pathData="M30,39L92,39A3,3 0,0 1,95 42L95,46A3,3 0,0 1,92 49L30,49A3,3 0,0 1,27 46L27,42A3,3 0,0 1,30 39Z" />
     <path
         android:fillColor="@color/widget_dark_text_primary"
-        android:pathData="M30,68L270,68A4,4 0,0 1,274 72L274,80A4,4 0,0 1,270 84L30,84A4,4 0,0 1,26 80L26,72A4,4 0,0 1,30 68Z" />
+        android:pathData="M30,58L270,58A4,4 0,0 1,274 62L274,70A4,4 0,0 1,270 74L30,74A4,4 0,0 1,26 70L26,62A4,4 0,0 1,30 58Z" />
     <path
         android:fillColor="@color/widget_dark_text_secondary"
-        android:pathData="M30,96L240,96A3,3 0,0 1,243 99L243,104A3,3 0,0 1,240 107L30,107A3,3 0,0 1,27 104L27,99A3,3 0,0 1,30 96Z" />
+        android:pathData="M30,84L240,84A3,3 0,0 1,243 87L243,92A3,3 0,0 1,240 95L30,95A3,3 0,0 1,27 92L27,87A3,3 0,0 1,30 84Z" />
     <path
         android:fillColor="@color/widget_dark_text_primary"
-        android:pathData="M30,120L175,120A3,3 0,0 1,178 123L178,127A3,3 0,0 1,175 130L30,130A3,3 0,0 1,27 127L27,123A3,3 0,0 1,30 120Z" />
+        android:pathData="M30,105L175,105A3,3 0,0 1,178 108L178,112A3,3 0,0 1,175 115L30,115A3,3 0,0 1,27 112L27,108A3,3 0,0 1,30 105Z" />
     <path
         android:fillColor="@color/widget_dark_text_secondary"
-        android:pathData="M30,205L82,205A3,3 0,0 1,85 208L85,212A3,3 0,0 1,82 215L30,215A3,3 0,0 1,27 212L27,208A3,3 0,0 1,30 205Z" />
+        android:pathData="M30,151L82,151A3,3 0,0 1,85 154L85,158A3,3 0,0 1,82 161L30,161A3,3 0,0 1,27 158L27,154A3,3 0,0 1,30 151Z" />
     <path
         android:fillColor="@color/widget_dark_next_accent"
-        android:pathData="M30,228L92,228A3,3 0,0 1,95 231L95,235A3,3 0,0 1,92 238L30,238A3,3 0,0 1,27 235L27,231A3,3 0,0 1,30 228Z" />
+        android:pathData="M30,170L92,170A3,3 0,0 1,95 173L95,177A3,3 0,0 1,92 180L30,180A3,3 0,0 1,27 177L27,173A3,3 0,0 1,30 170Z" />
     <path
         android:fillColor="@color/widget_dark_text_primary"
-        android:pathData="M30,248L225,248A4,4 0,0 1,229 252L229,260A4,4 0,0 1,225 264L30,264A4,4 0,0 1,26 260L26,252A4,4 0,0 1,30 248Z" />
+        android:pathData="M30,189L225,189A4,4 0,0 1,229 193L229,201A4,4 0,0 1,225 205L30,205A4,4 0,0 1,26 201L26,193A4,4 0,0 1,30 189Z" />
     <path
         android:fillColor="@color/widget_dark_text_secondary"
-        android:pathData="M30,278L240,278A3,3 0,0 1,243 281L243,286A3,3 0,0 1,240 289L30,289A3,3 0,0 1,27 286L27,281A3,3 0,0 1,30 278Z" />
+        android:pathData="M30,214L240,214A3,3 0,0 1,243 217L243,222A3,3 0,0 1,240 225L30,225A3,3 0,0 1,27 222L27,217A3,3 0,0 1,30 214Z" />
 </vector>
