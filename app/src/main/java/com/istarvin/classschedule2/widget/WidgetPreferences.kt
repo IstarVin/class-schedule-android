@@ -2,10 +2,19 @@ package com.istarvin.classschedule2.widget
 
 import android.content.Context
 import androidx.core.content.edit
+import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 /** Per-widget preferences. Keeping keys scoped by widget ID avoids leaking a removed widget's settings. */
 internal object WidgetPreferences {
     private const val PREFS_NAME = "class_schedule_widget_preferences"
+
+    /**
+     * Glance keeps a composition alive for a short period after it renders a widget. Exposing
+     * changes in-process lets that composition observe settings saved while it is still alive.
+     */
+    private val optionFlows = ConcurrentHashMap<Int, MutableStateFlow<WidgetOptions>>()
 
     private const val APPEARANCE = "appearance"
     private const val COLOR_SOURCE = "color_source"
@@ -29,7 +38,8 @@ internal object WidgetPreferences {
     }
 
     fun save(context: Context, appWidgetId: Int, options: WidgetOptions) {
-        context.applicationContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val appContext = context.applicationContext
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit {
                 putString(key(appWidgetId, APPEARANCE), options.appearance.storedValue)
                     .putString(key(appWidgetId, COLOR_SOURCE), options.colorSource.storedValue)
@@ -39,7 +49,16 @@ internal object WidgetPreferences {
                     .putBoolean(key(appWidgetId, SHOW_NEXT), options.showNext)
                     .putBoolean(key(appWidgetId, SHOW_PROGRESS), options.showProgress)
             }
+
+        optionFlows.compute(appWidgetId) { _, flow ->
+            (flow ?: MutableStateFlow(options)).also { it.value = options }
+        }
     }
+
+    fun observe(context: Context, appWidgetId: Int): StateFlow<WidgetOptions> =
+        optionFlows.computeIfAbsent(appWidgetId) {
+            MutableStateFlow(read(context, appWidgetId))
+        }
 
     fun hasSavedOptions(context: Context, appWidgetId: Int): Boolean =
         context.applicationContext
@@ -61,6 +80,7 @@ internal object WidgetPreferences {
                     .forEach { field -> remove(key(id, field)) }
             }
         }
+        appWidgetIds.forEach { optionFlows.remove(it) }
     }
 
     fun migrate(context: Context, oldWidgetIds: IntArray, newWidgetIds: IntArray) {

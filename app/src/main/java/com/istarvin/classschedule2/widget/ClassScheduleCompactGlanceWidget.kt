@@ -6,6 +6,8 @@ import android.graphics.Color as AndroidColor
 import android.os.Build
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,14 +56,20 @@ internal abstract class ScheduleGlanceWidget(
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val appContext = context.applicationContext
         val appWidgetId = GlanceAppWidgetManager(appContext).getAppWidgetId(id)
-        val (snapshot, options) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        val snapshot = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
             WidgetUpdateCoordinator.snapshotFor(
                 WidgetScheduleReader.load(appContext),
                 ZonedDateTime.now(),
-            ) to WidgetPreferences.read(appContext, appWidgetId)
+            )
         }
+        val initialOptions = WidgetPreferences.read(appContext, appWidgetId)
         WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
         provideContent {
+            // Glance may recompose an existing session instead of restarting provideGlance when
+            // update() is called. Observe the saved options so a configuration save is visible
+            // immediately in either case.
+            val options by WidgetPreferences.observe(appContext, appWidgetId)
+                .collectAsState(initial = initialOptions)
             ScheduleGlanceContent(appContext, layout, options, snapshot)
         }
     }
