@@ -83,13 +83,7 @@ class MainActivity : AppCompatActivity() {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (webView.canGoBack()) {
-                        webView.goBack()
-                    } else {
-                        // Let Android complete the final predictive-back animation.
-                        isEnabled = false
-                        onBackPressedDispatcher.onBackPressed()
-                    }
+                    finish()
                 }
             },
         )
