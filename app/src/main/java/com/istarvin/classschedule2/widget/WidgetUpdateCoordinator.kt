@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.SystemClock
 import androidx.glance.appwidget.GlanceAppWidgetManager
+import com.istarvin.classschedule2.data.SchedulePreferences
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalTime
@@ -41,17 +42,21 @@ internal object WidgetUpdateCoordinator {
                 return@launch
             }
 
+            val profile = SchedulePreferences.selected(appContext)
             val snapshot = withContext(Dispatchers.IO) {
-                snapshotFor(WidgetScheduleReader.load(appContext), ZonedDateTime.now())
+                snapshotFor(WidgetScheduleReader.load(appContext, profile), ZonedDateTime.now())
             }
             val glanceManager = GlanceAppWidgetManager(appContext)
             activeProviders.forEach { (entry, appWidgetIds) ->
                 appWidgetIds.forEach { appWidgetId ->
+                    if (SchedulePreferences.selected(appContext) != profile) return@launch
                     WidgetSnapshotState.update(appWidgetId, snapshot)
                     updateGlanceWidget(entry, glanceManager, appContext, appWidgetId)
                 }
             }
-            WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
+            if (SchedulePreferences.selected(appContext) == profile) {
+                WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
+            }
         }
     }
 
@@ -59,16 +64,20 @@ internal object WidgetUpdateCoordinator {
         if (appWidgetIds.isEmpty()) return
         updateScope.launch {
             val appContext = context.applicationContext
+            val profile = SchedulePreferences.selected(appContext)
             val snapshot = withContext(Dispatchers.IO) {
-                snapshotFor(WidgetScheduleReader.load(appContext), ZonedDateTime.now())
+                snapshotFor(WidgetScheduleReader.load(appContext, profile), ZonedDateTime.now())
             }
             val entry = WidgetProviderRegistry.entryFor(layout) ?: return@launch
             val glanceManager = GlanceAppWidgetManager(appContext)
             appWidgetIds.forEach { appWidgetId ->
+                if (SchedulePreferences.selected(appContext) != profile) return@launch
                 WidgetSnapshotState.update(appWidgetId, snapshot)
                 updateGlanceWidget(entry, glanceManager, appContext, appWidgetId)
             }
-            WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
+            if (SchedulePreferences.selected(appContext) == profile) {
+                WidgetRefreshScheduler.schedule(appContext, snapshot.refreshAt)
+            }
         }
     }
 

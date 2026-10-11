@@ -10,6 +10,7 @@ import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.workDataOf
 import com.istarvin.classschedule2.widget.WidgetUpdateCoordinator
 import java.util.concurrent.TimeUnit
 
@@ -23,15 +24,20 @@ class ScheduleSyncWorker(
     workerParameters: WorkerParameters,
 ) : Worker(appContext, workerParameters) {
 
-    override fun doWork(): Result = when (ScheduleCache.refresh(applicationContext)) {
-        is ScheduleCache.RefreshResult.Updated,
-        is ScheduleCache.RefreshResult.NotModified -> {
-            WidgetUpdateCoordinator.updateAll(applicationContext)
-            Result.success()
-        }
+    override fun doWork(): Result {
+        // A queued manual refresh belongs to the profile selected when it was requested.
+        val profile = inputData.getString(KEY_PROFILE)?.let(ScheduleProfile::fromId)
+            ?: SchedulePreferences.selected(applicationContext)
+        return when (ScheduleCache.refresh(applicationContext, profile)) {
+            is ScheduleCache.RefreshResult.Updated,
+            is ScheduleCache.RefreshResult.NotModified -> {
+                WidgetUpdateCoordinator.updateAll(applicationContext)
+                Result.success()
+            }
 
-        is ScheduleCache.RefreshResult.Failed -> {
-            if (runAttemptCount < MAX_RETRY_ATTEMPTS) Result.retry() else Result.failure()
+            is ScheduleCache.RefreshResult.Failed -> {
+                if (runAttemptCount < MAX_RETRY_ATTEMPTS) Result.retry() else Result.failure()
+            }
         }
     }
 
@@ -39,18 +45,20 @@ class ScheduleSyncWorker(
         private const val UNIQUE_MANUAL_SYNC = "class_schedule_manual_sync"
         private const val UNIQUE_PERIODIC_SYNC = "class_schedule_periodic_sync"
         private const val MAX_RETRY_ATTEMPTS = 3
+        private const val KEY_PROFILE = "schedule_profile"
 
         private val networkConstraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
         /** Coalesces repeated refresh taps into one current network request. */
-        fun enqueueManual(context: Context) {
+        fun enqueueManual(context: Context, profile: ScheduleProfile = SchedulePreferences.selected(context)) {
             val request = OneTimeWorkRequestBuilder<ScheduleSyncWorker>()
                 .setConstraints(networkConstraints)
+                .setInputData(workDataOf(KEY_PROFILE to profile.id))
                 .build()
             WorkManager.getInstance(context.applicationContext).enqueueUniqueWork(
-                UNIQUE_MANUAL_SYNC,
+                "${UNIQUE_MANUAL_SYNC}_${profile.id}",
                 ExistingWorkPolicy.REPLACE,
                 request,
             )

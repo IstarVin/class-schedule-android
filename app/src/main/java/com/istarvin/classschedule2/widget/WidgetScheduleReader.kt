@@ -2,6 +2,8 @@ package com.istarvin.classschedule2.widget
 
 import android.content.Context
 import com.istarvin.classschedule2.data.ScheduleCache
+import com.istarvin.classschedule2.data.SchedulePreferences
+import com.istarvin.classschedule2.data.ScheduleProfile
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.DayOfWeek
@@ -9,12 +11,12 @@ import java.time.LocalDate
 
 /** Parses the cache written by [ScheduleCache]. This class intentionally never performs network I/O. */
 internal object WidgetScheduleReader {
-    fun load(context: Context): WidgetSchedule {
-        val json = ScheduleCache.read(context) ?: return WidgetSchedule(emptyList())
+    fun load(context: Context, profile: ScheduleProfile = SchedulePreferences.selected(context)): WidgetSchedule {
+        val json = ScheduleCache.read(context, profile) ?: return WidgetSchedule(emptyList())
         return runCatching { parse(json) }.getOrElse { WidgetSchedule(emptyList()) }
     }
 
-    private fun parse(json: String): WidgetSchedule {
+    internal fun parse(json: String): WidgetSchedule {
         val root = JSONObject(json)
         val subjects = root.optJSONObject("subjects") ?: JSONObject()
         val events = root.optJSONArray("events") ?: JSONArray()

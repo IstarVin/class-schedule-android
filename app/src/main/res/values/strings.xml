@@ -21,6 +21,10 @@
     <string name="widget_config_preview_stacked_label">RIGHT NOW · ITE104</string>
     <string name="widget_config_preview_stacked_caption">Now + next · two focused class cards</string>
     <string name="menu_refresh">Refresh</string>
+    <string name="menu_schedule_settings">Schedule settings · %1$s</string>
+    <string name="schedule_settings_title">Schedule for app and widgets</string>
+    <string name="schedule_alvin" translatable="false">Alvin</string>
+    <string name="schedule_sue" translatable="false">Sue</string>
     <string name="menu_add_widget">Add widget</string>
     <string name="menu_widget_settings">Widget settings</string>
     <string name="menu_about">About</string>

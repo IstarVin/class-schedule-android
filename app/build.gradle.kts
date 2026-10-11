@@ -55,6 +55,7 @@ android {
     buildFeatures {
         compose = true
     }
+    sourceSets.getByName("test").resources.directories.add("src/main/assets")
 }
 
 dependencies {
@@ -68,6 +69,8 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.glance.appwidget)
     testImplementation(libs.junit)
+    // Android's org.json implementation is stubbed in local JVM tests.
+    testImplementation("org.json:json:20240303")
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
 }

@@ -40,8 +40,11 @@ import androidx.core.view.WindowInsetsCompat
 import com.istarvin.classschedule2.data.OfflineScheduleHtml
 import com.istarvin.classschedule2.data.ScheduleCache
 import com.istarvin.classschedule2.data.ScheduleSyncWorker
+import com.istarvin.classschedule2.data.SchedulePreferences
+import com.istarvin.classschedule2.data.ScheduleProfile
 import com.istarvin.classschedule2.widget.WidgetConfigurationActivity
 import com.istarvin.classschedule2.widget.WidgetProviderRegistry
+import com.istarvin.classschedule2.widget.WidgetUpdateCoordinator
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
@@ -50,14 +53,14 @@ import androidx.core.net.toUri
 /** A deliberately small native shell around the schedule's trusted web experience. */
 class MainActivity : AppCompatActivity() {
     companion object {
-        private const val SCHEDULE_URL = "https://ajschedule.pages.dev/"
-        private const val SCHEDULE_HOST = "ajschedule.pages.dev"
+        private const val STATE_PROFILE = "schedule_profile"
         private const val LIGHT_SURFACE = "#F3F1EA"
         private const val DARK_SURFACE = "#15181E"
         private const val MENU_REFRESH = 1
         private const val MENU_ADD_WIDGET = 2
         private const val MENU_WIDGET_SETTINGS = 3
         private const val MENU_ABOUT = 4
+        private const val MENU_SCHEDULE_SETTINGS = 5
     }
 
     private val ioExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -70,9 +73,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dismissOfflineButton: TextView
     private var cacheFallbackAttempted = false
     private var showingLocalScheduleFallback = false
+    private lateinit var selectedSchedule: ScheduleProfile
+    private var loadGeneration = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        selectedSchedule = SchedulePreferences.selected(applicationContext)
         supportActionBar?.hide()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         applySystemBarAppearance(isSystemDark())
@@ -89,12 +95,12 @@ class MainActivity : AppCompatActivity() {
             },
         )
 
-        // This is also the initial offline source for widgets.
-        ScheduleCache.seedIfMissing(applicationContext)
         ScheduleSyncWorker.ensurePeriodic(applicationContext)
         refreshScheduleData()
 
-        if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
+        if (savedInstanceState == null ||
+            savedInstanceState.getString(STATE_PROFILE) != selectedSchedule.id ||
+            webView.restoreState(savedInstanceState) == null) {
             loadScheduleSite()
         }
     }
@@ -103,6 +109,8 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         webView.onResume()
         applySystemBarAppearance(isSystemDark())
+        val profile = SchedulePreferences.selected(applicationContext)
+        if (profile != selectedSchedule) applySchedule(profile)
     }
 
     override fun onPause() {
@@ -112,6 +120,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         webView.saveState(outState)
+        outState.putString(STATE_PROFILE, selectedSchedule.id)
         super.onSaveInstanceState(outState)
     }
 
@@ -263,7 +272,7 @@ class MainActivity : AppCompatActivity() {
             }
             addView(
                 overflowButton,
-                FrameLayout.LayoutParams(36.dp, 36.dp, Gravity.BOTTOM or Gravity.END).apply {
+                FrameLayout.LayoutParams(48.dp, 48.dp, Gravity.BOTTOM or Gravity.END).apply {
                     setMargins(0, 0, 8.dp, 12.dp)
                 },
             )
@@ -271,6 +280,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadScheduleSite(forceNetwork: Boolean = false) {
+        loadGeneration++
         cacheFallbackAttempted = false
         showingLocalScheduleFallback = false
         hideOfflineNotice()
@@ -280,7 +290,7 @@ class MainActivity : AppCompatActivity() {
             isNetworkAvailable() -> WebSettings.LOAD_DEFAULT
             else -> WebSettings.LOAD_CACHE_ELSE_NETWORK
         }
-        webView.loadUrl(SCHEDULE_URL)
+        webView.loadUrl(selectedSchedule.siteUrl)
     }
 
     private fun showCachedScheduleFallback() {
@@ -291,43 +301,39 @@ class MainActivity : AppCompatActivity() {
         cacheFallbackAttempted = true
         showOfflineNotice(getString(R.string.offline_loading_saved_schedule))
         webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
-        webView.loadUrl(SCHEDULE_URL)
+        webView.loadUrl(selectedSchedule.siteUrl)
     }
 
     private fun renderLocalScheduleFallback(message: String) {
+        val profile = selectedSchedule
+        val generation = loadGeneration
+        val dark = isSystemDark()
         showingLocalScheduleFallback = true
-        showLoading(false)
-        webView.loadDataWithBaseURL(
-            SCHEDULE_URL,
-            OfflineScheduleHtml.render(ScheduleCache.read(applicationContext), isSystemDark()),
-            "text/html",
-            "UTF-8",
-            null,
-        )
-        showOfflineNotice(message)
+        ioExecutor.execute {
+            val html = OfflineScheduleHtml.render(ScheduleCache.read(applicationContext, profile), dark)
+            runOnUiThread {
+                if (isDestroyed || isFinishing || generation != loadGeneration) return@runOnUiThread
+                showLoading(false)
+                webView.loadDataWithBaseURL(profile.siteUrl, html, "text/html", "UTF-8", null)
+                showOfflineNotice(message)
+            }
+        }
     }
 
     private fun refreshScheduleData() {
-        ioExecutor.execute {
-            when (ScheduleCache.refresh(applicationContext)) {
-                is ScheduleCache.RefreshResult.Updated,
-                is ScheduleCache.RefreshResult.NotModified
-                -> sendBroadcast(
-                    Intent(ScheduleCache.ACTION_SCHEDULE_UPDATED)
-                        .setPackage(packageName),
-                )
-
-                is ScheduleCache.RefreshResult.Failed -> Unit
-            }
-        }
+        ScheduleSyncWorker.enqueueManual(applicationContext, selectedSchedule)
     }
 
     private fun showOverflowMenu(anchor: View) {
         PopupMenu(this, anchor).apply {
             menu.add(0, MENU_REFRESH, 0, getString(R.string.menu_refresh))
-            menu.add(0, MENU_ADD_WIDGET, 1, getString(R.string.menu_add_widget))
-            menu.add(0, MENU_WIDGET_SETTINGS, 2, getString(R.string.menu_widget_settings))
-            menu.add(0, MENU_ABOUT, 3, getString(R.string.menu_about))
+            menu.add(
+                0, MENU_SCHEDULE_SETTINGS, 1,
+                getString(R.string.menu_schedule_settings, getString(selectedSchedule.labelRes)),
+            )
+            menu.add(0, MENU_ADD_WIDGET, 2, getString(R.string.menu_add_widget))
+            menu.add(0, MENU_WIDGET_SETTINGS, 3, getString(R.string.menu_widget_settings))
+            menu.add(0, MENU_ABOUT, 4, getString(R.string.menu_about))
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     MENU_REFRESH -> {
@@ -341,6 +347,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     MENU_ADD_WIDGET -> requestWidgetPin()
+                    MENU_SCHEDULE_SETTINGS -> showScheduleSettings()
                     MENU_WIDGET_SETTINGS -> openWidgetSettings()
                     MENU_ABOUT -> AlertDialog.Builder(this@MainActivity)
                         .setTitle(R.string.app_name)
@@ -352,6 +359,35 @@ class MainActivity : AppCompatActivity() {
             }
             show()
         }
+    }
+
+    private fun showScheduleSettings() {
+        val profiles = ScheduleProfile.entries
+        AlertDialog.Builder(this)
+            .setTitle(R.string.schedule_settings_title)
+            .setSingleChoiceItems(
+                profiles.map { getString(it.labelRes) }.toTypedArray(),
+                profiles.indexOf(selectedSchedule),
+            ) { dialog, index ->
+                val profile = profiles[index]
+                if (profile != selectedSchedule) {
+                    SchedulePreferences.select(applicationContext, profile)
+                    applySchedule(profile)
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
+    }
+
+    private fun applySchedule(profile: ScheduleProfile) {
+        selectedSchedule = profile
+        webView.stopLoading()
+        webView.clearHistory()
+        loadScheduleSite()
+        // Redraw all widget styles from this profile's saved/bundled data immediately.
+        WidgetUpdateCoordinator.updateAll(applicationContext)
+        refreshScheduleData()
     }
 
     private fun requestWidgetPin() {
@@ -429,7 +465,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun isTrustedScheduleUrl(uri: Uri): Boolean =
         uri.scheme.equals("https", ignoreCase = true) &&
-            uri.host.equals(SCHEDULE_HOST, ignoreCase = true) &&
+            uri.host.equals(selectedSchedule.host, ignoreCase = true) &&
             (uri.port == -1 || uri.port == 443)
 
     private fun isSystemDark(): Boolean =
@@ -483,8 +519,9 @@ class MainActivity : AppCompatActivity() {
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
+            if (!isTrustedScheduleUrl(url.toUri())) return
             showLoading(false)
-            if (!showingLocalScheduleFallback && isTrustedScheduleUrl(url.toUri()) && isNetworkAvailable()) {
+            if (!showingLocalScheduleFallback && isNetworkAvailable()) {
                 hideOfflineNotice()
             }
         }
@@ -495,7 +532,7 @@ class MainActivity : AppCompatActivity() {
             error: WebResourceError,
         ) {
             super.onReceivedError(view, request, error)
-            if (request.isForMainFrame) showCachedScheduleFallback()
+            if (request.isForMainFrame && isTrustedScheduleUrl(request.url)) showCachedScheduleFallback()
         }
 
         override fun onReceivedHttpError(
@@ -504,15 +541,17 @@ class MainActivity : AppCompatActivity() {
             errorResponse: WebResourceResponse,
         ) {
             super.onReceivedHttpError(view, request, errorResponse)
-            if (request.isForMainFrame && errorResponse.statusCode >= 500) showCachedScheduleFallback()
+            if (request.isForMainFrame && isTrustedScheduleUrl(request.url) && errorResponse.statusCode >= 400) {
+                showCachedScheduleFallback()
+            }
         }
 
         override fun onReceivedSslError(view: WebView, handler: SslErrorHandler, error: SslError) {
             // Never train users to bypass a certificate warning inside a schedule app.
             handler.cancel()
-            renderLocalScheduleFallback(
-                getString(R.string.ssl_error_saved_data),
-            )
+            if (isTrustedScheduleUrl(error.url.toUri())) {
+                renderLocalScheduleFallback(getString(R.string.ssl_error_saved_data))
+            }
         }
     }
 }

@@ -1,0 +1,75 @@
+<!doctype html>
+<script>
+const SUBJECTS = {
+          BDV108: {
+            name: "Philippine Plants",
+            cls: "bdv108",
+            sec: "A2824",
+          },
+          BDV104: {
+            name: "Aquatic Biodiversity",
+            cls: "bdv104",
+            sec: "C2822",
+          },
+          BDV105: {
+            name: "Conservation Biology",
+            cls: "bdv105",
+            sec: "E2822",
+          },
+          PHY011: {
+            name: "Biophysics",
+            cls: "phy011",
+            sec: "I2824",
+          },
+          "PHY011.2": {
+            name: "Biophysics Laboratory",
+            cls: "phy0112",
+            sec: "J2824",
+          },
+          FPE101: {
+            name: "Fundamentals of Peace Education",
+            cls: "fpe101",
+            sec: "M2824",
+          },
+          ABE060: {
+            name: "GIS and Spatial Analysis",
+            cls: "abe060",
+            sec: "N2824",
+          },
+          BDV198: {
+            name: "Research Methods",
+            cls: "bdv198",
+            sec: "BDVT",
+          },
+        };
+
+        const DAYS = [
+          { index: 1, label: "Monday", short: "Mon" },
+          { index: 2, label: "Tuesday", short: "Tue" },
+          { index: 3, label: "Wednesday", short: "Wed" },
+          { index: 4, label: "Thursday", short: "Thu" },
+          { index: 5, label: "Friday", short: "Fri" },
+        ];
+
+        const DATA = [
+          { day: 1, start: 450, end: 600, code: "BDV108", room: "TBA" },
+          { day: 1, start: 630, end: 780, code: "BDV104", room: "TBA" },
+          { day: 1, start: 870, end: 1020, code: "BDV105", room: "TBA" },
+
+          { day: 2, start: 480, end: 720, code: "PHY011", room: "TBA" },
+          { day: 2, start: 480, end: 720, code: "PHY011.2", room: "TBA" },
+          { day: 2, start: 780, end: 870, code: "FPE101", room: "TBA" },
+          { day: 2, start: 900, end: 1050, code: "ABE060", room: "TBA" },
+
+          { day: 3, start: 480, end: 600, code: "BDV198", room: "TBA" },
+
+          { day: 4, start: 450, end: 600, code: "BDV108", room: "TBA" },
+          { day: 4, start: 630, end: 780, code: "BDV104", room: "TBA" },
+          { day: 4, start: 870, end: 1020, code: "BDV105", room: "TBA" },
+
+          { day: 5, start: 480, end: 720, code: "PHY011", room: "TBA" },
+          { day: 5, start: 480, end: 720, code: "PHY011.2", room: "TBA" },
+          { day: 5, start: 780, end: 870, code: "FPE101", room: "TBA" },
+          { day: 5, start: 900, end: 1050, code: "ABE060", room: "TBA" },
+        ].map((e, i) => ({ ...e, id: i, ...SUBJECTS[e.code] }));
+</script>
