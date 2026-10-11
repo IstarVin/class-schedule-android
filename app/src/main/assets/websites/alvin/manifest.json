@@ -1,0 +1,62 @@
+{
+  "https://ajschedule.pages.dev/": {
+    "path": "index.html",
+    "mimeType": "text/html"
+  },
+  "https://ajschedule.pages.dev/sw.js": {
+    "path": "sw.js",
+    "mimeType": "application/javascript"
+  },
+  "https://ajschedule.pages.dev/schedule.json": {
+    "path": "schedule.json",
+    "mimeType": "application/json"
+  },
+  "https://ajschedule.pages.dev/manifest.webmanifest": {
+    "path": "manifest.webmanifest",
+    "mimeType": "application/manifest+json"
+  },
+  "https://ajschedule.pages.dev/icons/icon.svg": {
+    "path": "icons/icon.svg",
+    "mimeType": "image/svg+xml"
+  },
+  "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap": {
+    "path": "external/fc5a3390ea2ee0efac5ed525.css",
+    "mimeType": "text/css"
+  },
+  "https://ajschedule.pages.dev/icons/icon-192.svg": {
+    "path": "icons/icon-192.svg",
+    "mimeType": "image/svg+xml"
+  },
+  "https://ajschedule.pages.dev/icons/icon-512.svg": {
+    "path": "icons/icon-512.svg",
+    "mimeType": "image/svg+xml"
+  },
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F63fjptAgt5VM-kVkqdyU8n5ig.ttf": {
+    "path": "external/b0c618f6d8ea996806c20d04.ttf",
+    "mimeType": "font/ttf"
+  },
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJ8lc.ttf": {
+    "path": "external/1a6844598cfc2dfd164dc024.ttf",
+    "mimeType": "font/ttf"
+  },
+  "https://fonts.gstatic.com/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAO8lc.ttf": {
+    "path": "external/feead6344d56160370c1d171.ttf",
+    "mimeType": "font/ttf"
+  },
+  "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXGKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1swZSAXcomDVmadSD6llzAA.ttf": {
+    "path": "external/1a9cad03d35e9bb1bd76391e.ttf",
+    "mimeType": "font/ttf"
+  },
+  "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXGKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1swZSAXcomDVmadSD2FlzAA.ttf": {
+    "path": "external/b9122df809d9d9205c4b0a16.ttf",
+    "mimeType": "font/ttf"
+  },
+  "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXGKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1swZSAXcomDVmadSDNF5zAA.ttf": {
+    "path": "external/8da5dfcdccfbe404eace2e76.ttf",
+    "mimeType": "font/ttf"
+  },
+  "https://fonts.gstatic.com/s/ibmplexsans/v23/zYXGKVElMYYaJe8bpLHnCwDKr932-G7dytD-Dmu1swZSAXcomDVmadSDDV5zAA.ttf": {
+    "path": "external/9ba92c9bda672730aa09771f.ttf",
+    "mimeType": "font/ttf"
+  }
+}

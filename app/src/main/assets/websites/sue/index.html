@@ -1,0 +1,1469 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Class Schedule</title>
+    <meta name="theme-color" content="#15181E" />
+    <meta name="description" content="A fast, offline class schedule." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* default: dark board, like a terminal departure display */
+        --board: #15181e;
+        --board-raised: #1c212a;
+        --board-row: #1f242d;
+        --ink: #f1efe6;
+        --ink-soft: #8b94a3;
+        --ink-faint: #5b6472;
+        --line: rgba(241, 239, 230, 0.08);
+        --line-strong: rgba(241, 239, 230, 0.16);
+
+        --live: #4ade80;
+        --next: #f2a93c;
+
+        --c-bdv108: #45b8ac;
+        --c-bdv104: #e67c8a;
+        --c-bdv105: #d3a94b;
+        --c-phy011: #7c9cf2;
+        --c-phy0112: #b292e8;
+        --c-fpe101: #8bc495;
+        --c-abe060: #e49a5b;
+        --c-bdv198: #d889b5;
+      }
+
+      :root:not([data-theme="dark"]) {
+        @media (prefers-color-scheme: light) {
+          --board: #f3f1ea;
+          --board-raised: #ffffff;
+          --board-row: #ffffff;
+          --ink: #1e2430;
+          --ink-soft: #5b6270;
+          --ink-faint: #8791a0;
+          --line: rgba(30, 36, 48, 0.08);
+          --line-strong: rgba(30, 36, 48, 0.16);
+          --live: #1e8e52;
+          --live-bg: rgba(30, 142, 82, 0.1);
+          --next: #a5701e;
+          --next-bg: rgba(165, 112, 30, 0.1);
+          --c-bdv108: #2f6f6b;
+          --c-bdv104: #8b3a42;
+          --c-bdv105: #96731e;
+          --c-phy011: #3d5a80;
+          --c-phy0112: #6b4c8a;
+          --c-fpe101: #4c7a57;
+          --c-abe060: #9a5f1e;
+          --c-bdv198: #8a4e73;
+        }
+      }
+      :root[data-theme="light"] {
+        --board: #f3f1ea;
+        --board-raised: #ffffff;
+        --board-row: #ffffff;
+        --ink: #1e2430;
+        --ink-soft: #5b6270;
+        --ink-faint: #8791a0;
+        --line: rgba(30, 36, 48, 0.08);
+        --line-strong: rgba(30, 36, 48, 0.16);
+        --live: #1e8e52;
+        --live-bg: rgba(30, 142, 82, 0.1);
+        --next: #a5701e;
+        --next-bg: rgba(165, 112, 30, 0.1);
+        --c-bdv108: #2f6f6b;
+        --c-bdv104: #8b3a42;
+        --c-bdv105: #96731e;
+        --c-phy011: #3d5a80;
+        --c-phy0112: #6b4c8a;
+        --c-fpe101: #4c7a57;
+        --c-abe060: #9a5f1e;
+        --c-bdv198: #8a4e73;
+      }
+
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        background: var(--board);
+      }
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "IBM Plex Sans", sans-serif;
+        padding: 28px 16px 60px;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* ---- Header ---- */
+      header.page-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .brand .dot3 {
+        display: inline-flex;
+        gap: 4px;
+      }
+      .brand .dot3 span {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      h1 {
+        font-size: clamp(20px, 4vw, 26px);
+        font-weight: 600;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+      .page-head .sub {
+        font-size: 12.5px;
+        color: var(--ink-faint);
+        margin-top: 4px;
+      }
+      .clock {
+        text-align: right;
+        font-family: "IBM Plex Mono", monospace;
+      }
+      .clock .time {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--ink);
+        letter-spacing: 0.02em;
+      }
+      .clock .date {
+        font-size: 11px;
+        color: var(--ink-soft);
+        margin-top: 2px;
+      }
+      .install-button {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 6px 10px;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        background: var(--board-raised);
+        color: var(--ink);
+        font:
+          500 11px "IBM Plex Sans",
+          sans-serif;
+        cursor: pointer;
+      }
+      .install-button.is-visible {
+        display: inline-flex;
+      }
+
+      /* ---- Hero: now / next ---- */
+      .hero {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+      .hero-card {
+        background: var(--board-raised);
+        border: 1px solid var(--line-strong);
+        border-left: 3px solid var(--ink-faint);
+        border-radius: 10px;
+        padding: 16px 18px 18px;
+      }
+      .hero-card.on {
+        border-left-color: var(--accent);
+      }
+      .hero-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10.5px;
+        letter-spacing: 0.06em;
+        color: var(--ink-faint);
+        margin-bottom: 10px;
+      }
+      .hero-label .pulse {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--live);
+        animation: pulse 1.6s infinite;
+      }
+      .hero-empty {
+        color: var(--ink-soft);
+        font-size: 13.5px;
+        padding: 6px 0 2px;
+      }
+      .hero-code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11.5px;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .subject-section {
+        color: var(--ink-soft);
+        font-weight: 400;
+      }
+      .hero-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 4px 0 6px;
+        line-height: 1.25;
+      }
+      .hero-detail {
+        font-size: 12.5px;
+        color: var(--ink-soft);
+      }
+      .hero-count {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        color: var(--ink);
+        margin-top: 12px;
+      }
+      .hero-bar {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--line);
+        margin-top: 8px;
+        overflow: hidden;
+      }
+      .hero-bar > div {
+        height: 100%;
+        background: var(--accent);
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55);
+        }
+        70% {
+          box-shadow: 0 0 0 6px rgba(74, 222, 128, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+        }
+      }
+
+      /* ---- Day tabs ---- */
+      .tabs {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .tabs::-webkit-scrollbar {
+        display: none;
+      }
+      .tabs button {
+        flex: 0 0 auto;
+        font-family: "IBM Plex Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 15px;
+        border-radius: 20px;
+        border: 1px solid var(--line-strong);
+        background: transparent;
+        color: var(--ink-soft);
+        cursor: pointer;
+      }
+      .tabs button .n {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10px;
+        opacity: 0.7;
+        margin-left: 5px;
+      }
+      .tabs button.is-selected {
+        background: var(--board-raised);
+        color: var(--ink);
+        border-color: var(--line-strong);
+      }
+      .tabs button.is-today:not(.is-selected) {
+        color: var(--live);
+        border-color: var(--live);
+      }
+      .tabs button.is-today.is-selected {
+        box-shadow: inset 0 0 0 1px var(--live);
+      }
+
+      .view-controls {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap-reverse;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .view-controls .tabs {
+        min-width: 0;
+      }
+      .view-switch {
+        display: inline-flex;
+        flex: 0 0 auto;
+        margin-left: auto;
+        padding: 3px;
+        border: 1px solid var(--line-strong);
+        border-radius: 8px;
+        background: var(--board-raised);
+      }
+      .view-switch button {
+        border: 0;
+        border-radius: 5px;
+        padding: 6px 10px;
+        background: transparent;
+        color: var(--ink-soft);
+        font:
+          500 11px "IBM Plex Sans",
+          sans-serif;
+        cursor: pointer;
+      }
+      .view-switch button.is-selected {
+        background: var(--ink);
+        color: var(--board);
+      }
+
+      /* ---- Board (list of rows) ---- */
+      .board-panel {
+        background: var(--board-raised);
+        border: 1px solid var(--line-strong);
+        border-radius: 10px;
+        overflow: hidden;
+      }
+      .row {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--line);
+        border-left: 3px solid transparent;
+        background: var(--board-row);
+        position: relative;
+      }
+      .row:last-child {
+        border-bottom: none;
+      }
+      .row.is-live {
+        background: var(--live-bg);
+        border-left-color: var(--live);
+      }
+      .row.is-next {
+        background: var(--next-bg);
+        border-left-color: var(--next);
+      }
+      .row.is-subject-highlighted {
+        z-index: 1;
+        box-shadow:
+          inset 0 0 0 2px var(--accent),
+          0 4px 14px rgba(0, 0, 0, 0.18);
+      }
+
+      .row-time {
+        flex: 0 0 78px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        color: var(--ink-soft);
+        line-height: 1.5;
+        padding-top: 1px;
+      }
+      .row-time .from {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .row-main {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+      .row-top {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex: 0 0 auto;
+      }
+      .row-code {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .row-name {
+        font-size: 14px;
+        font-weight: 500;
+        margin-top: 3px;
+        line-height: 1.3;
+        overflow-wrap: anywhere;
+      }
+      .row-room {
+        font-size: 12px;
+        color: var(--ink-faint);
+        margin-top: 3px;
+      }
+
+      .badge {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 9px;
+        letter-spacing: 0.05em;
+        padding: 2px 7px;
+        border-radius: 9px;
+        margin-left: auto;
+      }
+      .badge.live {
+        background: var(--live);
+        color: #0b2015;
+      }
+      .badge.next {
+        background: var(--next);
+        color: #2b1d04;
+      }
+      .row-bar {
+        height: 3px;
+        border-radius: 2px;
+        background: var(--line);
+        margin-top: 8px;
+        overflow: hidden;
+        max-width: 220px;
+      }
+      .row-bar > div {
+        height: 100%;
+        background: var(--live);
+      }
+
+      .now-divider {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 16px;
+        margin: -1px 0;
+        position: relative;
+        z-index: 1;
+      }
+      .now-divider .l {
+        flex: 1;
+        height: 2px;
+        background: var(--live);
+      }
+      .now-divider .t {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10px;
+        color: var(--live);
+        white-space: nowrap;
+      }
+
+      .off-panel {
+        padding: 40px 20px;
+        text-align: center;
+        color: var(--ink-soft);
+        font-size: 13.5px;
+      }
+
+      /* ---- Timetable ---- */
+      .timetable-scroll {
+        max-width: 100%;
+        overflow: auto;
+        max-height: min(548px, 70vh);
+        overscroll-behavior: contain;
+        scrollbar-color: var(--ink-soft) var(--board);
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+      }
+      .timetable-scroll.is-list {
+        overflow: visible;
+        max-height: none;
+      }
+      .timetable-scroll.is-list .board-panel {
+        width: 100%;
+      }
+      .timetable-scroll::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      .timetable-scroll::-webkit-scrollbar-track {
+        background: var(--board);
+      }
+      .timetable-scroll::-webkit-scrollbar-thumb {
+        background: var(--ink-faint);
+        border: 2px solid var(--board);
+        border-radius: 5px;
+      }
+      .timetable-scroll::-webkit-scrollbar-thumb:hover {
+        background: var(--ink-soft);
+      }
+      .timetable-scroll .board-panel {
+        width: max-content;
+        min-width: 100%;
+      }
+      .timetable-panel {
+        width: 100%;
+        min-width: 680px;
+      }
+      .timetable-head,
+      .timetable-body {
+        display: grid;
+        grid-template-columns: 58px repeat(5, minmax(118px, 1fr));
+      }
+      .timetable-head {
+        border-bottom: 1px solid var(--line-strong);
+      }
+      .timetable-head > div {
+        padding: 12px 8px 10px;
+        text-align: center;
+        border-left: 1px solid var(--line);
+      }
+      .timetable-head > div:first-child {
+        border-left: 0;
+      }
+      .timetable-day {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .timetable-count {
+        display: block;
+        color: var(--ink-faint);
+        font:
+          10px "IBM Plex Mono",
+          monospace;
+        margin-top: 3px;
+      }
+      .timetable-body {
+        height: 1080px;
+      }
+      .timetable-axis,
+      .timetable-column {
+        position: relative;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 26px,
+          var(--line) 26px,
+          var(--line) 27px,
+          transparent 27px,
+          transparent 54px,
+          var(--line-strong) 54px,
+          var(--line-strong) 55px
+        );
+      }
+      .timetable-axis {
+        background: none;
+        border-right: 1px solid var(--line);
+      }
+      .timetable-column {
+        border-left: 1px solid var(--line);
+      }
+      .timetable-time {
+        position: absolute;
+        right: 8px;
+        transform: translateY(-50%);
+        color: var(--ink-soft);
+        font:
+          10px "IBM Plex Mono",
+          monospace;
+        white-space: nowrap;
+      }
+      .timetable-time:first-child {
+        transform: none;
+        margin-top: 4px;
+      }
+      .timetable-time:last-child {
+        transform: translateY(-100%);
+        margin-top: -4px;
+      }
+      .timetable-event {
+        position: absolute;
+        left: 5px;
+        right: 5px;
+        min-height: 28px;
+        padding: 7px 8px;
+        overflow: hidden;
+        border-left: 3px solid var(--accent);
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--accent) 16%, var(--board-row));
+        color: var(--ink);
+        cursor: default;
+        transition:
+          height 160ms ease,
+          box-shadow 160ms ease,
+          background-color 160ms ease;
+      }
+      .timetable-event.is-expandable {
+        cursor: pointer;
+      }
+      .timetable-event:hover,
+      .timetable-event:focus-visible {
+        background: color-mix(in srgb, var(--accent) 24%, var(--board-row));
+        outline: none;
+      }
+      .timetable-event.is-expanded {
+        z-index: 4;
+        height: auto !important;
+        min-height: 101px;
+        overflow: visible;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+      }
+      .timetable-event.is-live {
+        --accent: var(--live) !important;
+      }
+      .timetable-event.is-next {
+        --accent: var(--next) !important;
+      }
+      .timetable-event.is-subject-highlighted {
+        z-index: 3;
+        background: color-mix(in srgb, var(--accent) 34%, var(--board-row));
+        box-shadow:
+          0 0 0 2px var(--accent),
+          0 6px 16px rgba(0, 0, 0, 0.24);
+      }
+      .timetable-event .code {
+        color: var(--accent);
+        font:
+          600 10px "IBM Plex Mono",
+          monospace;
+      }
+      .timetable-event .name {
+        display: block;
+        margin-top: 3px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+      }
+      .timetable-event .detail {
+        display: block;
+        margin-top: 4px;
+        color: var(--ink-soft);
+        font:
+          10px "IBM Plex Mono",
+          monospace;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .timetable-empty {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: var(--ink-faint);
+        font:
+          italic 11px "IBM Plex Mono",
+          monospace;
+        writing-mode: vertical-rl;
+      }
+      .timetable-now {
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 2;
+        border-top: 2px solid var(--live);
+        pointer-events: none;
+      }
+      .timetable-now span {
+        position: absolute;
+        right: 4px;
+        top: -17px;
+        padding: 1px 4px;
+        background: var(--live);
+        color: #0b2015;
+        font:
+          9px "IBM Plex Mono",
+          monospace;
+      }
+
+      .view-controls.is-timetable .tabs {
+        display: none;
+      }
+
+      /* ---- Legend ---- */
+      .legend {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        color: var(--ink-soft);
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 4px 5px;
+        margin: -4px -5px;
+        transition:
+          color 160ms ease,
+          background-color 160ms ease;
+      }
+      .legend-item:hover,
+      .legend-item:focus-visible,
+      .legend-item.is-selected {
+        color: var(--ink);
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+        outline: none;
+      }
+      .legend-item .dot {
+        width: 7px;
+        height: 7px;
+      }
+      .legend-item .section {
+        color: var(--ink-faint);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 10px;
+        white-space: nowrap;
+      }
+
+      footer.hint {
+        margin-top: 18px;
+        font-size: 11.5px;
+        color: var(--ink-faint);
+      }
+
+      @media (max-width: 480px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+        .row-time {
+          flex-basis: 62px;
+          font-size: 11px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="page-head">
+        <div>
+          <div class="brand">
+            <span class="dot3"
+              ><span style="background: var(--c-bdv108)"></span
+              ><span style="background: var(--c-bdv104)"></span
+              ><span style="background: var(--c-phy011)"></span
+            ></span>
+            <h1>My Class Schedule</h1>
+          </div>
+          <div class="sub">Monday–Friday · 7:00 AM–6:00 PM</div>
+        </div>
+        <div class="clock">
+          <div class="time" id="clockTime">—</div>
+          <div class="date" id="clockDate">—</div>
+          <button class="install-button" id="installButton" type="button">
+            Install app
+          </button>
+        </div>
+      </header>
+
+      <div class="hero">
+        <div class="hero-card" id="nowCard">
+          <div class="hero-label">
+            <span class="pulse" id="nowPulse" style="visibility: hidden"></span
+            >Right now
+          </div>
+          <div id="nowBody"></div>
+        </div>
+        <div class="hero-card" id="nextCard">
+          <div class="hero-label">Up next</div>
+          <div id="nextBody"></div>
+        </div>
+      </div>
+
+      <div class="view-controls">
+        <div class="tabs" id="tabs"></div>
+        <div class="view-switch" role="group" aria-label="Schedule view">
+          <button id="listViewButton" type="button" aria-pressed="true">
+            List
+          </button>
+          <button id="timetableViewButton" type="button" aria-pressed="false">
+            Timetable
+          </button>
+        </div>
+      </div>
+
+      <div class="timetable-scroll">
+        <div class="board-panel" id="panel"></div>
+      </div>
+
+      <div class="legend" id="legend"></div>
+
+      <footer class="hint">
+        Times shown in your device's local clock · updates automatically
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const SUBJECTS = {
+          BDV108: {
+            name: "Philippine Plants",
+            cls: "bdv108",
+            sec: "A2824",
+          },
+          BDV104: {
+            name: "Aquatic Biodiversity",
+            cls: "bdv104",
+            sec: "C2822",
+          },
+          BDV105: {
+            name: "Conservation Biology",
+            cls: "bdv105",
+            sec: "E2822",
+          },
+          PHY011: {
+            name: "Biophysics",
+            cls: "phy011",
+            sec: "I2824",
+          },
+          "PHY011.2": {
+            name: "Biophysics Laboratory",
+            cls: "phy0112",
+            sec: "J2824",
+          },
+          FPE101: {
+            name: "Fundamentals of Peace Education",
+            cls: "fpe101",
+            sec: "M2824",
+          },
+          ABE060: {
+            name: "GIS and Spatial Analysis",
+            cls: "abe060",
+            sec: "N2824",
+          },
+          BDV198: {
+            name: "Research Methods",
+            cls: "bdv198",
+            sec: "BDVT",
+          },
+        };
+
+        const DAYS = [
+          { index: 1, label: "Monday", short: "Mon" },
+          { index: 2, label: "Tuesday", short: "Tue" },
+          { index: 3, label: "Wednesday", short: "Wed" },
+          { index: 4, label: "Thursday", short: "Thu" },
+          { index: 5, label: "Friday", short: "Fri" },
+        ];
+
+        const DATA = [
+          { day: 1, start: 450, end: 600, code: "BDV108", room: "TBA" },
+          { day: 1, start: 630, end: 780, code: "BDV104", room: "TBA" },
+          { day: 1, start: 870, end: 1020, code: "BDV105", room: "TBA" },
+
+          { day: 2, start: 480, end: 720, code: "PHY011", room: "TBA" },
+          { day: 2, start: 480, end: 720, code: "PHY011.2", room: "TBA" },
+          { day: 2, start: 780, end: 870, code: "FPE101", room: "TBA" },
+          { day: 2, start: 900, end: 1050, code: "ABE060", room: "TBA" },
+
+          { day: 3, start: 480, end: 600, code: "BDV198", room: "TBA" },
+
+          { day: 4, start: 450, end: 600, code: "BDV108", room: "TBA" },
+          { day: 4, start: 630, end: 780, code: "BDV104", room: "TBA" },
+          { day: 4, start: 870, end: 1020, code: "BDV105", room: "TBA" },
+
+          { day: 5, start: 480, end: 720, code: "PHY011", room: "TBA" },
+          { day: 5, start: 480, end: 720, code: "PHY011.2", room: "TBA" },
+          { day: 5, start: 780, end: 870, code: "FPE101", room: "TBA" },
+          { day: 5, start: 900, end: 1050, code: "ABE060", room: "TBA" },
+        ].map((e, i) => ({ ...e, id: i, ...SUBJECTS[e.code] }));
+
+        const RANGE_START = 7 * 60,
+          RANGE_END = 18 * 60;
+
+        function fmtClock(mins) {
+          const h24 = Math.floor(mins / 60),
+            m = mins % 60;
+          const h12 = ((h24 + 11) % 12) + 1;
+          const ampm = h24 < 12 ? "AM" : "PM";
+          return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+        }
+        function fmtDuration(mins) {
+          mins = Math.max(0, mins);
+          if (mins < 60) return `${mins} min`;
+          const h = Math.floor(mins / 60),
+            m = mins % 60;
+          return m === 0 ? `${h}h` : `${h}h ${m}m`;
+        }
+
+        let selectedDay = null;
+        let expandedTimetableEventId = null;
+        const savedViewMode = localStorage.getItem("class-schedule-view");
+        let viewMode =
+          savedViewMode === "timetable" || savedViewMode === "list"
+            ? savedViewMode
+            : "list";
+        let installPrompt = null;
+        let autoScrolledTimetableTarget = null;
+        let lockedSubjectCode = null;
+        let hoveredSubjectCode = null;
+        let subjectNavigationCode = null;
+
+        function highlightedSubjectCode() {
+          return lockedSubjectCode || hoveredSubjectCode;
+        }
+
+        function applySubjectHighlight() {
+          const code = highlightedSubjectCode();
+          document
+            .querySelectorAll(".row, .timetable-event")
+            .forEach((item) => {
+              item.classList.toggle(
+                "is-subject-highlighted",
+                Boolean(code && item.dataset.subjectCode === code),
+              );
+            });
+          document.querySelectorAll(".legend-item").forEach((item) => {
+            item.classList.toggle(
+              "is-selected",
+              Boolean(code && item.dataset.subjectCode === code),
+            );
+            item.setAttribute(
+              "aria-pressed",
+              String(item.dataset.subjectCode === lockedSubjectCode),
+            );
+          });
+        }
+
+        function navigateToSubject(code) {
+          subjectNavigationCode = code;
+          if (viewMode === "list") {
+            const currentDayHasSubject = DATA.some(
+              (e) => e.day === selectedDay && e.code === code,
+            );
+            if (!currentDayHasSubject) {
+              selectedDay =
+                DATA.find((e) => e.code === code)?.day ?? selectedDay;
+            }
+          }
+          render();
+        }
+
+        function scrollToSubjectInList() {
+          if (!subjectNavigationCode) return false;
+          const target = [...document.querySelectorAll(".row")].find(
+            (row) => row.dataset.subjectCode === subjectNavigationCode,
+          );
+          if (!target) return false;
+          subjectNavigationCode = null;
+          requestAnimationFrame(() => {
+            target.scrollIntoView({ behavior: "smooth", block: "center" });
+          });
+          return true;
+        }
+
+        function scrollToSubjectInTimetable() {
+          if (!subjectNavigationCode) return false;
+          const target = [
+            ...document.querySelectorAll(".timetable-event"),
+          ].find(
+            (event) => event.dataset.subjectCode === subjectNavigationCode,
+          );
+          if (!target) return false;
+          subjectNavigationCode = null;
+          requestAnimationFrame(() => {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+              inline: "center",
+            });
+          });
+          return true;
+        }
+
+        document.addEventListener("click", (event) => {
+          if (!event.target.closest(".legend-item")) {
+            lockedSubjectCode = null;
+            hoveredSubjectCode = null;
+            applySubjectHighlight();
+          }
+          if (event.target.closest(".timetable-event.is-expanded")) return;
+          const expandedEvent = document.querySelector(
+            ".timetable-event.is-expanded",
+          );
+          if (!expandedEvent) return;
+          expandedEvent.classList.remove("is-expanded");
+          expandedEvent.setAttribute("aria-expanded", "false");
+          expandedTimetableEventId = null;
+        });
+
+        window.addEventListener("beforeinstallprompt", (event) => {
+          event.preventDefault();
+          installPrompt = event;
+          document.getElementById("installButton").classList.add("is-visible");
+        });
+
+        document
+          .getElementById("installButton")
+          .addEventListener("click", async () => {
+            if (!installPrompt) return;
+            installPrompt.prompt();
+            await installPrompt.userChoice;
+            installPrompt = null;
+            document
+              .getElementById("installButton")
+              .classList.remove("is-visible");
+          });
+
+        window.addEventListener("appinstalled", () => {
+          installPrompt = null;
+          document
+            .getElementById("installButton")
+            .classList.remove("is-visible");
+        });
+
+        // ---------- Tabs ----------
+        const tabsEl = document.getElementById("tabs");
+        DAYS.forEach((d) => {
+          const btn = document.createElement("button");
+          btn.id = "tab-" + d.index;
+          const count = DATA.filter((e) => e.day === d.index).length;
+          btn.innerHTML = `${d.short}<span class="n">${count ? count : "—"}</span>`;
+          btn.addEventListener("click", () => {
+            selectedDay = d.index;
+            render();
+          });
+          tabsEl.appendChild(btn);
+        });
+
+        const listViewButton = document.getElementById("listViewButton");
+        const timetableViewButton = document.getElementById(
+          "timetableViewButton",
+        );
+        listViewButton.addEventListener("click", () => {
+          viewMode = "list";
+          localStorage.setItem("class-schedule-view", viewMode);
+          subjectNavigationCode = highlightedSubjectCode();
+          render();
+        });
+        timetableViewButton.addEventListener("click", () => {
+          viewMode = "timetable";
+          autoScrolledTimetableTarget = null;
+          localStorage.setItem("class-schedule-view", viewMode);
+          subjectNavigationCode = highlightedSubjectCode();
+          render();
+        });
+
+        // ---------- Legend ----------
+        const legend = document.getElementById("legend");
+        Object.entries(SUBJECTS).forEach(([code, s]) => {
+          const item = document.createElement("div");
+          item.className = "legend-item";
+          item.dataset.subjectCode = code;
+          item.style.setProperty("--accent", `var(--c-${s.cls})`);
+          item.tabIndex = 0;
+          item.setAttribute("role", "button");
+          item.setAttribute("aria-pressed", "false");
+          item.innerHTML = `<span class="dot" style="background:var(--c-${s.cls})"></span>${code} <span class="section">${s.sec}</span> · ${s.name}`;
+          item.addEventListener("mouseenter", () => {
+            if (!lockedSubjectCode) {
+              hoveredSubjectCode = code;
+              applySubjectHighlight();
+            }
+          });
+          item.addEventListener("mouseleave", () => {
+            if (!lockedSubjectCode) {
+              hoveredSubjectCode = null;
+              applySubjectHighlight();
+            }
+          });
+          item.addEventListener("click", () => {
+            lockedSubjectCode = lockedSubjectCode === code ? null : code;
+            hoveredSubjectCode = null;
+            applySubjectHighlight();
+            if (lockedSubjectCode) navigateToSubject(code);
+          });
+          item.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              item.click();
+            }
+          });
+          legend.appendChild(item);
+        });
+
+        function computeStatus(now) {
+          const day = now.getDay();
+          const mins = now.getHours() * 60 + now.getMinutes();
+          const nowPos = day * 1440 + mins;
+
+          let current = null,
+            next = null,
+            nextIsFuture = true;
+          let bestFuture = Infinity,
+            bestOverall = Infinity,
+            bestOverallEntry = null;
+
+          DATA.forEach((e) => {
+            const startPos = e.day * 1440 + e.start;
+            if (e.day === day && mins >= e.start && mins < e.end) current = e;
+            if (startPos > nowPos && startPos < bestFuture) {
+              bestFuture = startPos;
+              next = e;
+            }
+            if (startPos < bestOverall) {
+              bestOverall = startPos;
+              bestOverallEntry = e;
+            }
+          });
+          if (!next) {
+            next = bestOverallEntry;
+            nextIsFuture = false;
+          }
+          return { day, mins, nowPos, current, next, nextWraps: !nextIsFuture };
+        }
+
+        function renderHero(status) {
+          const { day, mins, current, next, nextWraps } = status;
+
+          const nowCard = document.getElementById("nowCard");
+          const nowBody = document.getElementById("nowBody");
+          const nowPulse = document.getElementById("nowPulse");
+          if (current) {
+            nowCard.classList.add("on");
+            nowCard.style.setProperty("--accent", `var(--c-${current.cls})`);
+            nowPulse.style.visibility = "visible";
+            const remaining = current.end - mins;
+            const elapsed = Math.min(
+              100,
+              Math.max(
+                0,
+                ((mins - current.start) / (current.end - current.start)) * 100,
+              ),
+            );
+            nowBody.innerHTML = `
+        <div class="hero-code">${current.code} <span class="subject-section">${current.sec}</span></div>
+        <div class="hero-name">${current.name}</div>
+        <div class="hero-detail">${current.room} · ${fmtClock(current.start)}–${fmtClock(current.end)}</div>
+        <div class="hero-count">Ends in ${fmtDuration(remaining)}</div>
+        <div class="hero-bar"><div style="width:${elapsed}%"></div></div>`;
+          } else {
+            nowCard.classList.remove("on");
+            nowCard.style.removeProperty("--accent");
+            nowPulse.style.visibility = "hidden";
+            nowBody.innerHTML = `<div class="hero-empty">No class in session — enjoy the break.</div>`;
+          }
+
+          const nextCard = document.getElementById("nextCard");
+          const nextBody = document.getElementById("nextBody");
+          if (next) {
+            nextCard.classList.add("on");
+            nextCard.style.setProperty("--accent", `var(--c-${next.cls})`);
+            const dayLabel =
+              DAYS.find((d) => d.index === next.day)?.label || "";
+            let when;
+            if (!nextWraps && next.day === day)
+              when = `Today · starts in ${fmtDuration(next.start - mins)}`;
+            else if (!nextWraps) when = `${dayLabel} · ${fmtClock(next.start)}`;
+            else when = `${dayLabel} (next week) · ${fmtClock(next.start)}`;
+            nextBody.innerHTML = `
+        <div class="hero-code">${next.code} <span class="subject-section">${next.sec}</span></div>
+        <div class="hero-name">${next.name}</div>
+        <div class="hero-detail">${next.room} · ${fmtClock(next.start)}–${fmtClock(next.end)}</div>
+        <div class="hero-count">${when}</div>`;
+          } else {
+            nextCard.classList.remove("on");
+            nextBody.innerHTML = `<div class="hero-empty">Nothing else scheduled.</div>`;
+          }
+        }
+
+        function renderPanel(status) {
+          if (viewMode === "timetable") {
+            renderTimetable(status);
+            return;
+          }
+          const panel = document.getElementById("panel");
+          panel.innerHTML = "";
+          const dayEvents = DATA.filter((e) => e.day === selectedDay).sort(
+            (a, b) => a.start - b.start,
+          );
+          const isToday = selectedDay === status.day;
+
+          if (!dayEvents.length) {
+            panel.innerHTML = `<div class="off-panel">No scheduled classes.</div>`;
+            return;
+          }
+
+          let dividerPlaced = false;
+          dayEvents.forEach((e) => {
+            const isLive =
+              isToday && status.mins >= e.start && status.mins < e.end;
+            const isNext = status.next && status.next.id === e.id;
+
+            if (
+              isToday &&
+              !dividerPlaced &&
+              status.mins < e.start &&
+              status.mins >= RANGE_START
+            ) {
+              panel.appendChild(nowDivider(status.mins));
+              dividerPlaced = true;
+            }
+
+            const row = document.createElement("div");
+            row.className =
+              "row" + (isLive ? " is-live" : "") + (isNext ? " is-next" : "");
+            row.dataset.subjectCode = e.code;
+            row.style.setProperty("--accent", `var(--c-${e.cls})`);
+            let badge = "";
+            if (isLive) badge = `<span class="badge live">LIVE</span>`;
+            else if (isNext) badge = `<span class="badge next">NEXT</span>`;
+            let bar = "";
+            if (isLive) {
+              const elapsed = Math.min(
+                100,
+                Math.max(
+                  0,
+                  ((status.mins - e.start) / (e.end - e.start)) * 100,
+                ),
+              );
+              bar = `<div class="row-bar"><div style="width:${elapsed}%"></div></div>`;
+            }
+            row.innerHTML = `
+        <div class="row-time"><span class="from">${fmtClock(e.start)}</span><br>${fmtClock(e.end)}</div>
+        <div class="row-main">
+          <div class="row-top"><span class="dot"></span><span class="row-code">${e.code} <span class="subject-section">${e.sec}</span></span>${badge}</div>
+          <div class="row-name">${e.name}</div>
+          <div class="row-room">${e.room}</div>
+          ${bar}
+        </div>`;
+            panel.appendChild(row);
+            applySubjectHighlight();
+          });
+
+          if (
+            isToday &&
+            !dividerPlaced &&
+            status.mins >= RANGE_START &&
+            status.mins <= RANGE_END
+          ) {
+            panel.appendChild(nowDivider(status.mins));
+          }
+          scrollToSubjectInList();
+        }
+
+        function renderTimetable(status) {
+          const panel = document.getElementById("panel");
+          panel.innerHTML = `<div class="timetable-panel"><div class="timetable-head"><div></div>${DAYS.map(
+            (d) => {
+              const count = DATA.filter((e) => e.day === d.index).length;
+              return `<div><span class="timetable-day">${d.label}</span><span class="timetable-count">${count ? `${count} sessions` : "no classes"}</span></div>`;
+            },
+          ).join(
+            "",
+          )}</div><div class="timetable-body"><div class="timetable-axis"></div>${DAYS.map((d) => `<div class="timetable-column" data-day="${d.index}"></div>`).join("")}</div></div>`;
+
+          const axis = panel.querySelector(".timetable-axis");
+          for (let mins = RANGE_START; mins <= RANGE_END; mins += 60) {
+            const time = document.createElement("span");
+            time.className = "timetable-time";
+            time.style.top = `${((mins - RANGE_START) / 30) * 54}px`;
+            time.textContent = fmtClock(mins);
+            axis.appendChild(time);
+          }
+
+          DAYS.forEach((d) => {
+            const column = panel.querySelector(`[data-day="${d.index}"]`);
+            const events = DATA.filter((e) => e.day === d.index);
+            if (!events.length) {
+              column.innerHTML =
+                '<span class="timetable-empty">No scheduled classes</span>';
+            }
+            events.forEach((e) => {
+              const isLive =
+                status.day === e.day &&
+                status.mins >= e.start &&
+                status.mins < e.end;
+              const isNext = status.next && status.next.id === e.id;
+              const event = document.createElement("div");
+              event.className =
+                "timetable-event" +
+                (isLive ? " is-live" : "") +
+                (isNext ? " is-next" : "");
+              event.dataset.subjectCode = e.code;
+              event.dataset.eventId = String(e.id);
+              event.setAttribute("aria-label", `${e.code}: ${e.name}`);
+              event.style.setProperty("--accent", `var(--c-${e.cls})`);
+              event.style.top = `${((e.start - RANGE_START) / 30) * 54 + 4}px`;
+              event.style.height = `${((e.end - e.start) / 30) * 54 - 7}px`;
+              event.innerHTML = `<span class="code">${e.code} <span class="subject-section">${e.sec}</span></span><span class="name">${e.name}</span><span class="detail">${e.room}</span><span class="detail">${fmtClock(e.start)}–${fmtClock(e.end)}</span>`;
+              column.appendChild(event);
+              applySubjectHighlight();
+
+              const setupExpansion = () => {
+                if (event.scrollHeight <= event.clientHeight) {
+                  return;
+                }
+                event.classList.add("is-expandable");
+                event.tabIndex = 0;
+                event.setAttribute("role", "button");
+                event.setAttribute(
+                  "aria-expanded",
+                  String(expandedTimetableEventId === e.id),
+                );
+                if (expandedTimetableEventId === e.id) {
+                  event.classList.add("is-expanded");
+                }
+                const toggleExpanded = () => {
+                  const isExpanded = event.classList.toggle("is-expanded");
+                  expandedTimetableEventId = isExpanded ? e.id : null;
+                  event.setAttribute("aria-expanded", String(isExpanded));
+                  if (isExpanded) {
+                    column
+                      .querySelectorAll(".timetable-event.is-expanded")
+                      .forEach((other) => {
+                        if (other !== event) {
+                          other.classList.remove("is-expanded");
+                          other.setAttribute("aria-expanded", "false");
+                        }
+                      });
+                  }
+                };
+                event.addEventListener("click", toggleExpanded);
+                event.addEventListener("keydown", (eventKey) => {
+                  if (eventKey.key === "Enter" || eventKey.key === " ") {
+                    eventKey.preventDefault();
+                    toggleExpanded();
+                  }
+                });
+              };
+              document.fonts.ready.then(() => {
+                requestAnimationFrame(setupExpansion);
+              });
+            });
+            if (
+              d.index === status.day &&
+              status.mins >= RANGE_START &&
+              status.mins <= RANGE_END
+            ) {
+              const now = document.createElement("div");
+              now.className = "timetable-now";
+              now.style.top = `${((status.mins - RANGE_START) / 30) * 54}px`;
+              now.innerHTML = `<span>${fmtClock(status.mins)} · now</span>`;
+              column.appendChild(now);
+            }
+          });
+
+          if (scrollToSubjectInTimetable()) return;
+
+          const currentEvent = panel.querySelector(".timetable-event.is-live");
+          const currentMarker = panel.querySelector(".timetable-now");
+          const target = currentEvent || currentMarker;
+          const targetKey = currentEvent
+            ? `event-${currentEvent.dataset.eventId}`
+            : currentMarker
+              ? "current-time"
+              : null;
+          if (target && targetKey !== autoScrolledTimetableTarget) {
+            autoScrolledTimetableTarget = targetKey;
+            requestAnimationFrame(() => {
+              target.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center",
+              });
+            });
+          }
+        }
+
+        function nowDivider(mins) {
+          const d = document.createElement("div");
+          d.className = "now-divider";
+          d.innerHTML = `<span class="l"></span><span class="t">${fmtClock(mins)} · now</span><span class="l"></span>`;
+          return d;
+        }
+
+        function renderTabs(status) {
+          document
+            .querySelector(".view-controls")
+            .classList.toggle("is-timetable", viewMode === "timetable");
+          document
+            .querySelector(".timetable-scroll")
+            .classList.toggle("is-list", viewMode === "list");
+          listViewButton.classList.toggle("is-selected", viewMode === "list");
+          timetableViewButton.classList.toggle(
+            "is-selected",
+            viewMode === "timetable",
+          );
+          listViewButton.setAttribute("aria-pressed", viewMode === "list");
+          timetableViewButton.setAttribute(
+            "aria-pressed",
+            viewMode === "timetable",
+          );
+          DAYS.forEach((d) => {
+            const btn = document.getElementById("tab-" + d.index);
+            btn.classList.toggle("is-selected", d.index === selectedDay);
+            btn.classList.toggle("is-today", d.index === status.day);
+          });
+        }
+
+        function render() {
+          const now = new Date();
+          document.getElementById("clockTime").textContent =
+            now.toLocaleTimeString(undefined, {
+              hour: "numeric",
+              minute: "2-digit",
+            });
+          document.getElementById("clockDate").textContent =
+            now.toLocaleDateString(undefined, {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            });
+
+          const status = computeStatus(now);
+          if (selectedDay === null) {
+            selectedDay = DAYS.some((d) => d.index === status.day)
+              ? status.day
+              : 1;
+          }
+          renderHero(status);
+          renderTabs(status);
+          renderPanel(status);
+        }
+
+        render();
+        function scheduleMinuteUpdates() {
+          const now = new Date();
+          const delay = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+          setTimeout(() => {
+            render();
+            setInterval(render, 60000);
+          }, delay);
+        }
+
+        scheduleMinuteUpdates();
+
+        if ("serviceWorker" in navigator) {
+          window.addEventListener("load", async () => {
+            const registration = await navigator.serviceWorker.register(
+              "./sw.js",
+              { updateViaCache: "none" },
+            );
+            await registration.update();
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

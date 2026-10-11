@@ -2,13 +2,14 @@ package com.istarvin.classschedule2
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
+import android.content.BroadcastReceiver
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.net.http.SslError
 import android.os.Bundle
@@ -33,27 +34,30 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import com.istarvin.classschedule2.data.OfflineScheduleHtml
 import com.istarvin.classschedule2.data.ScheduleCache
-import com.istarvin.classschedule2.data.ScheduleSyncWorker
 import com.istarvin.classschedule2.data.SchedulePreferences
 import com.istarvin.classschedule2.data.ScheduleProfile
+import com.istarvin.classschedule2.data.ScheduleSyncWorker
+import com.istarvin.classschedule2.data.WebsiteCache
+import com.istarvin.classschedule2.data.WebsiteSnapshot
 import com.istarvin.classschedule2.widget.WidgetConfigurationActivity
 import com.istarvin.classschedule2.widget.WidgetProviderRegistry
 import com.istarvin.classschedule2.widget.WidgetUpdateCoordinator
+import java.io.ByteArrayInputStream
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.roundToInt
-import androidx.core.net.toUri
 
 /** A deliberately small native shell around the schedule's trusted web experience. */
 class MainActivity : AppCompatActivity() {
     companion object {
-        private const val STATE_PROFILE = "schedule_profile"
         private const val LIGHT_SURFACE = "#F3F1EA"
         private const val DARK_SURFACE = "#15181E"
         private const val MENU_REFRESH = 1
@@ -71,10 +75,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var offlineMessage: TextView
     private lateinit var retryButton: TextView
     private lateinit var dismissOfflineButton: TextView
-    private var cacheFallbackAttempted = false
     private var showingLocalScheduleFallback = false
     private lateinit var selectedSchedule: ScheduleProfile
     private var loadGeneration = 0
+    private data class LoadedWebsite(val profile: ScheduleProfile, val snapshot: WebsiteSnapshot)
+    @Volatile private var loadedWebsite: LoadedWebsite? = null
+    private val websiteUpdatedReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.getStringExtra(ScheduleSyncWorker.KEY_PROFILE) == selectedSchedule.id) {
+                loadScheduleSite()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,13 +108,21 @@ class MainActivity : AppCompatActivity() {
         )
 
         ScheduleSyncWorker.ensurePeriodic(applicationContext)
-        refreshScheduleData()
+        // Rehydrate the native snapshot before navigating, including after process recreation.
+        loadScheduleSite()
+    }
 
-        if (savedInstanceState == null ||
-            savedInstanceState.getString(STATE_PROFILE) != selectedSchedule.id ||
-            webView.restoreState(savedInstanceState) == null) {
-            loadScheduleSite()
-        }
+    override fun onStart() {
+        super.onStart()
+        ContextCompat.registerReceiver(
+            this, websiteUpdatedReceiver, IntentFilter(ScheduleSyncWorker.ACTION_WEBSITE_UPDATED),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+    }
+
+    override fun onStop() {
+        unregisterReceiver(websiteUpdatedReceiver)
+        super.onStop()
     }
 
     override fun onResume() {
@@ -110,18 +130,12 @@ class MainActivity : AppCompatActivity() {
         webView.onResume()
         applySystemBarAppearance(isSystemDark())
         val profile = SchedulePreferences.selected(applicationContext)
-        if (profile != selectedSchedule) applySchedule(profile)
+        if (profile != selectedSchedule) applySchedule(profile) else refreshScheduleData()
     }
 
     override fun onPause() {
         webView.onPause()
         super.onPause()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        webView.saveState(outState)
-        outState.putString(STATE_PROFILE, selectedSchedule.id)
-        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
@@ -140,7 +154,7 @@ class MainActivity : AppCompatActivity() {
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
-            cacheMode = WebSettings.LOAD_DEFAULT
+            cacheMode = WebSettings.LOAD_NO_CACHE
             setSupportZoom(false)
             builtInZoomControls = false
             displayZoomControls = false
@@ -216,7 +230,10 @@ class MainActivity : AppCompatActivity() {
                 setPadding(0, 12.dp, 0, 0)
                 text = getString(R.string.try_again)
                 contentDescription = getString(R.string.retry_loading_schedule)
-                setOnClickListener { loadScheduleSite(forceNetwork = true) }
+                setOnClickListener {
+                    loadScheduleSite()
+                    refreshScheduleData()
+                }
             }
             offlineCard.addView(
                 LinearLayout(this@MainActivity).apply {
@@ -279,29 +296,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadScheduleSite(forceNetwork: Boolean = false) {
-        loadGeneration++
-        cacheFallbackAttempted = false
+    private fun loadScheduleSite() {
+        val generation = ++loadGeneration
+        val profile = selectedSchedule
         showingLocalScheduleFallback = false
         hideOfflineNotice()
         showLoading(true)
-        webView.settings.cacheMode = when {
-            forceNetwork -> WebSettings.LOAD_NO_CACHE
-            isNetworkAvailable() -> WebSettings.LOAD_DEFAULT
-            else -> WebSettings.LOAD_CACHE_ELSE_NETWORK
+        ioExecutor.execute {
+            val snapshot = runCatching { WebsiteCache.read(applicationContext, profile) }.getOrNull()
+            runOnUiThread {
+                if (isDestroyed || isFinishing || generation != loadGeneration) return@runOnUiThread
+                if (snapshot == null) {
+                    renderLocalScheduleFallback(getString(R.string.schedule_site_unavailable))
+                } else {
+                    loadedWebsite = LoadedWebsite(profile, snapshot)
+                    webView.loadUrl(profile.offlineUrl)
+                }
+            }
         }
-        webView.loadUrl(selectedSchedule.siteUrl)
-    }
-
-    private fun showCachedScheduleFallback() {
-        if (cacheFallbackAttempted) {
-            renderLocalScheduleFallback(getString(R.string.schedule_site_unavailable))
-            return
-        }
-        cacheFallbackAttempted = true
-        showOfflineNotice(getString(R.string.offline_loading_saved_schedule))
-        webView.settings.cacheMode = WebSettings.LOAD_CACHE_ELSE_NETWORK
-        webView.loadUrl(selectedSchedule.siteUrl)
     }
 
     private fun renderLocalScheduleFallback(message: String) {
@@ -314,7 +326,7 @@ class MainActivity : AppCompatActivity() {
             runOnUiThread {
                 if (isDestroyed || isFinishing || generation != loadGeneration) return@runOnUiThread
                 showLoading(false)
-                webView.loadDataWithBaseURL(profile.siteUrl, html, "text/html", "UTF-8", null)
+                webView.loadDataWithBaseURL(profile.offlineUrl, html, "text/html", "UTF-8", null)
                 showOfflineNotice(message)
             }
         }
@@ -337,7 +349,7 @@ class MainActivity : AppCompatActivity() {
             setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     MENU_REFRESH -> {
-                        loadScheduleSite(forceNetwork = true)
+                        loadScheduleSite()
                         refreshScheduleData()
                         Toast.makeText(
                             this@MainActivity,
@@ -455,17 +467,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isNetworkAvailable(): Boolean {
-        val manager = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = manager.activeNetwork ?: return false
-        val capabilities = manager.getNetworkCapabilities(network) ?: return false
-        return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-    }
-
     private fun isTrustedScheduleUrl(uri: Uri): Boolean =
         uri.scheme.equals("https", ignoreCase = true) &&
-            uri.host.equals(selectedSchedule.host, ignoreCase = true) &&
+            uri.host.equals(selectedSchedule.offlineHost, ignoreCase = true) &&
             (uri.port == -1 || uri.port == 443)
 
     private fun isSystemDark(): Boolean =
@@ -511,6 +515,38 @@ class MainActivity : AppCompatActivity() {
         get() = (this * resources.displayMetrics.density).roundToInt()
 
     private inner class ScheduleWebViewClient : WebViewClient() {
+        override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse {
+            val website = loadedWebsite
+            val uri = request.url
+            val url = if (website != null && uri.scheme == "https" &&
+                uri.host == website.profile.offlineHost && (uri.port == -1 || uri.port == 443)) {
+                val path = uri.encodedPath.orEmpty().ifEmpty { "/" }
+                if (path == "/" || path == "/index.html") website.profile.siteUrl
+                else website.profile.siteUrl.trimEnd('/') + path +
+                    (uri.encodedQuery?.let { "?$it" } ?: "")
+            } else uri.toString().substringBefore('#')
+            val resource = website?.snapshot?.resources?.get(url)
+            // All subresources come from the snapshot; WebView never downloads a partial revision.
+            if (resource == null || request.method != "GET" || url.endsWith("/sw.js")) {
+                return WebResourceResponse(
+                    "text/plain", "UTF-8", 404, "Not Found", emptyMap(),
+                    ByteArrayInputStream(ByteArray(0)),
+                )
+            }
+            val bytes = if (resource.mimeType == "text/html") {
+                WebsiteSnapshot.htmlForWebView(resource)
+            } else resource.bytes
+            return WebResourceResponse(
+                resource.mimeType, if (resource.mimeType.startsWith("text/") ||
+                    resource.mimeType.contains("json") || resource.mimeType.contains("javascript")) "UTF-8" else null,
+                200, "OK", mapOf(
+                    "Cache-Control" to "no-store",
+                    "Access-Control-Allow-Origin" to "*",
+                    "Content-Security-Policy" to "worker-src 'none'",
+                ), ByteArrayInputStream(bytes),
+            )
+        }
+
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             if (isTrustedScheduleUrl(request.url)) return false
             if (request.isForMainFrame) openExternally(request.url)
@@ -521,7 +557,7 @@ class MainActivity : AppCompatActivity() {
             super.onPageFinished(view, url)
             if (!isTrustedScheduleUrl(url.toUri())) return
             showLoading(false)
-            if (!showingLocalScheduleFallback && isNetworkAvailable()) {
+            if (!showingLocalScheduleFallback) {
                 hideOfflineNotice()
             }
         }
@@ -532,7 +568,9 @@ class MainActivity : AppCompatActivity() {
             error: WebResourceError,
         ) {
             super.onReceivedError(view, request, error)
-            if (request.isForMainFrame && isTrustedScheduleUrl(request.url)) showCachedScheduleFallback()
+            if (request.isForMainFrame && isTrustedScheduleUrl(request.url)) {
+                renderLocalScheduleFallback(getString(R.string.schedule_site_unavailable))
+            }
         }
 
         override fun onReceivedHttpError(
@@ -542,7 +580,7 @@ class MainActivity : AppCompatActivity() {
         ) {
             super.onReceivedHttpError(view, request, errorResponse)
             if (request.isForMainFrame && isTrustedScheduleUrl(request.url) && errorResponse.statusCode >= 400) {
-                showCachedScheduleFallback()
+                renderLocalScheduleFallback(getString(R.string.schedule_site_unavailable))
             }
         }
 

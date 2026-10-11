@@ -71,7 +71,7 @@ abstract class ClassScheduleGlanceWidgetReceiver : GlanceAppWidgetReceiver() {
         super.onDisabled(context)
         if (!WidgetProviderRegistry.hasWidgets(context.applicationContext)) {
             WidgetRefreshScheduler.cancel(context.applicationContext)
-            ScheduleSyncWorker.cancelPeriodic(context)
+            // Website synchronization also serves the app when no widgets remain.
         }
     }
 }

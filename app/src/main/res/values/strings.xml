@@ -75,7 +75,6 @@
     <string name="schedule_options">Schedule options</string>
     <string name="more_options_symbol" translatable="false">⋮</string>
     <string name="schedule_site_unavailable">The schedule site is unavailable. Showing the schedule available on this device.</string>
-    <string name="offline_loading_saved_schedule">You’re offline. Loading the latest website version saved on this device.</string>
     <string name="refreshing_schedule">Refreshing schedule</string>
     <string name="about_message">Your schedule website, with offline data and a glanceable home-screen widget.</string>
     <string name="use_widget_picker">Use your home-screen widget picker to add Class Schedule.</string>

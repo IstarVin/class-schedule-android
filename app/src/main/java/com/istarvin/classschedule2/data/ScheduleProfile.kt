@@ -18,6 +18,9 @@ enum class ScheduleProfile(
     SUE("sue", R.string.schedule_sue, "sue.ajschedule.pages.dev", "schedule_sue.json", "schedule_cache_metadata_sue");
 
     val siteUrl: String get() = "https://$host/"
+    // A private HTTPS origin avoids existing remote service-worker caches and separates profile settings.
+    val offlineHost: String get() = "$id.classschedule.invalid"
+    val offlineUrl: String get() = "https://$offlineHost/"
     val remoteUrl: String get() = if (this == ALVIN) "${siteUrl}schedule.json" else siteUrl
 
     companion object {

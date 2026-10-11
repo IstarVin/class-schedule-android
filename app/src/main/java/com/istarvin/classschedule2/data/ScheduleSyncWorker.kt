@@ -1,6 +1,7 @@
 package com.istarvin.classschedule2.data
 
 import android.content.Context
+import android.content.Intent
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
@@ -28,24 +29,27 @@ class ScheduleSyncWorker(
         // A queued manual refresh belongs to the profile selected when it was requested.
         val profile = inputData.getString(KEY_PROFILE)?.let(ScheduleProfile::fromId)
             ?: SchedulePreferences.selected(applicationContext)
-        return when (ScheduleCache.refresh(applicationContext, profile)) {
-            is ScheduleCache.RefreshResult.Updated,
-            is ScheduleCache.RefreshResult.NotModified -> {
-                WidgetUpdateCoordinator.updateAll(applicationContext)
-                Result.success()
-            }
-
-            is ScheduleCache.RefreshResult.Failed -> {
-                if (runAttemptCount < MAX_RETRY_ATTEMPTS) Result.retry() else Result.failure()
-            }
+        if (WebsiteCache.refresh(applicationContext, profile)) {
+            WidgetUpdateCoordinator.updateAll(applicationContext)
+            applicationContext.sendBroadcast(
+                Intent(ACTION_WEBSITE_UPDATED).setPackage(applicationContext.packageName)
+                    .putExtra(KEY_PROFILE, profile.id),
+            )
+            return Result.success()
         }
+        // Widget data can still refresh if an optional website asset is unavailable.
+        if (ScheduleCache.refresh(applicationContext, profile) !is ScheduleCache.RefreshResult.Failed) {
+            WidgetUpdateCoordinator.updateAll(applicationContext)
+        }
+        return if (runAttemptCount < MAX_RETRY_ATTEMPTS) Result.retry() else Result.failure()
     }
 
     companion object {
         private const val UNIQUE_MANUAL_SYNC = "class_schedule_manual_sync"
         private const val UNIQUE_PERIODIC_SYNC = "class_schedule_periodic_sync"
         private const val MAX_RETRY_ATTEMPTS = 3
-        private const val KEY_PROFILE = "schedule_profile"
+        const val KEY_PROFILE = "schedule_profile"
+        const val ACTION_WEBSITE_UPDATED = "com.istarvin.classschedule2.action.WEBSITE_UPDATED"
 
         private val networkConstraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -66,18 +70,19 @@ class ScheduleSyncWorker(
 
         /** A gentle sync cadence complements exact-ish class-boundary widget updates. */
         fun ensurePeriodic(context: Context) {
-            val request = PeriodicWorkRequestBuilder<ScheduleSyncWorker>(6, TimeUnit.HOURS)
-                .setConstraints(networkConstraints)
-                .build()
-            WorkManager.getInstance(context.applicationContext).enqueueUniquePeriodicWork(
-                UNIQUE_PERIODIC_SYNC,
-                ExistingPeriodicWorkPolicy.KEEP,
-                request,
-            )
-        }
-
-        fun cancelPeriodic(context: Context) {
-            WorkManager.getInstance(context.applicationContext).cancelUniqueWork(UNIQUE_PERIODIC_SYNC)
+            val manager = WorkManager.getInstance(context.applicationContext)
+            manager.cancelUniqueWork(UNIQUE_PERIODIC_SYNC) // Migrate the old selected-profile-only job.
+            ScheduleProfile.entries.forEach { profile ->
+                val request = PeriodicWorkRequestBuilder<ScheduleSyncWorker>(6, TimeUnit.HOURS)
+                    .setConstraints(networkConstraints)
+                    .setInputData(workDataOf(KEY_PROFILE to profile.id))
+                    .build()
+                manager.enqueueUniquePeriodicWork(
+                    "${UNIQUE_PERIODIC_SYNC}_${profile.id}",
+                    ExistingPeriodicWorkPolicy.KEEP,
+                    request,
+                )
+            }
         }
     }
 }

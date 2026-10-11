@@ -77,6 +77,20 @@ object ScheduleCache {
             .getSharedPreferences(profile.metadataPreferencesName, Context.MODE_PRIVATE)
             .getLong(KEY_LAST_UPDATED, 0L)
 
+    /** A complete website refresh uses the identical validated schedule for widgets. */
+    @WorkerThread
+    internal fun saveWebsiteSchedule(context: Context, profile: ScheduleProfile, json: String) {
+        val validated = ScheduleSourceParser.parse(json).toByteArray(StandardCharsets.UTF_8)
+        synchronized(this) {
+            writeAtomically(file(context, profile), validated)
+            context.getSharedPreferences(profile.metadataPreferencesName, Context.MODE_PRIVATE).edit {
+                putLong(KEY_LAST_UPDATED, System.currentTimeMillis())
+                // Website downloads do not use the JSON endpoint's HTTP validator.
+                remove(KEY_ETAG)
+            }
+        }
+    }
+
     /**
      * Downloads the profile's source and replaces its local JSON cache only
      * after both its schema and complete bytes have been verified. Invoke this
