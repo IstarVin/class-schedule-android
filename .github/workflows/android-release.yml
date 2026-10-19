@@ -43,8 +43,10 @@ jobs:
             gradle/wrapper/gradle-wrapper.properties
             gradle.properties
 
-      - name: Install Android SDK packages
-        run: sdkmanager 'platforms;android-37' 'build-tools;36.0.0' 'platform-tools'
+      - name: Set up Android SDK and install packages
+        uses: android-actions/setup-android@v4.0.4
+        with:
+          packages: 'platform-tools platforms;android-37 build-tools;36.0.0'
 
       - name: Prepare release signing
         env:
