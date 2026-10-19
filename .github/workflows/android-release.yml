@@ -1,0 +1,114 @@
+name: Android release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build signed Android release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Java
+        uses: actions/setup-java@v6.1.0
+        with:
+          distribution: temurin
+          # Matches gradle/gradle-daemon-jvm.properties.
+          java-version: '25'
+          cache: gradle
+          cache-dependency-path: |
+            **/*.gradle.kts
+            gradle/*.toml
+            gradle/*.properties
+            gradle/wrapper/gradle-wrapper.properties
+            gradle.properties
+
+      - name: Install Android SDK packages
+        run: sdkmanager 'platforms;android-37' 'build-tools;36.0.0' 'platform-tools'
+
+      - name: Prepare release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          for secret in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [[ -z "${!secret}" ]]; then
+              echo "::error::Missing required repository secret: $secret"
+              exit 1
+            fi
+          done
+          umask 077
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Test, lint, and build release APK and app bundle
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ runner.temp }}/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        # Avoid persisting signing credentials in the configuration cache.
+        run: >-
+          ./gradlew --no-daemon --no-configuration-cache
+          testDebugUnitTest lintDebug lintRelease assembleRelease bundleRelease
+
+      - name: Remove signing keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.keystore"
+
+      - name: Prepare release files
+        run: |
+          mkdir -p "$RUNNER_TEMP/release-package"
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/release-package/class-schedule.apk"
+          cp app/build/outputs/bundle/release/app-release.aab "$RUNNER_TEMP/release-package/class-schedule.aab"
+          cp app/build/outputs/mapping/release/mapping.txt "$RUNNER_TEMP/release-package/mapping.txt"
+          cd "$RUNNER_TEMP/release-package"
+          sha256sum class-schedule.apk class-schedule.aab mapping.txt > SHA256SUMS
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: android-release-${{ github.run_number }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/release-package/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          files=("$RUNNER_TEMP"/release-package/*)
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "${files[@]}" --clobber
+          else
+            flags=()
+            if [[ "$GITHUB_REF_NAME" == *-* ]]; then
+              flags+=(--prerelease)
+            fi
+            gh release create "$GITHUB_REF_NAME" "${files[@]}" \
+              --verify-tag --generate-notes --title "$GITHUB_REF_NAME" "${flags[@]}"
+          fi

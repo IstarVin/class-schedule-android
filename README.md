@@ -52,6 +52,38 @@ Each profile uses its own private HTTPS WebView origin and local storage. WebVie
 
 Release builds use the signing values in the root-level `keystore.properties` file. Keep that file and the referenced keystore out of version control.
 
+## Android releases with GitHub Actions
+
+The [Android release workflow](.github/workflows/android-release.yml) runs unit tests and debug/release lint, then builds a signed APK and Android App Bundle using Java 25 and Android SDK 37. It packages the checked-in website assets; refresh and review those assets before tagging if needed.
+
+Add these repository secrets under **Settings → Secrets and variables → Actions**:
+
+| Secret | Value |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | Base64 encoding of your existing release keystore. |
+| `ANDROID_KEYSTORE_PASSWORD` | Keystore password (`storePassword`). |
+| `ANDROID_KEY_ALIAS` | Signing key alias (`keyAlias`). |
+| `ANDROID_KEY_PASSWORD` | Signing key password (`keyPassword`). |
+
+For example, create a local file to copy into `ANDROID_KEYSTORE_BASE64` (Linux):
+
+```bash
+base64 -w 0 /path/to/release.jks > /tmp/android-keystore.base64
+```
+
+Use the same signing key for future app updates. In CI, environment variables supply signing values directly; local builds continue to read `keystore.properties`.
+
+Before each release, update `versionCode` and `versionName` in `app/build.gradle.kts`, commit the changes, and push a version tag:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Tags beginning with `v` publish a GitHub Release containing `class-schedule.apk`, `class-schedule.aab`, the R8 `mapping.txt`, and `SHA256SUMS`. Tags containing a hyphen, such as `v1.1.0-beta.1`, publish a prerelease. Rerunning a tag build replaces its release attachments.
+
+You can also run **Actions → Android release → Run workflow** to build the selected branch without publishing a GitHub Release. Each successful run keeps the files as an Actions artifact for 30 days. The AAB is available for manual Play Console upload; this workflow does not upload to Google Play. Dependabot checks action versions weekly.
+
 ## Using the widget
 
 1. Install and open Class Schedule once so the bundled schedule is initialized.
