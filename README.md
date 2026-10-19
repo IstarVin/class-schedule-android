@@ -80,9 +80,9 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-Tags beginning with `v` publish a GitHub Release containing `class-schedule.apk`, `class-schedule.aab`, the R8 `mapping.txt`, and `SHA256SUMS`. Tags containing a hyphen, such as `v1.1.0-beta.1`, publish a prerelease. Rerunning a tag build replaces its release attachments.
+Tags beginning with `v` publish a GitHub Release containing `ClassSchedule-<versionName>.apk`, `ClassSchedule-<versionName>.aab`, the R8 `mapping.txt`, and `SHA256SUMS`. Separate jobs build and publish the release. Tags containing a hyphen, such as `v1.1.0-beta.1`, publish a prerelease. Rerunning a tag build replaces matching release attachments.
 
-You can also run **Actions → Android release → Run workflow** to build the selected branch without publishing a GitHub Release. Each successful run keeps the files as an Actions artifact for 30 days. The AAB is available for manual Play Console upload; this workflow does not upload to Google Play. Dependabot checks action versions weekly.
+You can also run **Actions → Android release → Run workflow**. Leave `tag_name` empty to build the selected branch without publishing, or enter an existing `v*` tag to build that tag's source and publish its GitHub Release. Each successful build keeps the files as an Actions artifact for 30 days. The AAB is available for manual Play Console upload; this workflow does not upload to Google Play. Dependabot checks action versions weekly.
 
 ## Using the widget
 
